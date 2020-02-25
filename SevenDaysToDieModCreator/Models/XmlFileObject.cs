@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace SevenDaysToDieModCreator.Models
 {
-    internal class XmlFileObject
+    public class XmlFileObject
     {
         public string FileName { get; private set; }
         public XmlDocument xmlDocument { get; private set; }

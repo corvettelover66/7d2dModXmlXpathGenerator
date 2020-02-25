@@ -5,9 +5,8 @@ using System.Xml;
 
 namespace SevenDaysToDieModCreator.Models
 {
-    class XmlObjectsListWrapper
+    public class XmlObjectsListWrapper
     {
-        public int objectViewCounter { get; set; } = 0;
         public string TopTagName { get; private set; }
         public string FirstChildTagName { get; private set; }
 
