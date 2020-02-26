@@ -11,7 +11,26 @@ namespace SevenDaysToDieModCreator.Models
     {
         public static string MyCustomTagName { get; set; } = "ThisNeedsToBeSet";
         public static string CustomTagFileName { get; private set; } = "customtag.txt";
-        
+
+        public static string GenerateXmlByTarget(StackPanel newObjectFormsPanel, XmlObjectsListWrapper xmlObjectsListWrapper, string startNodeName, bool insertExistingFileContents = false)
+        {
+            string xmlOut = "<" + MyCustomTagName + ">\n";
+
+            foreach (Control nextChild in newObjectFormsPanel.Children)
+            {
+                if (nextChild.GetType() == typeof(TreeViewItem))
+                {
+                    TreeViewItem nextChildAsTree = (TreeViewItem)nextChild;
+                    Button nextChildTreeButton = (Button)nextChildAsTree.Header;
+                    if (nextChildTreeButton.Content.ToString().Equals(startNodeName))
+                    {
+                        xmlOut += GenerateAppendXmlForObject(xmlObjectsListWrapper, nextChildAsTree, startNodeName);
+                    }
+                }
+            }
+            if (insertExistingFileContents) xmlOut += ReadExistingFileWithoutTopTag(xmlObjectsListWrapper.xmlFile.FileName);
+            return xmlOut + "</" + MyCustomTagName + ">";
+        }
         public static string GenerateXmlByWrapper(StackPanel newObjectFormsPanel, XmlObjectsListWrapper xmlObjectsListWrapper, bool insertExistingFileContents = false)
         {
             string xmlOut ="<"+ MyCustomTagName+">\n";

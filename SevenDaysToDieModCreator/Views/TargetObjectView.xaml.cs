@@ -24,11 +24,18 @@ namespace SevenDaysToDieModCreator.Views
 
         public RecipePerkTagetController myController { get; set; }
 
-        public TargetObjectView(TreeViewItem newObjectFormTree, List<ComboBox> recentComboBoxList, XmlObjectsListWrapper wrapperToUse)
+        public TargetObjectView(TreeViewItem newObjectFormTree, List<ComboBox> recentComboBoxList, XmlObjectsListWrapper wrapperToUse, string tagAttributeNameValue)
         {
             InitializeComponent();
             this.newObjectFormTree = newObjectFormTree;
             this.currentWrapper = wrapperToUse;
+            GeneratedViewPanel.Tag = XmlXpathGenerator.MyCustomTagName;
+            Button formTreeButton = (Button)this.newObjectFormTree.Header;
+            Label generatedViewLabel = new Label { 
+                Content = "Create new "+ formTreeButton.Content + " in  " + tagAttributeNameValue,
+                FontSize = 25
+            };
+            GeneratedViewPanel.Children.Add(generatedViewLabel);
             GeneratedViewPanel.Children.Add(this.newObjectFormTree);
             ResetComboBoxLostFocus(recentComboBoxList);
             //GenerateXML
@@ -47,7 +54,8 @@ namespace SevenDaysToDieModCreator.Views
 
         private void TargetObjectViewComboBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlByWrapper(this.GeneratedViewPanel, this.currentWrapper) ;
+            Button formTreeButton = (Button)this.newObjectFormTree.Header;
+            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlByTarget(this.GeneratedViewPanel, this.currentWrapper, formTreeButton.Content+"") ;
         }
 
         private void GenerateViewComponents()

@@ -4,11 +4,14 @@ using SevenDaysToDieModCreator.Models;
 using SevenDaysToDieModCreator.Views;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Input;
 using System.Xml;
 
 namespace SevenDaysToDieModCreator.Controllers
@@ -22,7 +25,8 @@ namespace SevenDaysToDieModCreator.Controllers
 
         public List<XmlObjectsListWrapper> listWrappersInObjectView { get; private set; }
         public List<XmlObjectsListWrapper> listWrappersInTreeView { get; private set; }
-        public List<ComboBox> recentComboBoxList { get; private set; }
+
+        private List<ComboBox> recentComboBoxList { get; set; }
 
         //A dictionary for finding XmlListWrappers by filename
         //Key top tag name i.e. recipe, progression, item
@@ -302,29 +306,119 @@ namespace SevenDaysToDieModCreator.Controllers
                 IsExpanded = true,
                 FontSize = FONT_SIZE
             };
-            topObjectsTreeView = SetObjectTreeView(topObjectsTreeView, allObjects, xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension());
+            topObjectsTreeView = SetObjectTreeView(topObjectsTreeView, allObjects, xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension(), xmlObjectListWrapper);
             return topObjectsTreeView;
         }
-        private TreeViewItem SetObjectTreeView(TreeViewItem topObjectsTreeView, XmlNodeList allObjects, string wrapperKey)
+        private TreeViewItem SetObjectTreeView(TreeViewItem topObjectsTreeView, XmlNodeList allObjects, string wrapperName, XmlObjectsListWrapper xmlObjectListWrapper)
         {
             foreach (XmlNode nextObjectNode in allObjects) 
             {
-                TreeViewItem nextObject = SetNextObject(nextObjectNode, wrapperKey);
-                if(nextObject != null) topObjectsTreeView.Items.Add(nextObject);
+                TreeViewItem nextTreeView = SetNextObject(nextObjectNode, wrapperName, xmlObjectListWrapper);
+                if (nextTreeView != null) 
+                {
+                    topObjectsTreeView.Items.Add(nextTreeView);
+                }
             }
             return topObjectsTreeView;
         }
-        private TreeViewItem SetNextObject(XmlNode nextObjectNode, string wrapperKey) 
+        private TreeViewItem SetNextObject(XmlNode nextObjectNode, string wrapperKey, XmlObjectsListWrapper xmlObjectListWrapper) 
         {
             TreeViewItem nextObjectTreeViewItem = new TreeViewItem { FontSize = FONT_SIZE };
-            if (nextObjectNode.Attributes != null) nextObjectTreeViewItem = SetNextObjectTreeViewAtrributes(nextObjectNode.Attributes, nextObjectNode.Name, wrapperKey);
-            if (nextObjectNode.HasChildNodes) nextObjectTreeViewItem = SetObjectTreeView(nextObjectTreeViewItem, nextObjectNode.ChildNodes, wrapperKey);
+            if (nextObjectNode.Attributes != null)
+            {
+                nextObjectTreeViewItem = SetNextObjectTreeViewAtrributes(nextObjectNode.Attributes, nextObjectNode.Name);
+
+            }
+            if (nextObjectNode.HasChildNodes)
+            {
+                //If it is a first level tree we only need to set the first treenode with the search box (recipes)
+                if (nextObjectNode.Name.Equals(xmlObjectListWrapper.TopTagName) && xmlObjectListWrapper.allTopLevelTags.Count == 1)
+                {
+                    SetTreeViewSearchBoxHeader(nextObjectTreeViewItem, xmlObjectListWrapper, xmlObjectListWrapper.FirstChildTagName);
+                }
+                //If it is an edge case tree with multiple top levels we need to set it on all of those (progressions)
+                else if (xmlObjectListWrapper.allTopLevelTags.Count > 1 && xmlObjectListWrapper.allTopLevelTags.Contains(nextObjectNode.Name)) 
+                {
+                    List<string> children = xmlObjectListWrapper.objectNameToChildrenMap.GetValueOrDefault(nextObjectNode.Name);
+                    Dictionary<string, List<string>> attributesDictionary = null;
+                    if (children != null && children.Count > 0)  SetTreeViewSearchBoxHeader(nextObjectTreeViewItem, xmlObjectListWrapper, children[0]);
+                }
+                //It is an internal node make it a button with the target action
+                else
+                {
+                    Button makeObjectATargetButton = new Button { Content = nextObjectNode.Name + ":" + nextObjectTreeViewItem.Tag, Name = nextObjectNode.Name, Tag = wrapperKey };
+                    makeObjectATargetButton.AddOnHoverMessage("Click to make this an Xpath target for a new object ");
+                    makeObjectATargetButton.Width = 250;
+                    makeObjectATargetButton.Click += MakeObjectATargetButton_Click;
+                    nextObjectTreeViewItem.Header = makeObjectATargetButton;
+                }
+                nextObjectTreeViewItem = SetObjectTreeView(nextObjectTreeViewItem, nextObjectNode.ChildNodes, wrapperKey, xmlObjectListWrapper);
+            }
             if (nextObjectNode.Name.Contains("#") || nextObjectNode == null) nextObjectTreeViewItem = null;
             return nextObjectTreeViewItem;
         }
-        private TreeViewItem SetNextObjectTreeViewAtrributes(XmlAttributeCollection attributes, string objectNodeName, string wrapperKey)
+
+        private void SetTreeViewSearchBoxHeader(TreeViewItem nextObjectTreeViewItem, XmlObjectsListWrapper xmlObjectListWrapper, string firstChildTagName)
         {
-            TreeViewItem nextObjectTreeViewItem = new TreeViewItem { FontSize = FONT_SIZE - 5 };
+            Dictionary<string, List<string>> attributesDictionary = xmlObjectListWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(firstChildTagName);
+            List<string> attributeCommon = null;
+            if (attributesDictionary != null) attributeCommon = attributesDictionary.GetValueOrDefault("name");
+            if (attributeCommon != null)
+            {
+                ComboBox topTreeSearchBox = attributeCommon.CreateComboBoxList();
+                topTreeSearchBox.Width = 350;
+                topTreeSearchBox.FontSize = 20;
+                topTreeSearchBox.DropDownClosed += TopTreeSearchBox_LostKeyboard_Focus;
+                topTreeSearchBox.LostKeyboardFocus += TopTreeSearchBox_LostKeyboard_Focus;
+
+                nextObjectTreeViewItem.Header = topTreeSearchBox;
+                nextObjectTreeViewItem.IsExpanded = true;
+                topTreeSearchBox.AddOnHoverMessage("Search box for " + firstChildTagName + " you can type names here to filter the tree");
+            }
+        }
+
+        private void TopTreeSearchBox_LostKeyboard_Focus(object sender, EventArgs e)
+        {
+            ComboBox senderAsBox = (ComboBox)sender;
+            TreeViewItem topTreeView = (TreeViewItem)senderAsBox.Parent;
+            string contents = senderAsBox.Text;
+            List<TreeViewItem> children = GetChildren(topTreeView);
+            foreach (TreeViewItem nextTreeViewItem in children) 
+            {
+                if (!nextTreeViewItem.Tag.ToString().Contains(contents))
+                {
+                    nextTreeViewItem.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    nextTreeViewItem.Visibility = Visibility.Visible;
+                }
+            }
+        }
+        private List<TreeViewItem> GetChildren(TreeViewItem parent)
+        {
+            List<TreeViewItem> children = new List<TreeViewItem>();
+
+            if (parent != null)
+            {
+                foreach (var item in parent.Items)
+                {
+                    TreeViewItem child = item as TreeViewItem;
+
+                    if (child == null)
+                    {
+                        child = parent.ItemContainerGenerator.ContainerFromItem(child) as TreeViewItem;
+                    }
+
+                    if (child != null) children.Add(child);
+                }
+            }
+
+            return children;
+        }
+        private TreeViewItem SetNextObjectTreeViewAtrributes(XmlAttributeCollection attributes, string objectNodeName)
+        {
+            TreeViewItem nextObjectTreeViewItem = new TreeViewItem { FontSize = FONT_SIZE - 5  };
 
             foreach (XmlAttribute nextAttribute in attributes)
             {
@@ -333,13 +427,10 @@ namespace SevenDaysToDieModCreator.Controllers
                     Text = nextAttribute.Name + " = " + nextAttribute.Value,
                     IsReadOnly = true
                 };
-                if (nextAttribute.Name.Contains("name"))
+                if (nextAttribute.Name.Equals("name"))
                 {
-                    Button makeObjectATargetButton = new Button { Content = objectNodeName+"{"+nextAttribute.Value+"}", Name = objectNodeName, Tag = wrapperKey };
-                    makeObjectATargetButton.AddOnHoverMessage("Click to make this an Xpath target ");
-                    makeObjectATargetButton.Width = 250;
-                    makeObjectATargetButton.Click += MakeObjectATargetButton_Click; 
-                    nextObjectTreeViewItem.Header = makeObjectATargetButton;
+                    nextObjectTreeViewItem.Header = objectNodeName + " : " + nextAttribute.Value;
+                    nextObjectTreeViewItem.Tag = nextAttribute.Value;
                 }
                 if (!nextAttribute.Name.Contains("#whitespace"))
                 {
@@ -361,12 +452,12 @@ namespace SevenDaysToDieModCreator.Controllers
             XmlObjectsListWrapper wrapperToUse = this.loadedListWrappers.GetValueOrDefault(senderAsButton.Tag.ToString());
             TreeViewItem newObjectFormTree = GenerateNewObjectFormTreeAddButton(wrapperToUse, senderAsButton.Name, senderAsButton.Name);
 
-            OpenTargetDialogWindow(newObjectFormTree, wrapperToUse);
+            OpenTargetDialogWindow(newObjectFormTree, wrapperToUse, senderAsButton.Content.ToString().Split(":")[1]);
         }
 
-        private void OpenTargetDialogWindow(TreeViewItem newObjectFormTree, XmlObjectsListWrapper wrapperToUse)
+        private void OpenTargetDialogWindow(TreeViewItem newObjectFormTree, XmlObjectsListWrapper wrapperToUse, string tagAttributeNameValue)
         {
-            var dialog = new TargetObjectView(newObjectFormTree, this.recentComboBoxList, wrapperToUse);
+            var dialog = new TargetObjectView(newObjectFormTree, this.recentComboBoxList, wrapperToUse, tagAttributeNameValue);
             if (dialog.ShowDialog() == true)
             {
                 try

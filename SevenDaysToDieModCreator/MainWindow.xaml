@@ -71,6 +71,7 @@
                         </StackPanel>
                     </Grid>
                     <Grid Margin="0,68,0,51" Grid.RowSpan="3">
+                        
                         <ScrollViewer Name="ViewScroller" HorizontalContentAlignment="Right">
                             <StackPanel Name="ViewSp">
                             </StackPanel>

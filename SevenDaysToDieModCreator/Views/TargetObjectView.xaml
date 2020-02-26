@@ -7,15 +7,25 @@
         mc:Ignorable="d"
         Title="Existing Object Target Creation" >
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalContentAlignment="Center"  VerticalAlignment="Top" >
-            <Grid VerticalAlignment="Top">
-                <StackPanel Name="GeneratedViewPanel" VerticalAlignment="Bottom">
-                    <TextBox x:Name="XmlOutputBox" FontSize="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalContentAlignment="Center"  VerticalAlignment="Top" >
+                <Grid VerticalAlignment="Top">
+                    <StackPanel Name="GeneratedViewPanel" VerticalAlignment="Bottom">
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+        <Grid Grid.Column="1">
+            <StackPanel VerticalAlignment="Bottom">
+                <TextBox x:Name="XmlOutputBox" FontSize="20">
 
-                    </TextBox>
-                    <Button Name="SaveXmlButton" Click="SaveXmlButton_Click" Content="Save XML"></Button>
-                </StackPanel>
-            </Grid>
-        </ScrollViewer>
+                </TextBox>
+                <Button Name="SaveXmlButton" Click="SaveXmlButton_Click" Content="Save XML"></Button>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>
