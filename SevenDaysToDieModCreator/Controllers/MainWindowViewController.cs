@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -28,6 +29,7 @@ namespace SevenDaysToDieModCreator.Controllers
 
         private List<ComboBox> recentComboBoxList { get; set; }
 
+        private Dictionary<string, List<TreeViewItem>> removedTreeViews { get; set; }
         //A dictionary for finding XmlListWrappers by filename
         //Key top tag name i.e. recipe, progression, item
         //The corressponding list wrapper
@@ -48,6 +50,7 @@ namespace SevenDaysToDieModCreator.Controllers
             this.listWrappersInObjectView = new List<XmlObjectsListWrapper>();
             this.listWrappersInTreeView = new List<XmlObjectsListWrapper>();
             this.recentComboBoxList = new List<ComboBox>();
+            this.removedTreeViews = new Dictionary<string, List<TreeViewItem>>();
             this.newObjectFormsPanel = createView;
             this.xmlOutBlock = xmlOutBlock;
         }
@@ -366,33 +369,68 @@ namespace SevenDaysToDieModCreator.Controllers
             if (attributeCommon != null)
             {
                 ComboBox topTreeSearchBox = attributeCommon.CreateComboBoxList();
-                topTreeSearchBox.Width = 350;
-                topTreeSearchBox.FontSize = 20;
-                topTreeSearchBox.DropDownClosed += TopTreeSearchBox_LostKeyboard_Focus;
+                topTreeSearchBox.Width = 250;
+                topTreeSearchBox.FontSize = 18;
                 topTreeSearchBox.LostKeyboardFocus += TopTreeSearchBox_LostKeyboard_Focus;
-
+                topTreeSearchBox.DropDownClosed += TopTreeSearchBox_LostKeyboard_Focus;
+                topTreeSearchBox.PreviewKeyDown += TopTreeSearchBox_KeyDown_Focus;
+                topTreeSearchBox.Tag = xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension();
                 nextObjectTreeViewItem.Header = topTreeSearchBox;
                 nextObjectTreeViewItem.IsExpanded = true;
-                topTreeSearchBox.AddOnHoverMessage("Search box for " + firstChildTagName + " you can type names here to filter the tree");
+                topTreeSearchBox.AddOnHoverMessage("Here you can filter the list of " + firstChildTagName + " objects by typing in single keywords\n" +
+                    "Examples:resource, resourceScrap");
             }
         }
 
+        private void TopTreeSearchBox_KeyDown_Focus(object sender, KeyEventArgs e)
+        {
+            ComboBox senderAsBox = (ComboBox)sender;
+            if (e.Key == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Return)
+            {
+                XmlObjectsListWrapper currentWrapper = this.loadedListWrappers.GetValueOrDefault(senderAsBox.Tag.ToString());
+                SearchBoxUpdate(sender, this.removedTreeViews.GetValueOrDefault(currentWrapper.xmlFile.GetFileNameWithoutExtension()));
+            }
+        }
         private void TopTreeSearchBox_LostKeyboard_Focus(object sender, EventArgs e)
+        {
+            ComboBox senderAsComboBox = (ComboBox)sender;
+            XmlObjectsListWrapper currentWrapper = this.loadedListWrappers.GetValueOrDefault(senderAsComboBox.Tag.ToString());
+            List<TreeViewItem> removedTreeList = this.removedTreeViews.GetValueOrDefault(currentWrapper.xmlFile.GetFileNameWithoutExtension());
+            if (removedTreeList == null)
+            {
+                removedTreeList = new List<TreeViewItem>();
+                this.removedTreeViews.Add(currentWrapper.xmlFile.GetFileNameWithoutExtension(), removedTreeList);
+            }
+            SearchBoxUpdate(sender, removedTreeList);
+        }
+        private void SearchBoxUpdate(object sender, List<TreeViewItem> removedTreeViews) 
         {
             ComboBox senderAsBox = (ComboBox)sender;
             TreeViewItem topTreeView = (TreeViewItem)senderAsBox.Parent;
+            foreach (TreeViewItem removedTreeView in removedTreeViews)
+            {
+                topTreeView.Items.Add(removedTreeView);
+            }
+            removedTreeViews.Clear();
             string contents = senderAsBox.Text;
             List<TreeViewItem> children = GetChildren(topTreeView);
-            foreach (TreeViewItem nextTreeViewItem in children) 
+            List<TreeViewItem> treesToAdd = new List<TreeViewItem>();
+            foreach (TreeViewItem nextTreeViewItem in children)
             {
-                if (!nextTreeViewItem.Tag.ToString().Contains(contents))
+                if (nextTreeViewItem.Tag.ToString().ToLower().Contains(contents.ToLower()))
                 {
-                    nextTreeViewItem.Visibility = Visibility.Hidden;
+                    treesToAdd.Add(nextTreeViewItem);
                 }
+                //if the object should be removed
                 else
                 {
-                    nextTreeViewItem.Visibility = Visibility.Visible;
+                    removedTreeViews.Add(nextTreeViewItem);
                 }
+            }
+            topTreeView.Items.Clear();
+            foreach (TreeViewItem treeViewItem in treesToAdd)
+            {
+                topTreeView.Items.Add(treeViewItem);
             }
         }
         private List<TreeViewItem> GetChildren(TreeViewItem parent)
@@ -451,8 +489,12 @@ namespace SevenDaysToDieModCreator.Controllers
             Button senderAsButton = (Button)sender;
             XmlObjectsListWrapper wrapperToUse = this.loadedListWrappers.GetValueOrDefault(senderAsButton.Tag.ToString());
             TreeViewItem newObjectFormTree = GenerateNewObjectFormTreeAddButton(wrapperToUse, senderAsButton.Name, senderAsButton.Name);
-
-            OpenTargetDialogWindow(newObjectFormTree, wrapperToUse, senderAsButton.Content.ToString().Split(":")[1]);
+            newObjectFormTree.AddOnHoverMessage("In this object you can add new objects into the existing item\nE.G. You want to add an ingredient to an existing recipe");
+            string[] contentSplit =  senderAsButton.Content.ToString().Split(":");
+            if (contentSplit.Length > 1) newObjectFormTree.Header = senderAsButton.Content.ToString().Split(":")[1];
+            else newObjectFormTree.Header = ((Button)newObjectFormTree.Header).Content;
+            this.newObjectFormsPanel.Children.Add(newObjectFormTree);
+            //OpenTargetDialogWindow(newObjectFormTree, wrapperToUse, senderAsButton.Content.ToString().Split(":")[1]);
         }
 
         private void OpenTargetDialogWindow(TreeViewItem newObjectFormTree, XmlObjectsListWrapper wrapperToUse, string tagAttributeNameValue)
