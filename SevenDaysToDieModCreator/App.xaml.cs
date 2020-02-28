@@ -19,7 +19,7 @@ namespace SevenDaysToDieModCreator
 		private void Application_Startup(object sender, StartupEventArgs e)
 		{
 			//Show splash screen
-			MessageBox.Show("Making mods happen.......");
+			MessageBox.Show("Killing zombies or making mods?", "Making Mods", MessageBoxButton.OK, MessageBoxImage.Information);
 
 			MainWindow mwd = new MainWindow
 			{
