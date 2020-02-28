@@ -273,7 +273,8 @@ namespace SevenDaysToDieModCreator.Controllers
                 List<string> attributeCommon = xmlObjectListWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(currentTagName).GetValueOrDefault(nextAttribute);
                 ComboBox newAttributesComboBox = attributeCommon != null ? attributeCommon.CreateComboBoxList() : null;
                 newAttributesComboBox.Width = 300;
-                newAttributesComboBox.DropDownClosed += NewAttributesComboBox_IsKeyboardFocusedChanged;
+                newAttributesComboBox.DropDownClosed += NewAttributesComboBox_DropDownClosed;
+                newAttributesComboBox.LostFocus += NewAttributesComboBox_LostFocus;
                 newAttributesComboBox.Tag = nextAttribute;
                 newAttributesComboBox.AddOnHoverMessage("Here you can set the value of the "+ nextAttribute + " for the " + currentTagName);
                 if (newAttributesComboBox == null) newAttributesViewItem.Items.Add(new ComboBox());
@@ -286,21 +287,15 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             return newAttributesViewItem;
         }
-
-        private void NewAttributesComboBox_IsKeyboardFocusedChanged(object sender, EventArgs e)
+        //All the same  abstract away
+        private void NewAttributesComboBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            string addedViewTextStart = "WARNING: Direct text edits made here will NOT be saved.\n" +
-                "However, you may access the files at "+ XmlFileManager._ModPath +" and make direct changes there\n\n" +
-                "<!-- -------------------------------------- Current Unsaved XML ----------------------------------- -->\n\n";
-            string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
-            string allWrappersText = "<!-- SAVED DATA  -->\n\n";
-            string allGeneratedXml = "";
-            foreach (XmlObjectsListWrapper nextWrapper in this.listWrappersInObjectView) 
-            {
-                allWrappersText += XmlFileManager.GetFileContents(XmlFileManager._ModPath, (nextWrapper.xmlFile.FileName));
-                allGeneratedXml += XmlXpathGenerator.GenerateXmlWithWrapper(this.newObjectFormsPanel, nextWrapper);
-            }
-            this.xmlOutBlock.Text = addedViewTextStart + allGeneratedXml+ unsavedGeneratedXmlEnd + allWrappersText;
+            XmlXpathGenerator.GenerateXmlViewOutput(this.newObjectFormsPanel, this.listWrappersInObjectView, this.xmlOutBlock);
+        }
+
+        private void NewAttributesComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            XmlXpathGenerator.GenerateXmlViewOutput(this.newObjectFormsPanel, this.listWrappersInObjectView, this.xmlOutBlock);
         }
 
         public TreeViewItem GetObjectTreeViewRecursive(XmlObjectsListWrapper xmlObjectListWrapper) 
@@ -430,26 +425,21 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             foreach (ComboBox nextBox in recentComboBoxList)
             {
-                nextBox.DropDownClosed -= NewAttributesComboBox_IsKeyboardFocusedChanged;
+                nextBox.LostFocus -= NewAttributesComboBox_LostFocus;
+                nextBox.LostFocus += NextBox_LostFocus;
+                nextBox.DropDownClosed -= NewAttributesComboBox_DropDownClosed;
                 nextBox.DropDownClosed += TargetObjectViewComboBox_LostFocus;
             }
         }
 
+        private void NextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            XmlXpathGenerator.GenerateXmlViewOutput(this.newObjectFormsPanel, this.listWrappersInObjectView, this.xmlOutBlock);
+        }
+
         private void TargetObjectViewComboBox_LostFocus(object sender, EventArgs e)
         {
-            string addedViewTextStart = "WARNING: Direct text edits made here will NOT be saved.\n" +
-                "However, you may access the files at " + XmlFileManager._ModPath + " and make direct changes there\n\n" +
-                "<!-- -------------------------------------- Current Unsaved XML ----------------------------------- -->\n\n";
-            string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
-            string allWrappersText = "<!-- SAVED DATA  -->\n\n";
-            string allGeneratedXml = "";
-
-            foreach (XmlObjectsListWrapper nextWrapper in this.listWrappersInObjectView)
-            {
-                allWrappersText += XmlFileManager.GetFileContents(XmlFileManager._ModPath, (nextWrapper.xmlFile.FileName));
-                allGeneratedXml = XmlXpathGenerator.GenerateXmlWithWrapper(this.newObjectFormsPanel, nextWrapper);
-            }
-            this.xmlOutBlock.Text = addedViewTextStart + allGeneratedXml + unsavedGeneratedXmlEnd + allWrappersText;
+            XmlXpathGenerator.GenerateXmlViewOutput(this.newObjectFormsPanel, this.listWrappersInObjectView, this.xmlOutBlock);
         }
         private void TopTreeSearchBox_KeyDown_Focus(object sender, KeyEventArgs e)
         {
