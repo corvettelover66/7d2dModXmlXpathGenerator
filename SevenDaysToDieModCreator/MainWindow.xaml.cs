@@ -68,7 +68,7 @@ namespace SevenDaysToDieModCreator
         {
             foreach (XmlObjectsListWrapper xmlObjectsListWrapper in mainWindowViewController.listWrappersInObjectView)
             {
-                string xmltoWrite = XmlXpathGenerator.GenerateXmlByWrapper(NewObjectFormsPanel, xmlObjectsListWrapper);
+                string xmltoWrite = XmlXpathGenerator.GenerateXmlWithWrapper(NewObjectFormsPanel, xmlObjectsListWrapper, true);
                 if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite);
             }
             //SaveExternalXaml();
@@ -114,7 +114,11 @@ namespace SevenDaysToDieModCreator
         }
         private void ClearAllObjectView_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("Are you sure you want to clear the view?", "Clear Object View", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            MessageBoxResult result = MessageBox.Show(
+                "Are you sure you want to clear the view?\nYou will lose any unsaved work!\nTo save you must click the \"Save All Xml\" button.", 
+                "Clear Object View", 
+                MessageBoxButton.OKCancel, 
+                MessageBoxImage.Exclamation);
             switch (result)
             {
                 case MessageBoxResult.OK:

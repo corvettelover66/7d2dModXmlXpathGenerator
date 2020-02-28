@@ -55,7 +55,7 @@ namespace SevenDaysToDieModCreator.Views
         private void TargetObjectViewComboBox_LostFocus(object sender, RoutedEventArgs e)
         {
             Button formTreeButton = (Button)this.newObjectFormTree.Header;
-            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlByTarget(this.GeneratedViewPanel, this.currentWrapper, formTreeButton.Content+"") ;
+           // this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlByTarget(this.GeneratedViewPanel, this.currentWrapper, formTreeButton.Content+"") ;
         }
 
         private void GenerateViewComponents()
