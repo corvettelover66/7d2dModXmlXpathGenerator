@@ -77,6 +77,7 @@ namespace SevenDaysToDieModCreator.Controllers
             this.editFormsDictionaryCounter.Clear();
             this.newObjectFormsPanel.Children.Clear();
             this.listWrappersInObjectView.Clear();
+            XmlXpathGenerator.GenerateXmlViewOutput(newObjectFormsPanel, this.listWrappersInObjectView, this.xmlOutBlock);
         }
         public void Save()
         {
@@ -363,7 +364,7 @@ namespace SevenDaysToDieModCreator.Controllers
                         Content = nextObjectNode.Name + ":" + tagAttributeName, 
                         Name = wrapperKey, 
                         Tag = nextObjectNode };
-                    makeObjectATargetButton.AddOnHoverMessage("Click to make this an Xpath target for a new object ");
+                    makeObjectATargetButton.AddOnHoverMessage("Click here to make this a target for object insertion");
                     makeObjectATargetButton.Width = 250;
                     makeObjectATargetButton.Click += MakeObjectATargetButton_Click;
                     nextObjectTreeViewItem.Header = makeObjectATargetButton;
@@ -447,7 +448,13 @@ namespace SevenDaysToDieModCreator.Controllers
             if (e.Key == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Return)
             {
                 XmlObjectsListWrapper currentWrapper = this.loadedListWrappers.GetValueOrDefault(senderAsBox.Tag.ToString());
-                SearchBoxUpdate(sender, this.removedTreeViews.GetValueOrDefault(currentWrapper.xmlFile.GetFileNameWithoutExtension()));
+                List<TreeViewItem> removedTreeList =  this.removedTreeViews.GetValueOrDefault(currentWrapper.xmlFile.GetFileNameWithoutExtension());
+                if (removedTreeList == null)
+                {
+                    removedTreeList = new List<TreeViewItem>();
+                    this.removedTreeViews.Add(currentWrapper.xmlFile.GetFileNameWithoutExtension(), removedTreeList);
+                }
+                SearchBoxUpdate(sender, removedTreeList);
             }
         }
         private void TopTreeSearchBox_LostKeyboard_Focus(object sender, EventArgs e)

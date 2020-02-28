@@ -67,7 +67,7 @@
                         <StackPanel Margin="0,0,0,195">
                             <ComboBox Name="AllLoadedFilesComboBox" FontSize="20">
                             </ComboBox>
-                            <Button x:Name="AddNewTreeViewButton" Click="AddNewTreeView_Click" FontSize="18">Add Tree</Button>
+                            <Button x:Name="AddNewTreeViewButton" Click="AddNewTreeView_Click" FontSize="18">Add Search Tree</Button>
                         </StackPanel>
                     </Grid>
                     <Grid Margin="0,68,0,51" Grid.RowSpan="3">
