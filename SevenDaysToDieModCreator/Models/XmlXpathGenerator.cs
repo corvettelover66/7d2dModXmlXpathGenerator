@@ -192,7 +192,7 @@ namespace SevenDaysToDieModCreator.Models
         public static void GenerateXmlViewOutput(StackPanel newObjectFormsPanel, List<XmlObjectsListWrapper> listWrappersInObjectView, TextBox xmlOutBlock)
         {
             string addedViewTextStart = "WARNING: Direct text edits made here will NOT be saved.\n" +
-             "However, you may access the files at " + XmlFileManager._ModPath + " and make direct changes there\n\n" +
+             "However, you may access the files at \n" + XmlFileManager._ModPath + "\nand make direct changes there\n\n" +
              "<!-- -------------------------------------- Current Unsaved XML ----------------------------------- -->\n\n";
             string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
             string allWrappersText = "<!-- SAVED DATA  -->\n\n";

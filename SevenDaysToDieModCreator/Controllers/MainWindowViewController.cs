@@ -397,7 +397,7 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             Button senderAsButton = (Button)sender;
             XmlObjectsListWrapper wrapperToUse = this.loadedListWrappers.GetValueOrDefault(senderAsButton.Name.ToString());
-
+            if(!this.listWrappersInObjectView.Contains(wrapperToUse))this.listWrappersInObjectView.Add(wrapperToUse);
             string[] contentSplit = senderAsButton.Content.ToString().Split(":");
 
             TreeViewItem newObjectFormTree = GenerateNewObjectFormTreeAddButton(wrapperToUse, contentSplit[0], contentSplit[0], true);
