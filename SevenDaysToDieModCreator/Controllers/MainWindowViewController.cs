@@ -24,8 +24,8 @@ namespace SevenDaysToDieModCreator.Controllers
         private StackPanel newObjectFormsPanel { get; set; }
         private TextBox xmlOutBlock { get; set; }
 
-        public List<XmlObjectsListWrapper> listWrappersInObjectView { get; private set; }
-        public List<XmlObjectsListWrapper> listWrappersInTreeView { get; private set; }
+        public Dictionary<string, XmlObjectsListWrapper> listWrappersInObjectView { get; private set; }
+        public Dictionary<string, XmlObjectsListWrapper> listWrappersInTreeView { get; private set; }
 
         private List<ComboBox> recentComboBoxList { get; set; }
 
@@ -50,8 +50,8 @@ namespace SevenDaysToDieModCreator.Controllers
             this.loadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.editFormsDictionary = new Dictionary<string, Control>();
             this.editFormsDictionaryCounter = new Dictionary<string, List<string>>();
-            this.listWrappersInObjectView = new List<XmlObjectsListWrapper>();
-            this.listWrappersInTreeView = new List<XmlObjectsListWrapper>();
+            this.listWrappersInObjectView = new Dictionary<string, XmlObjectsListWrapper>();
+            this.listWrappersInTreeView = new Dictionary <string, XmlObjectsListWrapper>();
             this.recentComboBoxList = new List<ComboBox>();
             this.removedTreeViews = new Dictionary<string, List<TreeViewItem>>();
             this.newObjectFormsPanel = createView;
@@ -68,11 +68,8 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         public void ResetCreateView() 
         {
-            foreach (XmlObjectsListWrapper xmlObjectsListWrapper in this.listWrappersInObjectView)
-            {
-                string xmltoWrite = XmlXpathGenerator.GenerateXmlWithWrapper(this.newObjectFormsPanel, xmlObjectsListWrapper, true);
-                XmlFileManager.WriteXmlToLog(xmltoWrite, xmlObjectsListWrapper.xmlFile.FileName);
-            }
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(this.newObjectFormsPanel, this.listWrappersInObjectView);
+            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, "", true);
             this.editFormsDictionary.Clear();
             this.editFormsDictionaryCounter.Clear();
             this.newObjectFormsPanel.Children.Clear();
@@ -81,11 +78,7 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         public void Save()
         {
-            foreach (XmlObjectsListWrapper xmlObjectsListWrapper in this.listWrappersInObjectView)
-            {
-                string xmltoWrite = XmlXpathGenerator.GenerateXmlWithWrapper(this.newObjectFormsPanel, xmlObjectsListWrapper, true);
-                XmlFileManager.WriteStringToFile(XmlFileManager._ModPath, xmlObjectsListWrapper.xmlFile.FileName, xmltoWrite, true);
-            }
+            XmlXpathGenerator.GenerateXmlForSave(newObjectFormsPanel, this.listWrappersInObjectView, true);
         }
 
         public void LoadFilesViewControl(ComboBox allLoadedFilesBox, ComboBox allLoadedObjectsBox) 
@@ -152,13 +145,15 @@ namespace SevenDaysToDieModCreator.Controllers
         public void CreateNewObjectFormTree(StackPanel newObjectFormView, XmlObjectsListWrapper xmlObjectListWrapper) 
         {
             Label topTreeLabel = new Label { Content = xmlObjectListWrapper.TopTagName, FontSize = FONT_SIZE};
+            AddContextMenu(topTreeLabel);
             newObjectFormView.Children.Add(topTreeLabel);
 
             foreach (string topTag in xmlObjectListWrapper.allTopLevelTags) 
             {
                 TreeViewItem returnedTree = CreateNewObjectFormTree(xmlObjectListWrapper, topTag, xmlObjectListWrapper.TopTagName);
-                returnedTree.Tag = xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension();
+                returnedTree.Name = xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension();
                 if (xmlObjectListWrapper.TopTagName == StringConstants.PROGRESSION_TAG_NAME) returnedTree.Name = xmlObjectListWrapper.TopTagName;
+                AddContextMenu(returnedTree);
                 newObjectFormView.Children.Add(returnedTree);
             }
         }
@@ -222,6 +217,7 @@ namespace SevenDaysToDieModCreator.Controllers
             XmlObjectsListWrapper xmlObjectsListWrapper = this.loadedListWrappers.GetWrapperFromDictionary(senderAsButton.Tag.ToString());
             TreeViewItem sendersTree = (TreeViewItem)editFormsDictionary.GetValueOrDefault(senderAsButton.Name);
             TreeViewItem newObjectFormTreeView = GenerateNewObjectFormTreeAddButton(xmlObjectsListWrapper, senderAsButton.Content.ToString(), senderAsButton.Name);
+            AddContextMenu(newObjectFormTreeView);
             if (sendersTree.Parent.GetType() == typeof(StackPanel))
             {
                 Label topTreeLabel = new Label { Content = xmlObjectsListWrapper.TopTagName, FontSize = FONT_SIZE };
@@ -397,8 +393,8 @@ namespace SevenDaysToDieModCreator.Controllers
         private void MakeObjectATargetButton_Click(object sender, RoutedEventArgs e)
         {
             Button senderAsButton = (Button)sender;
-            XmlObjectsListWrapper wrapperToUse = this.loadedListWrappers.GetValueOrDefault(senderAsButton.Name.ToString());
-            if(!this.listWrappersInObjectView.Contains(wrapperToUse))this.listWrappersInObjectView.Add(wrapperToUse);
+            XmlObjectsListWrapper wrapperToUse = this.loadedListWrappers.GetValueOrDefault(senderAsButton.Name);
+            if(this.listWrappersInObjectView.GetValueOrDefault(senderAsButton.Name) == null)this.listWrappersInObjectView.Add(senderAsButton.Name, wrapperToUse);
             string[] contentSplit = senderAsButton.Content.ToString().Split(":");
 
             TreeViewItem newObjectFormTree = GenerateNewObjectFormTreeAddButton(wrapperToUse, contentSplit[0], contentSplit[0], true);
@@ -418,6 +414,7 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             newObjectFormTree.AddOnHoverMessage("Using this form you can add new objects into the " + newObjectFormTree.Header + " object\n" +
                 "For Example: You want to add an ingredient into a certain, existing, recipe.");
+            AddContextMenu(newObjectFormTree);
             this.newObjectFormsPanel.Children.Add(newObjectFormTree);
             ResetComboBoxLostFocus(this.recentComboBoxList);
             //OpenTargetDialogWindow(newObjectFormTree, wrapperToUse, senderAsButton.Content.ToString().Split(":")[1]);
@@ -550,7 +547,21 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             Clipboard.SetText(((TextBox)sender).Text.Split("=")[1]);
         }
-
+        private void AddContextMenu(Control objectControl)
+        {
+            ContextMenu newButtonRightClickMenu = new ContextMenu();
+            MenuItem addUnlockingContextMenu = new MenuItem();
+            addUnlockingContextMenu.Header = "Remove Object From View";
+            addUnlockingContextMenu.Click += RemoveChildContextMenu_Click;
+            addUnlockingContextMenu.Tag = objectControl;
+            newButtonRightClickMenu.Items.Add(addUnlockingContextMenu);
+            objectControl.ContextMenu = newButtonRightClickMenu;
+        }
+        private void RemoveChildContextMenu_Click(object sender, RoutedEventArgs e)
+        {
+            Control myObjectControl = (Control)((MenuItem)sender).Tag;
+            this.newObjectFormsPanel.Children.Remove(myObjectControl);
+        }
         private void OpenTargetDialogWindow(TreeViewItem newObjectFormTree, XmlObjectsListWrapper wrapperToUse, string tagAttributeNameValue)
         {
             var dialog = new TargetObjectView(newObjectFormTree, this.recentComboBoxList, wrapperToUse, tagAttributeNameValue);
@@ -571,18 +582,6 @@ namespace SevenDaysToDieModCreator.Controllers
                     MessageBox.Show("The format was incorrect, you must include something!", "Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-        }
-        private void AddContextMenu(Control objectControl)
-        {
-            ContextMenu newButtonRightClickMenu = new ContextMenu();
-            MenuItem addUnlockingContextMenu = new MenuItem();
-            addUnlockingContextMenu.Header = "Make Target";
-            addUnlockingContextMenu.Click += AddUnlockingContextMenu_Click; ;
-            newButtonRightClickMenu.Items.Add(addUnlockingContextMenu);
-            objectControl.ContextMenu = newButtonRightClickMenu;
-        }
-        private void AddUnlockingContextMenu_Click(object sender, RoutedEventArgs e)
-        {
         }
     }
 }

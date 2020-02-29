@@ -17,7 +17,7 @@ namespace SevenDaysToDieModCreator.Models
         {
             if (!Directory.Exists(filePath)) Directory.CreateDirectory(filePath);
             //WriteXmlToLog(stringToWrite, fileName);
-            if (addTimeStamp) stringToWrite ="<!-- Xml Written at " + DateTime.Now.ToString("yyyy:m:d h:mm:ss tt") + " -->\n" + stringToWrite ;
+            if (addTimeStamp && !String.IsNullOrEmpty(stringToWrite)) stringToWrite ="<!-- Xml Written at " + DateTime.Now.ToString("yyyy:m:d h:mm:ss tt") + " -->\n" + stringToWrite ;
             try
             {
                 System.IO.File.WriteAllText(@filePath + fileName, stringToWrite);

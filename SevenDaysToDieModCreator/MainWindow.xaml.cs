@@ -66,11 +66,8 @@ namespace SevenDaysToDieModCreator
         }
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            foreach (XmlObjectsListWrapper xmlObjectsListWrapper in mainWindowViewController.listWrappersInObjectView)
-            {
-                string xmltoWrite = XmlXpathGenerator.GenerateXmlWithWrapper(NewObjectFormsPanel, xmlObjectsListWrapper, true);
-                if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite);
-            }
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, mainWindowViewController.listWrappersInObjectView);
+            if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite);
             //SaveExternalXaml();
         }
         private void LoadFile_Click(object sender, RoutedEventArgs e)
@@ -95,21 +92,21 @@ namespace SevenDaysToDieModCreator
         {
             string selectedObject = AllLoadedNewObjectViewsComboBox.Text;
             XmlObjectsListWrapper selectedWrapper = mainWindowViewController.loadedListWrappers.GetWrapperFromDictionary(selectedObject);
-            if (!mainWindowViewController.listWrappersInObjectView.Contains(selectedWrapper) && selectedWrapper != null) 
+            mainWindowViewController.CreateNewObjectFormTree(NewObjectFormsPanel, selectedWrapper);
+            if (!mainWindowViewController.listWrappersInObjectView.ContainsValue(selectedWrapper) && selectedWrapper != null) 
             {
-                mainWindowViewController.CreateNewObjectFormTree(NewObjectFormsPanel, selectedWrapper);
-                mainWindowViewController.listWrappersInObjectView.Add(selectedWrapper);
+                mainWindowViewController.listWrappersInObjectView.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
             }
         }
         private void AddNewTreeView_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = AllLoadedFilesComboBox.Text;
             XmlObjectsListWrapper selectedWrapper = mainWindowViewController.loadedListWrappers.GetWrapperFromDictionary(selectedObject);
-            if (!mainWindowViewController.listWrappersInTreeView.Contains(selectedWrapper) && selectedWrapper != null)
+            if (!mainWindowViewController.listWrappersInTreeView.ContainsValue(selectedWrapper) && selectedWrapper != null)
             {
-                TreeViewItem nextTreeView = mainWindowViewController.GetObjectTreeViewRecursive(mainWindowViewController.loadedListWrappers.GetWrapperFromDictionary(selectedObject));
+                TreeViewItem nextTreeView = mainWindowViewController.GetObjectTreeViewRecursive(selectedWrapper);
                 ViewSp.Children.Add(nextTreeView);
-                mainWindowViewController.listWrappersInTreeView.Add(selectedWrapper);
+                mainWindowViewController.listWrappersInTreeView.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
             }
         }
         private void ClearAllObjectView_Click(object sender, RoutedEventArgs e)
