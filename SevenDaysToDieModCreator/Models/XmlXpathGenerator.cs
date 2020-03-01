@@ -38,7 +38,7 @@ namespace SevenDaysToDieModCreator.Models
                     XmlObjectsListWrapper xmlObjectsListWrapper = listWrappersInView.GetValueOrDefault(nextChildAsTree.Name);
                     string xmlOut = GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper, true);
                     if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(XmlFileManager._ModPath, xmlObjectsListWrapper.xmlFile.FileName, xmlOut, true);
-                    if(writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteXmlToLog(xmlOut, "", true);
+                    if(writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteXmlToLog(xmlOut, true);
                 }
             }
         }

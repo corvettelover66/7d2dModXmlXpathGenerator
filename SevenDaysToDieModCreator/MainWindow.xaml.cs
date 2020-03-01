@@ -35,7 +35,9 @@ namespace SevenDaysToDieModCreator
         {
             SaveXmlViewButton.AddOnHoverMessage("This will save the XML into the appropriate files found at:\n" + XmlFileManager._ModPath+"\n");
             AddObjectViewButton.AddOnHoverMessage("Click to add a new object edit view using the object above\nWARNING: This could take awhile");
-            AddNewTreeViewButton.AddOnHoverMessage("Click to add a new searchable tree view using the object above.\nWith this tree you can \nWARNING: This could take awhile");
+            AddNewTreeViewButton.AddOnHoverMessage("Click to add a new searchable tree view using the object above." +
+                "\nWith this tree you can also insert items into the existing items." +
+                " \nWARNING: This could take awhile");
             LoadFileViewButton.AddOnHoverMessage("Click to load an xml file or multiple xml files\nLoaded files will persist on application close");
             AllLoadedFilesComboBox.AddOnHoverMessage("The selected object here is used to create the tree view below\nAdd objects to the list by loading an xml file from the game folder");
             AllLoadedNewObjectViewsComboBox.AddOnHoverMessage("The selected object here is used to create the new object view below\nAdd objects to the list by loading an xml file from the game folder.");
@@ -67,7 +69,7 @@ namespace SevenDaysToDieModCreator
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, mainWindowViewController.listWrappersInObjectView);
-            if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite);
+            if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, true);
             //SaveExternalXaml();
         }
         private void LoadFile_Click(object sender, RoutedEventArgs e)
@@ -91,6 +93,7 @@ namespace SevenDaysToDieModCreator
         private void AddObjectView_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = AllLoadedNewObjectViewsComboBox.Text;
+            if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = mainWindowViewController.loadedListWrappers.GetWrapperFromDictionary(selectedObject);
             mainWindowViewController.CreateNewObjectFormTree(NewObjectFormsPanel, selectedWrapper);
             if (!mainWindowViewController.listWrappersInObjectView.ContainsValue(selectedWrapper) && selectedWrapper != null) 
@@ -101,11 +104,12 @@ namespace SevenDaysToDieModCreator
         private void AddNewTreeView_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = AllLoadedFilesComboBox.Text;
+            if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = mainWindowViewController.loadedListWrappers.GetWrapperFromDictionary(selectedObject);
+            TreeViewItem nextTreeView = mainWindowViewController.GetObjectTreeViewRecursive(selectedWrapper);
+            ViewSp.Children.Add(nextTreeView);
             if (!mainWindowViewController.listWrappersInTreeView.ContainsValue(selectedWrapper) && selectedWrapper != null)
             {
-                TreeViewItem nextTreeView = mainWindowViewController.GetObjectTreeViewRecursive(selectedWrapper);
-                ViewSp.Children.Add(nextTreeView);
                 mainWindowViewController.listWrappersInTreeView.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
             }
         }

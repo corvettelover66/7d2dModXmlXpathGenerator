@@ -20,7 +20,6 @@ namespace SevenDaysToDieModCreator.Controllers
     class MainWindowViewController
     {
         private const int FONT_SIZE = 20;
-        private const string COUNTER_DICTIONARY_SPLITTER = "1";
         private StackPanel newObjectFormsPanel { get; set; }
         private TextBox xmlOutBlock { get; set; }
 
@@ -37,19 +36,9 @@ namespace SevenDaysToDieModCreator.Controllers
         //Key top tag name i.e. recipe, progression, item
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> loadedListWrappers { get; private set; }
-        //A dictionary of objects pertaining to the edit view
-        //Key a complex key using tag name + list size + attribute name
-        //Value the Windows Control object for the proggramitacaly generated edit view
-        public Dictionary<string, Control> editFormsDictionary { get; set; }
-        //A dictionary counters for the objects above
-        //Key a complex key using tag name + current count
-        //Value a list of strings that will fill with empty strings as a count
-        public Dictionary<string, List<string>> editFormsDictionaryCounter { get; set; }
         public MainWindowViewController(StackPanel createView, TextBox xmlOutBlock) 
         {
             this.loadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
-            this.editFormsDictionary = new Dictionary<string, Control>();
-            this.editFormsDictionaryCounter = new Dictionary<string, List<string>>();
             this.listWrappersInObjectView = new Dictionary<string, XmlObjectsListWrapper>();
             this.listWrappersInTreeView = new Dictionary <string, XmlObjectsListWrapper>();
             this.recentComboBoxList = new List<ComboBox>();
@@ -69,9 +58,7 @@ namespace SevenDaysToDieModCreator.Controllers
         public void ResetCreateView() 
         {
             string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(this.newObjectFormsPanel, this.listWrappersInObjectView);
-            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, "", true);
-            this.editFormsDictionary.Clear();
-            this.editFormsDictionaryCounter.Clear();
+            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, true);
             this.newObjectFormsPanel.Children.Clear();
             this.listWrappersInObjectView.Clear();
             XmlXpathGenerator.GenerateXmlViewOutput(newObjectFormsPanel, this.listWrappersInObjectView, this.xmlOutBlock);
@@ -150,83 +137,69 @@ namespace SevenDaysToDieModCreator.Controllers
 
             foreach (string topTag in xmlObjectListWrapper.allTopLevelTags) 
             {
-                TreeViewItem returnedTree = CreateNewObjectFormTree(xmlObjectListWrapper, topTag, xmlObjectListWrapper.TopTagName);
+                TreeViewItem returnedTree = CreateNewObjectFormTree(xmlObjectListWrapper, topTag);
                 returnedTree.Name = xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension();
                 if (xmlObjectListWrapper.TopTagName == StringConstants.PROGRESSION_TAG_NAME) returnedTree.Name = xmlObjectListWrapper.TopTagName;
                 AddContextMenu(returnedTree);
                 newObjectFormView.Children.Add(returnedTree);
             }
         }
-        public TreeViewItem CreateNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, string tagName, string tagLevelString) 
+        public TreeViewItem CreateNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, string tagName) 
         {
             TreeViewItem newObjectFormTree = new TreeViewItem();
-            newObjectFormTree.Header = tagLevelString;
             newObjectFormTree.FontSize = FONT_SIZE;
             newObjectFormTree.IsExpanded = true;
             newObjectFormTree.AddOnHoverMessage("Here you can create new " + tagName + " tags");
 
-            List<string> countList = editFormsDictionaryCounter.GetValueAndAddIfNotExist(tagLevelString + COUNTER_DICTIONARY_SPLITTER);
-            string formDictionaryKey = tagName + countList.Count;
-            editFormsDictionary.AddValueIfNotInDictionary(formDictionaryKey, newObjectFormTree);
-            newObjectFormTree = GenerateNewObjectFormTree(xmlObjectListWrapper, newObjectFormTree, tagName, tagLevelString+COUNTER_DICTIONARY_SPLITTER, tagLevelString);
+            newObjectFormTree = GenerateNewObjectFormTree(xmlObjectListWrapper, newObjectFormTree, tagName);
             return newObjectFormTree;
         }
-        public TreeViewItem GenerateNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, TreeViewItem topTreeView, string currentTagName, string counterDictionaryKey, string formDictionaryKey, bool doSkipFirstAttributeSet = false)
+        public TreeViewItem GenerateNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, TreeViewItem topTreeView, string currentTagName, bool doSkipFirstAttributeSet = false)
         {
-            counterDictionaryKey += currentTagName + COUNTER_DICTIONARY_SPLITTER;
-            List<string> countList = editFormsDictionaryCounter.GetValueAndAddIfNotExist(counterDictionaryKey + COUNTER_DICTIONARY_SPLITTER);
-            formDictionaryKey += currentTagName + countList.Count;
-
             List<string> attributes = xmlObjectListWrapper.objectNameToAttributesMap.GetValueOrDefault(currentTagName);
-            if (attributes != null && !doSkipFirstAttributeSet) topTreeView = SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, currentTagName, counterDictionaryKey, formDictionaryKey);
+            if (attributes != null && !doSkipFirstAttributeSet) topTreeView = SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, currentTagName);
 
             if (topTreeView != null)
             {
                 topTreeView.FontSize = FONT_SIZE;
                 topTreeView.AddOnHoverMessage("Edit form for the " + currentTagName + " object");
-                Button addNewObjectButton = new Button { Content = currentTagName, Name = formDictionaryKey, Tag = xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension() };
+                Button addNewObjectButton = new Button { Content = currentTagName, Tag = xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension() };
                 if(!currentTagName.Equals(StringConstants.RECIPE_TAG_NAME)) addNewObjectButton.AddOnHoverMessage("Click to add another " + currentTagName + " object");
                 addNewObjectButton.Click += AddNewObjectButton_Click;
                 addNewObjectButton.Width = 250;
                 topTreeView.Header = addNewObjectButton;
-                if (currentTagName.Equals(StringConstants.RECIPE_TAG_NAME))
-                {
-                    addNewObjectButton.AddOnHoverMessage("Click to add another " + currentTagName + " object, right click to add learning perks." );
-                }
-                editFormsDictionary.AddValueIfNotInDictionary(formDictionaryKey, topTreeView);
             }
 
-            SetNextObjectCreateViewChildren(attributes, xmlObjectListWrapper, topTreeView, currentTagName, counterDictionaryKey, formDictionaryKey);
+            SetNextObjectCreateViewChildren(attributes, xmlObjectListWrapper, topTreeView, currentTagName);
  
             return topTreeView;
         }
 
-        public TreeViewItem GenerateNewObjectFormTreeAddButton(XmlObjectsListWrapper xmlObjectListWrapper, string startingXmlTagName, string formDictionaryKey, bool doSkipFirstAttributes = false)
+        public TreeViewItem GenerateNewObjectFormTreeAddButton(XmlObjectsListWrapper xmlObjectListWrapper, string startingXmlTagName, bool doSkipFirstAttributes = false)
         {
             this.recentComboBoxList.Clear();
             if (startingXmlTagName.Length < 1) startingXmlTagName = xmlObjectListWrapper.FirstChildTagName;
-            string startingFormDictionaryCounterString = "";
-            if (startingXmlTagName != xmlObjectListWrapper.FirstChildTagName) startingFormDictionaryCounterString = formDictionaryKey;
             TreeViewItem newTopTree = new TreeViewItem();
             newTopTree.Header = startingXmlTagName;
-            return GenerateNewObjectFormTree(xmlObjectListWrapper, newTopTree, startingXmlTagName, startingFormDictionaryCounterString, formDictionaryKey, doSkipFirstAttributes);
+            return GenerateNewObjectFormTree(xmlObjectListWrapper, newTopTree, startingXmlTagName, doSkipFirstAttributes);
         }
         private void AddNewObjectButton_Click(object sender, RoutedEventArgs e)
         {
             Button senderAsButton = (Button)sender;
+            TreeViewItem sendersParent = (TreeViewItem)senderAsButton.Parent;
             XmlObjectsListWrapper xmlObjectsListWrapper = this.loadedListWrappers.GetWrapperFromDictionary(senderAsButton.Tag.ToString());
-            TreeViewItem sendersTree = (TreeViewItem)editFormsDictionary.GetValueOrDefault(senderAsButton.Name);
-            TreeViewItem newObjectFormTreeView = GenerateNewObjectFormTreeAddButton(xmlObjectsListWrapper, senderAsButton.Content.ToString(), senderAsButton.Name);
+            TreeViewItem newObjectFormTreeView = GenerateNewObjectFormTreeAddButton(xmlObjectsListWrapper, senderAsButton.Content.ToString());
             AddContextMenu(newObjectFormTreeView);
-            if (sendersTree.Parent.GetType() == typeof(StackPanel))
+            newObjectFormTreeView.Name = senderAsButton.Tag.ToString();
+            if (sendersParent.Parent.GetType() == typeof(StackPanel))
             {
                 Label topTreeLabel = new Label { Content = xmlObjectsListWrapper.TopTagName, FontSize = FONT_SIZE };
-                ((StackPanel)sendersTree.Parent).Children.Add(topTreeLabel);
-                ((StackPanel)sendersTree.Parent).Children.Add(newObjectFormTreeView);
+                ((StackPanel)sendersParent.Parent).Children.Add(topTreeLabel);
+                ((StackPanel)sendersParent.Parent).Children.Add(newObjectFormTreeView);
             }
-            else ((TreeViewItem)sendersTree.Parent).Items.Add(newObjectFormTreeView);
+            else ((TreeViewItem)sendersParent.Parent).Items.Add(newObjectFormTreeView);
         }
-        private void SetNextObjectCreateViewChildren(List<string> attributes, XmlObjectsListWrapper xmlObjectListWrapper, TreeViewItem topTreeView, string tagName, string counterDictionaryKey, string formDictionaryKey )
+        private void SetNextObjectCreateViewChildren(List<string> attributes, XmlObjectsListWrapper xmlObjectListWrapper, TreeViewItem topTreeView, string tagName)
         {
             List<string> allChildren = xmlObjectListWrapper.objectNameToChildrenMap.GetValueOrDefault(tagName);
             if (allChildren != null) 
@@ -237,10 +210,9 @@ namespace SevenDaysToDieModCreator.Controllers
                     if (childName == tagName)
                     {
                         TreeViewItem innerPropertyTreeView = new TreeViewItem { Header = tagName, FontSize = FONT_SIZE };
-                        editFormsDictionary.Add(formDictionaryKey+"propertyinner", innerPropertyTreeView);
-                        if (attributes != null) innerPropertyTreeView = SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, tagName, counterDictionaryKey, formDictionaryKey);
+                        if (attributes != null) innerPropertyTreeView = SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, tagName);
                         innerPropertyTreeView.AddOnHoverMessage("Edit form for the " + tagName + " object");
-                        Button addNewObjectButton = new Button { Content = tagName, Name = formDictionaryKey, Tag = xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension() };
+                        Button addNewObjectButton = new Button { Content = tagName, Tag = xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension() };
                         addNewObjectButton.AddOnHoverMessage("Click to add another " + tagName);
                         addNewObjectButton.Width = 250;
                         innerPropertyTreeView.Header = addNewObjectButton;
@@ -249,14 +221,14 @@ namespace SevenDaysToDieModCreator.Controllers
                     else
                     {
                         TreeViewItem newChildTopTree = new TreeViewItem();
-                        TreeViewItem childrenTreeView = GenerateNewObjectFormTree(xmlObjectListWrapper, newChildTopTree, childName, counterDictionaryKey, formDictionaryKey);
+                        TreeViewItem childrenTreeView = GenerateNewObjectFormTree(xmlObjectListWrapper, newChildTopTree, childName);
                         topTreeView.Items.Add(childrenTreeView);
                     }
                 }
             }
         }
 
-        private TreeViewItem SetNextObjectTreeViewAtrributes(List<string> attributes, XmlObjectsListWrapper xmlObjectListWrapper, string currentTagName, string counterDictionaryKey, string formDictionaryKey)
+        private TreeViewItem SetNextObjectTreeViewAtrributes(List<string> attributes, XmlObjectsListWrapper xmlObjectListWrapper, string currentTagName)
         {
             TreeViewItem newAttributesViewItem = new TreeViewItem();
             foreach (string nextAttribute in attributes)
@@ -277,7 +249,6 @@ namespace SevenDaysToDieModCreator.Controllers
                 if (newAttributesComboBox == null) newAttributesViewItem.Items.Add(new ComboBox());
                 else
                 {
-                    editFormsDictionaryCounter.GetValueAndAddIfNotExist(counterDictionaryKey);
                     recentComboBoxList.Add(newAttributesComboBox);
                     newAttributesViewItem.Items.Add(newAttributesComboBox);
                 }
@@ -397,7 +368,7 @@ namespace SevenDaysToDieModCreator.Controllers
             if(this.listWrappersInObjectView.GetValueOrDefault(senderAsButton.Name) == null)this.listWrappersInObjectView.Add(senderAsButton.Name, wrapperToUse);
             string[] contentSplit = senderAsButton.Content.ToString().Split(":");
 
-            TreeViewItem newObjectFormTree = GenerateNewObjectFormTreeAddButton(wrapperToUse, contentSplit[0], contentSplit[0], true);
+            TreeViewItem newObjectFormTree = GenerateNewObjectFormTreeAddButton(wrapperToUse, contentSplit[0], true);
             //Set the name to the wrapper so we can find the wrapper later
             newObjectFormTree.Name = senderAsButton.Name.ToString();
             //set the xmlNode that was included with the object into the top tree view

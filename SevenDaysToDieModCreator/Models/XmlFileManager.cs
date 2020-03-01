@@ -11,7 +11,7 @@ namespace SevenDaysToDieModCreator.Models
         public static string _filePath = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
         public static string _ModPath = Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/Your Mod Name/config/");
         public static string LOCAL_DIR = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
-        private static string logFileName = Path.Combine(Directory.GetCurrentDirectory(), "log.txt");
+        private static string logFileName =  "log.txt";
 
         public static void WriteStringToFile(string filePath, string fileName, string stringToWrite, bool addTimeStamp = false)
         {
@@ -27,20 +27,21 @@ namespace SevenDaysToDieModCreator.Models
                 WriteXmlToLog("ERROR Writing to file @" + @filePath + fileName);
             }
         }
-        public static void WriteXmlToLog(string xml, string filename = null, bool addTimeStamp = true)
+        public static void WriteXmlToLog(string xml, bool addTimeStamp = true)
         {
             if (!Directory.Exists(@_filePath)) Directory.CreateDirectory(@_filePath);
+            string filePath = @_filePath + logFileName;
+            if (!File.Exists(filePath)) CreateFilePath(@_filePath, logFileName);
+
             if (addTimeStamp) xml = "<!-- Xml Written at " + DateTime.Now.ToString("yyyy:mm:dd h:mm:ss tt") + " -->\n" + xml;
-            string stringToWrite = "";
-            if (filename == null) stringToWrite = xml;
-            else stringToWrite = "<!-- For file: " + filename + "-->\n" + xml;
-            AppendToFile(@_filePath, logFileName, stringToWrite);
+
+            AppendToFile(@_filePath, logFileName, xml);
         }
         public static string GetFileContents(string path, string fileName)
         {
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             string filePath = @path + fileName;
-            if (!File.Exists(filePath)) CreateFileModPath(path, fileName);
+            if (!File.Exists(filePath)) CreateFilePath(path, fileName);
             ReadFile(path, fileName);
             return ReadFileContents;
         }
@@ -61,7 +62,7 @@ namespace SevenDaysToDieModCreator.Models
             }
             ReadFileContents = line;
         }
-        private static void CreateFileModPath(string path, string fileName)
+        private static void CreateFilePath(string path, string fileName)
         {
             try
             {
@@ -78,15 +79,10 @@ namespace SevenDaysToDieModCreator.Models
         }
         private static void AppendToFile(string path, string fileName, string stringToWrite)
         {
-            try {
-                using (System.IO.StreamWriter file =
-                    new System.IO.StreamWriter(@path + fileName, true))
-                {
-                    file.WriteLine(stringToWrite);
-                }
-            }
-            catch (IOException exce)
+            using (System.IO.StreamWriter file =
+                new System.IO.StreamWriter(@path + fileName, true))
             {
+                file.WriteLine(stringToWrite);
             }
         }
     }
