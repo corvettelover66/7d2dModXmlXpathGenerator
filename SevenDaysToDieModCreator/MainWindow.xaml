@@ -7,84 +7,101 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1200">
     <Grid Name="MainGrid">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="350*" />
-            <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="800*" />
-            <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="350*" />
-        </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" >
-            <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="0,0,0,361">
+            <DockPanel>
+                <Menu DockPanel.Dock="Top">
+                    <MenuItem Header="_File" FontSize="16">
+                        <MenuItem Header="Load File(s)" Name="LoadFileMenuHeader" Click="LoadFile_Click"/>
+                        <MenuItem Name="ChangeModGameDirectoryMenu"  Header="Change Mod Game Directory" Click="ChangeModGameDirectoryMenu_Click"/>
+                        <MenuItem Header="Help" Click="HelpMenu_Click"/>
+                    </MenuItem>
+                </Menu>
+                <StackPanel></StackPanel>
+            </DockPanel>
+        </Grid>
+        <Grid Margin="0,36,0,0" Grid.RowSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="800*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="350*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5,5,0" >
+                <Grid >
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,182" >
+                        <StackPanel Name="MainSP" VerticalAlignment="Top">
+                            <ComboBox Name="AllLoadedNewObjectViewsComboBox" FontSize="20"></ComboBox>
+                            <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
+                        </StackPanel >
+                    </Grid>
+                    <Grid Margin="0,67,0,56" Grid.RowSpan="3">
+                        <ScrollViewer Name="CreateLabelScroller" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
+                            <StackPanel x:Name="NewObjectFormsPanel">
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="2" Margin="0,209,0,0">
+                        <StackPanel>
+                            <Button x:Name="ClearAllObjectsViewButton" Click="ClearAllObjectView_Click" FontSize="18">Clear View</Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+            <Grid Grid.Column="1" Grid.ColumnSpan="3" Margin="5,0,5,86">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,41">
+                    <ScrollViewer HorizontalContentAlignment="Left" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+                        <TextBox x:Name="XmlOutputBox" FontSize="18" AcceptsReturn="True" FontFamily="Arial">
+                        </TextBox>
+                    </ScrollViewer>
+                </Grid>
+                <Grid Grid.Row="1" Margin="0,313,0,-79">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="794">
+                        <ComboBox Name="OpenDirectEditViewComboBox" HorizontalContentAlignment="Center" FontSize="20" />
+                        <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18" >Open Direct Editor Window</Button>
+                        <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+            <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
+            <Grid Grid.Column="4">
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
-                <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,199" >
-                    <StackPanel Name="MainSP" VerticalAlignment="Top">
-                        <ComboBox Name="AllLoadedNewObjectViewsComboBox" FontSize="20"></ComboBox>
-                        <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
-                    </StackPanel >
+                <Grid Grid.Row="0">
+                    <StackPanel Margin="0,0,0,184">
+                        <ComboBox Name="AllLoadedFilesComboBox" FontSize="20">
+                        </ComboBox>
+                        <Button x:Name="AddNewTreeViewButton" Click="AddNewTreeView_Click" FontSize="18">Add Search Tree</Button>
+                    </StackPanel>
                 </Grid>
-                <Grid Margin="0,67,0,56" Grid.RowSpan="3">
-                    <ScrollViewer Name="CreateLabelScroller" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
-                        <StackPanel x:Name="NewObjectFormsPanel">
+                <Grid Margin="0,68,0,51" Grid.RowSpan="3">
+                    <ScrollViewer Name="ViewScroller" HorizontalContentAlignment="Right">
+                        <StackPanel Name="ViewSp">
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
-                <Grid Grid.Column="0" Grid.Row="2" Margin="0,228,0,0">
-                    <StackPanel>
-                        <Button x:Name="ClearAllObjectsViewButton" Click="ClearAllObjectView_Click" FontSize="18">Clear View</Button>
+                <Grid Grid.Row="2" Margin="0,203,0,10">
+                    <StackPanel VerticalAlignment="Bottom">
+                        <Button x:Name="ClearTreesViewButton" Click="ClearAllTreesView_Click" FontSize="18">Clear View</Button>
                     </StackPanel>
                 </Grid>
-            </Grid>
-        </Grid>
-        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
-        <Grid Grid.Column="1" Grid.ColumnSpan="3" Margin="5,0,5,86">
-            <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,41">
-                <ScrollViewer HorizontalContentAlignment="Left" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
-                    <TextBox x:Name="XmlOutputBox" FontSize="18" AcceptsReturn="True" FontFamily="Arial">
-                    </TextBox>
-                </ScrollViewer>
-            </Grid>
-            <Grid Grid.Row="1" Margin="0,313,0,-79">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="794">
-                    <ComboBox Name="OpenDirectEditViewComboBox" HorizontalContentAlignment="Center" FontSize="20" />
-                    <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18" >Open Direct Editor Window</Button>
-                    <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
-                    <Button x:Name="LoadFileViewButton" Click="LoadFile_Click" FontSize="18">Load File(s)</Button>
-                </StackPanel>
-            </Grid>
-        </Grid>
-        <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
-        <Grid Grid.Column="4">
-            <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
-                <StackPanel Margin="0,0,0,195">
-                    <ComboBox Name="AllLoadedFilesComboBox" FontSize="20">
-                    </ComboBox>
-                    <Button x:Name="AddNewTreeViewButton" Click="AddNewTreeView_Click" FontSize="18">Add Search Tree</Button>
-                </StackPanel>
-            </Grid>
-            <Grid Margin="0,68,0,51" Grid.RowSpan="3">
-                <ScrollViewer Name="ViewScroller" HorizontalContentAlignment="Right">
-                    <StackPanel Name="ViewSp">
-                    </StackPanel>
-                </ScrollViewer>
-            </Grid>
-            <Grid Grid.Row="2" Margin="0,215,0,10">
-                <StackPanel VerticalAlignment="Bottom">
-                    <Button x:Name="ClearTreesViewButton" Click="ClearAllTreesView_Click" FontSize="18">Clear View</Button>
-                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

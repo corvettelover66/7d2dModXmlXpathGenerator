@@ -8,8 +8,6 @@ namespace SevenDaysToDieModCreator.Models
 {
     static class XmlXpathGenerator
     {
-        public static string MyCustomTagName { get; set; } = "ThisNeedsToBeSet";
-        public static string CustomTagFileName { get; private set; } = "customtag.txt";
         public static string GenerateXmlForObjectView(StackPanel newObjectFormsPanel, Dictionary<string,XmlObjectsListWrapper> listWrappersInView) 
         {
             string xmlOut = "";
@@ -42,7 +40,7 @@ namespace SevenDaysToDieModCreator.Models
         }
         private static string GenerateXmlWithWrapper(Control parentControl, XmlObjectsListWrapper xmlObjectsListWrapper, bool includeExistingData = false)
         {
-            string topTag = "\n<" + MyCustomTagName + ">\n";
+            string topTag = "\n<" + Properties.Application.Default.CustomTagName + ">\n";
             string xmlOut = "";
             string existingWrapperFileData = "";
             TreeViewItem nextChildAsTree = (TreeViewItem)parentControl;
@@ -65,11 +63,11 @@ namespace SevenDaysToDieModCreator.Models
                     }
                 }
             }
-            if(includeExistingData) existingWrapperFileData = XmlFileManager.ReadExistingFile(xmlObjectsListWrapper.xmlFile.FileName, MyCustomTagName);
+            if(includeExistingData) existingWrapperFileData = XmlFileManager.ReadExistingFile(xmlObjectsListWrapper.xmlFile.FileName, Properties.Application.Default.CustomTagName);
             if (!String.IsNullOrEmpty(xmlOut))
             { 
                 if (!String.IsNullOrEmpty(existingWrapperFileData)) xmlOut += existingWrapperFileData;
-                xmlOut = topTag + xmlOut + "</" + MyCustomTagName + ">\n";
+                xmlOut = topTag + xmlOut + "</" + Properties.Application.Default.CustomTagName + ">\n";
             }
             return xmlOut;
         }
@@ -207,7 +205,7 @@ namespace SevenDaysToDieModCreator.Models
 
             foreach (XmlObjectsListWrapper xmlObjectsListWrapper in listWrappersInObjectView.Values) 
             {
-                existingWrapperFileData += XmlFileManager.ReadExistingFile(xmlObjectsListWrapper.xmlFile.FileName, MyCustomTagName);
+                existingWrapperFileData += XmlFileManager.ReadExistingFile(xmlObjectsListWrapper.xmlFile.FileName, Properties.Application.Default.CustomTagName);
             }
 
             string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel, listWrappersInObjectView);

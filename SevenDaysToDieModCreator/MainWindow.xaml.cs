@@ -1,4 +1,5 @@
-﻿using SevenDaysToDieModCreator.Controllers;
+﻿using Microsoft.Win32;
+using SevenDaysToDieModCreator.Controllers;
 using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using SevenDaysToDieModCreator.Views;
@@ -10,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Xml;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace SevenDaysToDieModCreator
 {
@@ -23,6 +25,7 @@ namespace SevenDaysToDieModCreator
         public MainWindow()
         {
             InitializeComponent();
+            Properties.Application.Default.AutoMoveDecisionMade = false;
             this.WindowState = WindowState.Maximized;
             this.MainWindowViewController = new MainWindowViewController(NewObjectFormsPanel, XmlOutputBox, RemoveChildContextMenu_Click);
             Loaded += MyWindow_Loaded;
@@ -37,7 +40,7 @@ namespace SevenDaysToDieModCreator
             AddNewTreeViewButton.AddOnHoverMessage("Click to add a new searchable tree view using the object above." +
                 "\nWith this tree you can also insert items into the existing items." +
                 " \nWARNING: This could take awhile");
-            LoadFileViewButton.AddOnHoverMessage("Click to load an xml file or multiple xml files\nLoaded files will persist on application close");
+            LoadFileMenuHeader.AddOnHoverMessage("Click to load an xml file or multiple xml files\nLoaded files will persist on application close");
             AllLoadedFilesComboBox.AddOnHoverMessage("The selected object here is used to create the tree view below\nAdd objects to the list by loading an xml file from the game folder");
             AllLoadedNewObjectViewsComboBox.AddOnHoverMessage("The selected object here is used to create the new object view below\nAdd objects to the list by loading an xml file from the game folder.");
             ClearTreesViewButton.AddOnHoverMessage("Click to remove all trees from the view above");
@@ -47,11 +50,9 @@ namespace SevenDaysToDieModCreator
         {
             SetOnHoverMessages();
             MainWindowViewController.LoadStartingDirectory(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox, OpenDirectEditViewComboBox);
-            if (XmlXpathGenerator.MyCustomTagName.Equals("ThisNeedsToBeSet"))
+            if (Properties.Application.Default.CustomTagName.Equals("ThisNeedsToBeSet"))
             {
-                string fileContents = XmlFileManager.GetFileContents(XmlFileManager._filePath, XmlXpathGenerator.CustomTagFileName);
-                if(fileContents == null) OutputTagDialogPopup();
-                else XmlXpathGenerator.MyCustomTagName = fileContents;
+                OutputTagDialogPopup();
             }
             //Need to reload all events when loading state like this.
             //bool didLoad = LoadExternalXaml();
@@ -68,6 +69,7 @@ namespace SevenDaysToDieModCreator
         }
         private void SaveXmlFile_Click(object sender, RoutedEventArgs e)
         {
+            if (!Properties.Application.Default.AutoMoveDecisionMade) CheckAutoMoveProperty();
             MessageBoxResult result = MessageBox.Show(
                 "This will write all current generated xml to the appropriate files in the output location. Are you sure?", 
                 "Save Generated XML", 
@@ -78,6 +80,62 @@ namespace SevenDaysToDieModCreator
                 case MessageBoxResult.OK:
                     XmlXpathGenerator.GenerateXmlForSave(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers, true);
                     break;
+            }
+        }
+        private void CheckAutoMoveProperty() 
+        {
+            MessageBoxResult innerResult = MessageBox.Show(
+                "Would you like to activate the auto move feature now?\n" +
+                "When activated, on saving, the application automatically moves all files to the Games Mod Folder. ",
+                "Auto Move Game Files",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            switch (innerResult)
+            {
+                case MessageBoxResult.Yes:
+                    Properties.Application.Default.AutoMoveDecisionMade = true;
+                    Properties.Application.Default.AutoMoveMod = true;
+                    Properties.Application.Default.Save();
+                    if (String.IsNullOrEmpty(Properties.Application.Default.GameFolderModDirectory)) HandleMissingGameModDirectory();
+                    break;
+                case MessageBoxResult.No:
+                    Properties.Application.Default.AutoMoveDecisionMade = true;
+                    break;
+            }
+            Properties.Application.Default.Save();
+        }
+        private void HandleMissingGameModDirectory()
+        {
+            MessageBoxResult result = MessageBox.Show(
+             "For the Auto Move function to work you must set the Game Folder Directory.\n" +
+             "Please do that now.\n\n" +
+             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation.\n" +
+             "Example: \"7 Days To Die\\Mods \"If that folder does not exist please create it first.",
+             "Set Game Mod Folder Location",
+             MessageBoxButton.OK,
+             MessageBoxImage.Warning);
+            switch (result) 
+            {
+                case MessageBoxResult.OK:
+                    OpenGameFolderSelectDialog();
+                    break;
+            }
+
+        }
+        private void OpenGameFolderSelectDialog() 
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = Directory.GetCurrentDirectory();
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                MessageBox.Show("You selected: " + dialog.FileName);
+                if (!String.IsNullOrEmpty(dialog.FileName))
+                {
+                    Properties.Application.Default.GameFolderModDirectory = dialog.FileName;
+                    Properties.Application.Default.AutoMoveDecisionMade = true;
+                    Properties.Application.Default.Save();
+                }
             }
         }
         private void AddObjectView_Click(object sender, RoutedEventArgs e)
@@ -193,27 +251,24 @@ namespace SevenDaysToDieModCreator
         }
         private void OutputTagDialogPopup()
         {
-            //while (XmlXpathGenerator.MyCustomTagName == null)
-            //{
-                var dialog = new CustomDialogBox();
-                if (dialog.ShowDialog() == true)
+            var dialog = new CustomDialogBox();
+            if (dialog.ShowDialog() == true)
+            {
+                try
                 {
-                    try
-                    {
-                        string name = XmlConvert.VerifyName(dialog.ResponseText);
-                        XmlXpathGenerator.MyCustomTagName = name;
-                        XmlFileManager.WriteStringToFile(XmlFileManager._filePath, XmlXpathGenerator.CustomTagFileName, name);
-                    }
-                    catch (XmlException)
-                    {
-                        MessageBox.Show("The format was incorrect, the name must follow xml naming rules!", "Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    catch (ArgumentNullException)
-                    {
-                        MessageBox.Show("The format was incorrect, you must include something!", "Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    string name = XmlConvert.VerifyName(dialog.ResponseText);
+                    Properties.Application.Default.CustomTagName = name;
+                    Properties.Application.Default.Save();
                 }
-            //}
+                catch (XmlException)
+                {
+                    MessageBox.Show("The format was incorrect, the name must follow xml naming rules!", "Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (ArgumentNullException)
+                {
+                    MessageBox.Show("The format was incorrect, you must include something!", "Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void OpenDirectEditViewButton_Click(object sender, RoutedEventArgs e)
@@ -223,6 +278,21 @@ namespace SevenDaysToDieModCreator
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
             DirectEditView directEdit = new DirectEditView(selectedWrapper);
             directEdit.Show();
+        }
+
+        private void HelpMenu_Click(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ChangeModGameDirectoryMenu_Click(object sender, RoutedEventArgs e)
+        {
+            OpenGameFolderSelectDialog();
+            //If they have already chosen no to auto move the mod
+            if (Properties.Application.Default.AutoMoveDecisionMade && !Properties.Application.Default.AutoMoveMod) 
+            {
+                CheckAutoMoveProperty();
+            }
         }
     }
 }
