@@ -188,6 +188,12 @@ namespace SevenDaysToDieModCreator.Models
             }
             return xmlOut;
         }
+
+        internal static void GenerateXmlViewOutput(object newObjectFormsPanel, object listWrappersInObjectView, object xmlOutBlock)
+        {
+            throw new NotImplementedException();
+        }
+
         private static string AddTagWithAttributes(TreeViewItem nextTreeItem, string xmlOut, string headerContent)
         {
             bool hasFoundItem = false, didWriteStart = false;

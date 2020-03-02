@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
 
@@ -11,6 +12,16 @@ namespace SevenDaysToDieModCreator.Extensions
 {
     static class MyExtensions
     {
+        public static void AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction)
+        {
+            ContextMenu newButtonRightClickMenu = new ContextMenu();
+            MenuItem addUnlockingContextMenu = new MenuItem();
+            addUnlockingContextMenu.Header = "Remove Object From View";
+            addUnlockingContextMenu.Click += myOnClickFunction;
+            addUnlockingContextMenu.Tag = objectControl;
+            newButtonRightClickMenu.Items.Add(addUnlockingContextMenu);
+            objectControl.ContextMenu = newButtonRightClickMenu;
+        }
         public static Queue<TreeViewItem> getChildTreeViewQueue(this TreeViewItem nextTreeItem, string childName)
         {
             Queue<TreeViewItem> allTreeViews = new Queue<TreeViewItem>();

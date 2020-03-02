@@ -1,5 +1,4 @@
-﻿using SevenDaysToDieModCreator.Controller;
-using SevenDaysToDieModCreator.Models;
+﻿using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,8 +20,6 @@ namespace SevenDaysToDieModCreator.Views
     {
         private TreeViewItem newObjectFormTree;
         private XmlObjectsListWrapper currentWrapper { get; set; }
-
-        public RecipePerkTagetController myController { get; set; }
 
         public TargetObjectView(TreeViewItem newObjectFormTree, List<ComboBox> recentComboBoxList, XmlObjectsListWrapper wrapperToUse, string tagAttributeNameValue)
         {

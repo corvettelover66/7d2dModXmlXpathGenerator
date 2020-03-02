@@ -21,13 +21,14 @@ namespace SevenDaysToDieModCreator
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const int FONT_SIZE = 20;
         private MainWindowViewController mainWindowViewController { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
             this.WindowState = WindowState.Maximized;
-            this.mainWindowViewController = new MainWindowViewController(NewObjectFormsPanel, XmlOutputBox);
+            this.mainWindowViewController = new MainWindowViewController(NewObjectFormsPanel, XmlOutputBox, RemoveChildContextMenu_Click);
             Loaded += MyWindow_Loaded;
             Closing += new CancelEventHandler(MainWindow_Closing);
         }
@@ -68,7 +69,7 @@ namespace SevenDaysToDieModCreator
         }
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, mainWindowViewController.listWrappersInObjectView);
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, mainWindowViewController.leftNewObjectViewController.loadedListWrappers);
             if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, true);
             //SaveExternalXaml();
         }
@@ -86,7 +87,7 @@ namespace SevenDaysToDieModCreator
             switch (result)
             {
                 case MessageBoxResult.OK:
-                    mainWindowViewController.Save();
+                    XmlXpathGenerator.GenerateXmlForSave(NewObjectFormsPanel, mainWindowViewController.leftNewObjectViewController.loadedListWrappers, true);
                     break;
             }
         }
@@ -95,10 +96,10 @@ namespace SevenDaysToDieModCreator
             string selectedObject = AllLoadedNewObjectViewsComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = mainWindowViewController.loadedListWrappers.GetWrapperFromDictionary(selectedObject);
-            mainWindowViewController.CreateNewObjectFormTree(NewObjectFormsPanel, selectedWrapper);
-            if (!mainWindowViewController.listWrappersInObjectView.ContainsValue(selectedWrapper) && selectedWrapper != null) 
+            mainWindowViewController.leftNewObjectViewController.CreateNewObjectFormTree(selectedWrapper);
+            if (!mainWindowViewController.leftNewObjectViewController.loadedListWrappers.ContainsValue(selectedWrapper) && selectedWrapper != null) 
             {
-                mainWindowViewController.listWrappersInObjectView.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
+                mainWindowViewController.leftNewObjectViewController.loadedListWrappers.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
             }
         }
         private void AddNewTreeView_Click(object sender, RoutedEventArgs e)
@@ -106,12 +107,48 @@ namespace SevenDaysToDieModCreator
             string selectedObject = AllLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = mainWindowViewController.loadedListWrappers.GetWrapperFromDictionary(selectedObject);
-            TreeViewItem nextTreeView = mainWindowViewController.GetObjectTreeViewRecursive(selectedWrapper);
+            TreeViewItem nextTreeView = mainWindowViewController.rightSearchTreeViewController.GetObjectTreeViewRecursive(selectedWrapper, MakeObjectATargetButton_Click);
             ViewSp.Children.Add(nextTreeView);
-            if (!mainWindowViewController.listWrappersInTreeView.ContainsValue(selectedWrapper) && selectedWrapper != null)
+            if (!mainWindowViewController.rightSearchTreeViewController.loadedListWrappers.ContainsValue(selectedWrapper) && selectedWrapper != null)
             {
-                mainWindowViewController.listWrappersInTreeView.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
+                mainWindowViewController.rightSearchTreeViewController.loadedListWrappers.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
             }
+        }
+        private void MakeObjectATargetButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button senderAsButton = (Button)sender;
+            XmlObjectsListWrapper wrapperToUse = this.mainWindowViewController.loadedListWrappers.GetValueOrDefault(senderAsButton.Name);
+            if (!mainWindowViewController.leftNewObjectViewController.loadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
+            {
+                mainWindowViewController.leftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
+            }
+            string[] contentSplit = senderAsButton.Content.ToString().Split(":");
+
+            TreeViewItem newObjectFormTree = this.mainWindowViewController.leftNewObjectViewController.GenerateNewObjectFormTreeAddButton(wrapperToUse, contentSplit[0], true);
+            //Set the name to the wrapper so we can find the wrapper later
+            newObjectFormTree.Name = senderAsButton.Name.ToString();
+            //set the xmlNode that was included with the object into the top tree view
+            newObjectFormTree.Tag = senderAsButton.Tag;
+            //The button should be in the form "TagName:AttribiuteNameVaue"
+            if (contentSplit.Length > 1)
+            {
+                newObjectFormTree.Header = senderAsButton.Content.ToString();
+            }
+            //There is the edge case where the object did not have a name value to use
+            else
+            {
+                newObjectFormTree.Header = ((Button)newObjectFormTree.Header).Content;
+            }
+            newObjectFormTree.AddOnHoverMessage("Using this form you can add new objects into the " + newObjectFormTree.Header + " object\n" +
+                "For Example: You want to add an ingredient into a certain, existing, recipe.");
+            newObjectFormTree.AddContextMenu(RemoveChildContextMenu_Click);
+            NewObjectFormsPanel.Children.Add(newObjectFormTree);
+            //OpenTargetDialogWindow(newObjectFormTree, wrapperToUse, senderAsButton.Content.ToString().Split(":")[1]);
+        }
+        private void RemoveChildContextMenu_Click(object sender, RoutedEventArgs e)
+        {
+            Control myObjectControl = (Control)((MenuItem)sender).Tag;
+            NewObjectFormsPanel.Children.Remove(myObjectControl);
         }
         private void ClearAllObjectView_Click(object sender, RoutedEventArgs e)
         {
@@ -123,9 +160,17 @@ namespace SevenDaysToDieModCreator
             switch (result)
             {
                 case MessageBoxResult.OK:
-                    mainWindowViewController.ResetCreateView();
+                    this.ResetNewObjectView();
                     break;
             }
+        }
+        private void ResetNewObjectView() 
+        {
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, mainWindowViewController.leftNewObjectViewController.loadedListWrappers);
+            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, true);
+            NewObjectFormsPanel.Children.Clear();
+            mainWindowViewController.leftNewObjectViewController.loadedListWrappers.Clear();
+            XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, mainWindowViewController.leftNewObjectViewController.loadedListWrappers, XmlOutputBox);
         }
         private void ClearAllTreesView_Click(object sender, RoutedEventArgs e)
         {
@@ -134,7 +179,7 @@ namespace SevenDaysToDieModCreator
             {
                 case MessageBoxResult.OK:
                     ViewSp.Children.Clear();
-                    mainWindowViewController.listWrappersInTreeView.Clear();
+                    mainWindowViewController.rightSearchTreeViewController.loadedListWrappers.Clear();
                     break;
             }
         }
