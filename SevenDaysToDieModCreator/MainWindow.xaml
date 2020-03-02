@@ -46,14 +46,16 @@
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Grid.RowSpan="2">
+            <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,41">
                 <ScrollViewer HorizontalContentAlignment="Left" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
-                    <TextBox x:Name="XmlOutputBox" FontSize="18" FontFamily="Arial">
+                    <TextBox x:Name="XmlOutputBox" FontSize="18" AcceptsReturn="True" FontFamily="Arial">
                     </TextBox>
                 </ScrollViewer>
             </Grid>
-            <Grid Grid.Row="1" Margin="0,370,0,-79">
+            <Grid Grid.Row="1" Margin="0,313,0,-79">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="794">
+                    <ComboBox Name="OpenDirectEditViewComboBox" HorizontalContentAlignment="Center" FontSize="20" />
+                    <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18" >Open Direct Editor Window</Button>
                     <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     <Button x:Name="LoadFileViewButton" Click="LoadFile_Click" FontSize="18">Load File(s)</Button>
                 </StackPanel>

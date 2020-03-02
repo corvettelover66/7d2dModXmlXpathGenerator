@@ -13,7 +13,12 @@ namespace SevenDaysToDieModCreator.Models
             LoadFile(directory);
             FileName = ParseFileName(directory);
         }
-        public void LoadFile(string path)
+        public string GetFileNameWithoutExtension() 
+        {
+            //Expected fileName Before: "recipes.xml" After: "recipes"
+            return FileName.Substring(0, FileName.Length - 4);
+        }
+        private void LoadFile(string path)
         {
             xmlDocument = new XmlDocument();
             xmlDocument.PreserveWhitespace = true;
@@ -25,11 +30,6 @@ namespace SevenDaysToDieModCreator.Models
             {
                 Console.Error.Write("File Not Found!");
             }
-        }
-        public string GetFileNameWithoutExtension() 
-        {
-            //Expected fileName Before: "recipes.xml" After: "recipes"
-            return FileName.Substring(0, FileName.Length - 4);
         }
         private string ParseFileName(string directory)
         {

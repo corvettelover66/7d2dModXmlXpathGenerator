@@ -16,17 +16,17 @@ namespace SevenDaysToDieModCreator.Controllers
         //A dictionary for keeping track of TreeViews when using the search bar filter
         //Key file name for a wrapper
         //Value a List of TreeViews that were removed in the last search
-        private Dictionary<string, List<TreeViewItem>> removedTreeViews { get; set; }
+        private Dictionary<string, List<TreeViewItem>> RemovedTreeViews { get; set; }
 
         //A dictionary for finding XmlListWrappers by filename
         //Key top tag name i.e. recipe, progression, item
         //The corressponding list wrapper
-        public Dictionary<string, XmlObjectsListWrapper> loadedListWrappers { get; private set; }
+        public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
 
         public TreeViewController()
         {
-            removedTreeViews = new Dictionary<string, List<TreeViewItem>>();
-            loadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
+            RemovedTreeViews = new Dictionary<string, List<TreeViewItem>>();
+            LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
         }
 
         public TreeViewItem GetObjectTreeViewRecursive(XmlObjectsListWrapper xmlObjectListWrapper, RoutedEventHandler MakeObjectATargetButton_Click)
@@ -140,13 +140,13 @@ namespace SevenDaysToDieModCreator.Controllers
         private void SearchBoxUpdate(object sender)
         {
             ComboBox senderAsBox = (ComboBox)sender;
-            XmlObjectsListWrapper currentWrapper = this.loadedListWrappers.GetValueOrDefault(senderAsBox.Tag.ToString());
-            List<TreeViewItem> removedTreeList = this.removedTreeViews.GetValueOrDefault(currentWrapper.xmlFile.GetFileNameWithoutExtension());
+            XmlObjectsListWrapper currentWrapper = this.LoadedListWrappers.GetValueOrDefault(senderAsBox.Tag.ToString());
+            List<TreeViewItem> removedTreeList = this.RemovedTreeViews.GetValueOrDefault(currentWrapper.xmlFile.GetFileNameWithoutExtension());
             if (removedTreeList == null)
             {
                 removedTreeList = new List<TreeViewItem>();
-                this.removedTreeViews.Add(currentWrapper.xmlFile.GetFileNameWithoutExtension(), removedTreeList);
-                removedTreeList = this.removedTreeViews.GetValueOrDefault(currentWrapper.xmlFile.GetFileNameWithoutExtension());
+                this.RemovedTreeViews.Add(currentWrapper.xmlFile.GetFileNameWithoutExtension(), removedTreeList);
+                removedTreeList = this.RemovedTreeViews.GetValueOrDefault(currentWrapper.xmlFile.GetFileNameWithoutExtension());
             }
             TreeViewItem topTreeView = (TreeViewItem)senderAsBox.Parent;
             foreach (TreeViewItem removedTreeView in removedTreeList)

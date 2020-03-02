@@ -1,16 +1,13 @@
-﻿using Microsoft.Win32;
-using SevenDaysToDieModCreator.Controllers;
+﻿using SevenDaysToDieModCreator.Controllers;
 using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using SevenDaysToDieModCreator.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Markup;
 using System.Xml;
 
@@ -21,20 +18,21 @@ namespace SevenDaysToDieModCreator
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const int FONT_SIZE = 20;
-        private MainWindowViewController mainWindowViewController { get; set; }
+        private MainWindowViewController MainWindowViewController { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
             this.WindowState = WindowState.Maximized;
-            this.mainWindowViewController = new MainWindowViewController(NewObjectFormsPanel, XmlOutputBox, RemoveChildContextMenu_Click);
+            this.MainWindowViewController = new MainWindowViewController(NewObjectFormsPanel, XmlOutputBox, RemoveChildContextMenu_Click);
             Loaded += MyWindow_Loaded;
             Closing += new CancelEventHandler(MainWindow_Closing);
         }
         private void SetOnHoverMessages() 
         {
             SaveXmlViewButton.AddOnHoverMessage("This will save the XML into the appropriate files found at:\n" + XmlFileManager._ModPath+"\n");
+            OpenDirectEditViewComboBox.AddOnHoverMessage("The selected file for direct edits");
+            OpenDirectEditViewButton.AddOnHoverMessage("Click to open a window for direct edits to the selected file above");
             AddObjectViewButton.AddOnHoverMessage("Click to add a new object edit view using the object above\nWARNING: This could take awhile");
             AddNewTreeViewButton.AddOnHoverMessage("Click to add a new searchable tree view using the object above." +
                 "\nWith this tree you can also insert items into the existing items." +
@@ -47,47 +45,38 @@ namespace SevenDaysToDieModCreator
         }
         private void MyWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            //Need to reload all events when loading state like this.
-            //bool didLoad = LoadExternalXaml();
-            bool didLoad = false;
-            if (!didLoad) 
-            {
-                SetOnHoverMessages();
-                mainWindowViewController.LoadStartingDirectory(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox);
-                foreach (XmlObjectsListWrapper wrapper in mainWindowViewController.loadedListWrappers.Values)
-                {
-                    AllLoadedFilesComboBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
-                    AllLoadedNewObjectViewsComboBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
-                }
-            }
+            SetOnHoverMessages();
+            MainWindowViewController.LoadStartingDirectory(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox, OpenDirectEditViewComboBox);
             if (XmlXpathGenerator.MyCustomTagName.Equals("ThisNeedsToBeSet"))
             {
                 string fileContents = XmlFileManager.GetFileContents(XmlFileManager._filePath, XmlXpathGenerator.CustomTagFileName);
                 if(fileContents == null) OutputTagDialogPopup();
                 else XmlXpathGenerator.MyCustomTagName = fileContents;
             }
+            //Need to reload all events when loading state like this.
+            //bool didLoad = LoadExternalXaml();
         }
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, mainWindowViewController.leftNewObjectViewController.loadedListWrappers);
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
             if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, true);
             //SaveExternalXaml();
         }
         private void LoadFile_Click(object sender, RoutedEventArgs e)
         {
-            mainWindowViewController.LoadFilesViewControl(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox);
+            MainWindowViewController.LoadFilesViewControl(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox, OpenDirectEditViewComboBox);
         }
         private void SaveXmlFile_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show(
-                "This will overwrite all files in the output location. Are you sure?", 
-                "Save XML", 
+                "This will write all current generated xml to the appropriate files in the output location. Are you sure?", 
+                "Save Generated XML", 
                 MessageBoxButton.OKCancel, 
                 MessageBoxImage.Warning);
             switch (result)
             {
                 case MessageBoxResult.OK:
-                    XmlXpathGenerator.GenerateXmlForSave(NewObjectFormsPanel, mainWindowViewController.leftNewObjectViewController.loadedListWrappers, true);
+                    XmlXpathGenerator.GenerateXmlForSave(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers, true);
                     break;
             }
         }
@@ -95,36 +84,36 @@ namespace SevenDaysToDieModCreator
         {
             string selectedObject = AllLoadedNewObjectViewsComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
-            XmlObjectsListWrapper selectedWrapper = mainWindowViewController.loadedListWrappers.GetWrapperFromDictionary(selectedObject);
-            mainWindowViewController.leftNewObjectViewController.CreateNewObjectFormTree(selectedWrapper);
-            if (!mainWindowViewController.leftNewObjectViewController.loadedListWrappers.ContainsValue(selectedWrapper) && selectedWrapper != null) 
+            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
+            MainWindowViewController.LeftNewObjectViewController.CreateNewObjectFormTree(selectedWrapper);
+            if (!MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.ContainsValue(selectedWrapper) && selectedWrapper != null) 
             {
-                mainWindowViewController.leftNewObjectViewController.loadedListWrappers.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
+                MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
             }
         }
         private void AddNewTreeView_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = AllLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
-            XmlObjectsListWrapper selectedWrapper = mainWindowViewController.loadedListWrappers.GetWrapperFromDictionary(selectedObject);
-            TreeViewItem nextTreeView = mainWindowViewController.rightSearchTreeViewController.GetObjectTreeViewRecursive(selectedWrapper, MakeObjectATargetButton_Click);
+            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
+            TreeViewItem nextTreeView = MainWindowViewController.RightSearchTreeViewController.GetObjectTreeViewRecursive(selectedWrapper, MakeObjectATargetButton_Click);
             ViewSp.Children.Add(nextTreeView);
-            if (!mainWindowViewController.rightSearchTreeViewController.loadedListWrappers.ContainsValue(selectedWrapper) && selectedWrapper != null)
+            if (!MainWindowViewController.RightSearchTreeViewController.LoadedListWrappers.ContainsValue(selectedWrapper) && selectedWrapper != null)
             {
-                mainWindowViewController.rightSearchTreeViewController.loadedListWrappers.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
+                MainWindowViewController.RightSearchTreeViewController.LoadedListWrappers.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
             }
         }
         private void MakeObjectATargetButton_Click(object sender, RoutedEventArgs e)
         {
             Button senderAsButton = (Button)sender;
-            XmlObjectsListWrapper wrapperToUse = this.mainWindowViewController.loadedListWrappers.GetValueOrDefault(senderAsButton.Name);
-            if (!mainWindowViewController.leftNewObjectViewController.loadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
+            XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsButton.Name);
+            if (!MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
             {
-                mainWindowViewController.leftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
+                MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
             }
             string[] contentSplit = senderAsButton.Content.ToString().Split(":");
 
-            TreeViewItem newObjectFormTree = this.mainWindowViewController.leftNewObjectViewController.GenerateNewObjectFormTreeAddButton(wrapperToUse, contentSplit[0], true);
+            TreeViewItem newObjectFormTree = this.MainWindowViewController.LeftNewObjectViewController.GenerateNewObjectFormTreeAddButton(wrapperToUse, contentSplit[0], true);
             //Set the name to the wrapper so we can find the wrapper later
             newObjectFormTree.Name = senderAsButton.Name.ToString();
             //set the xmlNode that was included with the object into the top tree view
@@ -166,11 +155,11 @@ namespace SevenDaysToDieModCreator
         }
         private void ResetNewObjectView() 
         {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, mainWindowViewController.leftNewObjectViewController.loadedListWrappers);
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
             if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, true);
             NewObjectFormsPanel.Children.Clear();
-            mainWindowViewController.leftNewObjectViewController.loadedListWrappers.Clear();
-            XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, mainWindowViewController.leftNewObjectViewController.loadedListWrappers, XmlOutputBox);
+            MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Clear();
+            XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers, XmlOutputBox);
         }
         private void ClearAllTreesView_Click(object sender, RoutedEventArgs e)
         {
@@ -179,7 +168,7 @@ namespace SevenDaysToDieModCreator
             {
                 case MessageBoxResult.OK:
                     ViewSp.Children.Clear();
-                    mainWindowViewController.rightSearchTreeViewController.loadedListWrappers.Clear();
+                    MainWindowViewController.RightSearchTreeViewController.LoadedListWrappers.Clear();
                     break;
             }
         }
@@ -189,11 +178,9 @@ namespace SevenDaysToDieModCreator
             string path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Output\\state.xml");
             if (File.Exists(path))
             {
-                using (FileStream stream = new FileStream(@path, FileMode.Open))
-                {
-                    this.Content = XamlReader.Load(stream);
-                    didLoad = true;
-                }
+                using FileStream stream = new FileStream(@path, FileMode.Open);
+                this.Content = XamlReader.Load(stream);
+                didLoad = true;
             }
             return didLoad;
         }
@@ -201,10 +188,8 @@ namespace SevenDaysToDieModCreator
         public void SaveExternalXaml()
         {
             string path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Output\\state.xml");
-            using (FileStream stream = new FileStream(@path, FileMode.Create))
-            {
-                XamlWriter.Save(this.Content, stream);
-            }
+            using FileStream stream = new FileStream(@path, FileMode.Create);
+            XamlWriter.Save(this.Content, stream);
         }
         private void OutputTagDialogPopup()
         {
@@ -229,6 +214,15 @@ namespace SevenDaysToDieModCreator
                     }
                 }
             //}
+        }
+
+        private void OpenDirectEditViewButton_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedObject = OpenDirectEditViewComboBox.Text;
+            if (String.IsNullOrEmpty(selectedObject)) return;
+            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
+            DirectEditView directEdit = new DirectEditView(selectedWrapper);
+            directEdit.Show();
         }
     }
 }

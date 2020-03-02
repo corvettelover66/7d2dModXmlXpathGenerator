@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace SevenDaysToDieModCreator.Models
 {
@@ -11,13 +9,12 @@ namespace SevenDaysToDieModCreator.Models
         public static string _filePath = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
         public static string _ModPath = Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/Your Mod Name/config/");
         public static string LOCAL_DIR = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
-        private static string logFileName =  "log.txt";
+        private static readonly string logFileName =  "log.txt";
 
         public static void WriteStringToFile(string filePath, string fileName, string stringToWrite, bool addTimeStamp = false)
         {
             if (!Directory.Exists(filePath)) Directory.CreateDirectory(filePath);
-            //WriteXmlToLog(stringToWrite, fileName);
-            if (addTimeStamp && !String.IsNullOrEmpty(stringToWrite)) stringToWrite ="<!-- Xml Written at " + DateTime.Now.ToString("yyyy:m:d h:mm:ss tt") + " -->\n" + stringToWrite ;
+            if (addTimeStamp && !String.IsNullOrEmpty(stringToWrite)) stringToWrite ="<!-- Xml Written " + DateTime.Now.ToString("MMMM dd, yyyy") + " at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + stringToWrite ;
             try
             {
                 System.IO.File.WriteAllText(@filePath + fileName, stringToWrite);
@@ -33,7 +30,7 @@ namespace SevenDaysToDieModCreator.Models
             string filePath = @_filePath + logFileName;
             if (!File.Exists(filePath)) CreateFilePath(@_filePath, logFileName);
 
-            if (addTimeStamp) xml = "<!-- Xml Written at " + DateTime.Now.ToString("yyyy:mm:dd h:mm:ss tt") + " -->\n" + xml;
+            if (addTimeStamp) xml = "<!-- Xml Written " + DateTime.Now.ToString("MMMM dd, yyyy") +" at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + xml;
 
             AppendToFile(@_filePath, logFileName, xml);
         }
@@ -45,16 +42,26 @@ namespace SevenDaysToDieModCreator.Models
             ReadFile(path, fileName);
             return ReadFileContents;
         }
+        //Pass in the Custom Tag to exclude it from the read.
+        public static string ReadExistingFile(string fileName, string MyCustomTagName = null)
+        {
+            string fileContents = GetFileContents(@_ModPath, fileName);
+            if (fileContents != null && MyCustomTagName != null)
+            {
+                fileContents = fileContents.Replace("<" + MyCustomTagName + ">\n", "");
+                fileContents = fileContents.Replace("</" + MyCustomTagName + ">", "");
+            }
+
+            return fileContents;
+        }
         private static void ReadFile(string path, string fileName)
         {
             string line = null;
             try
             {
-                using (StreamReader sr = new StreamReader(@path + fileName))
-                {
-                    line = sr.ReadToEnd();
-                    if (line.Length < 1) line = null;
-                }
+                using StreamReader sr = new StreamReader(@path + fileName);
+                line = sr.ReadToEnd();
+                if (line.Length < 1) line = null;
             }
             catch (FileNotFoundException)
             {
@@ -66,11 +73,8 @@ namespace SevenDaysToDieModCreator.Models
         {
             try
             {
-                using (System.IO.StreamWriter file =
-                    new System.IO.StreamWriter(@path + fileName, true))
-                {
-                    file.Write("");
-                }
+                using System.IO.StreamWriter file = new System.IO.StreamWriter(@path + fileName, true);
+                file.Write("");
             }
             catch (IOException)
             {
@@ -79,11 +83,8 @@ namespace SevenDaysToDieModCreator.Models
         }
         private static void AppendToFile(string path, string fileName, string stringToWrite)
         {
-            using (System.IO.StreamWriter file =
-                new System.IO.StreamWriter(@path + fileName, true))
-            {
-                file.WriteLine(stringToWrite);
-            }
+            using System.IO.StreamWriter file = new System.IO.StreamWriter(@path + fileName, true);
+            file.WriteLine(stringToWrite);
         }
     }
 }
