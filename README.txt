@@ -2,11 +2,7 @@ Project Title
 7 Days To Die Mod Creator
 
 About Me
-Thanks for downloading my application! A little about me, former Java developer in California, now a Programming Teacher in France!
-I developed this application while waiting for my first boy to be born, at the disdain of my lovely wife :) (due to the tremendous amount of time drilled to my computer) 
-Honestly, with the new baby on the way we are struggling to make ends meet. If you like the app and are feeling generous, 
-please don't hesitate to drop us a donation. And know, we would really appreciate it!
-
+Thanks for downloading my application! 
 Good Luck with you mods and please don't forget to leave an endorsement if you like the app! 
 Also, if you use this to create other mods Leave a link to my mod so other people can find it too.
 
