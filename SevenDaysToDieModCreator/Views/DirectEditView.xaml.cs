@@ -25,7 +25,7 @@ namespace SevenDaysToDieModCreator.Views
         private void DirectEditView_Closing(object sender, CancelEventArgs e)
         {
             string fileContents = XmlFileManager.ReadExistingFile(Wrapper.xmlFile.FileName);
-            if (!fileContents.Equals(XmlOutputBox.Text)) 
+            if (!String.IsNullOrEmpty(fileContents) && !fileContents.Equals(XmlOutputBox.Text)) 
             {
                 MessageBoxResult result = MessageBox.Show(
                     "You have unsaved changes! Would you like to save them now?",
@@ -36,7 +36,7 @@ namespace SevenDaysToDieModCreator.Views
                 {
                     case MessageBoxResult.OK:
                         string xmlOut = XmlOutputBox.Text;
-                        if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(XmlFileManager._ModPath, Wrapper.xmlFile.FileName, xmlOut, true);
+                        if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(XmlFileManager._ModOutputPath, Wrapper.xmlFile.FileName, xmlOut, true);
                         break;
                     case MessageBoxResult.Cancel:
                         DirectEditView directEditView =  new DirectEditView(this.Wrapper, XmlOutputBox.Text);
@@ -62,7 +62,7 @@ namespace SevenDaysToDieModCreator.Views
             {
                 case MessageBoxResult.OK:
                     string xmlOut = XmlOutputBox.Text;
-                    if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(XmlFileManager._ModPath, Wrapper.xmlFile.FileName, xmlOut);
+                    if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(XmlFileManager._ModOutputPath, Wrapper.xmlFile.FileName, xmlOut);
                     this.Close();
                     break;
             }

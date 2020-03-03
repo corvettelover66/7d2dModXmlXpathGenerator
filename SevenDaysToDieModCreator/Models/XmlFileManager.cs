@@ -6,9 +6,10 @@ namespace SevenDaysToDieModCreator.Models
     class XmlFileManager
     {
         private static string ReadFileContents;
-        public static string _filePath = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
-        public static string _ModPath = Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/Your Mod Name/config/");
-        public static string LOCAL_DIR = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
+        public static string _filePath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
+        public static string _ModPath { get; set; } = Properties.Settings.Default.CustomTagName + "/config/";
+        public static string _ModOutputPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + Properties.Settings.Default.CustomTagName + "/config/");
+        public static string LOCAL_DIR { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
         private static readonly string logFileName =  "log.txt";
 
         public static void WriteStringToFile(string filePath, string fileName, string stringToWrite, bool addTimeStamp = false)
@@ -45,7 +46,7 @@ namespace SevenDaysToDieModCreator.Models
         //Pass in the Custom Tag to exclude it from the read.
         public static string ReadExistingFile(string fileName, string MyCustomTagName = null)
         {
-            string fileContents = GetFileContents(@_ModPath, fileName);
+            string fileContents = GetFileContents(_ModOutputPath, fileName);
             if (fileContents != null && MyCustomTagName != null)
             {
                 fileContents = fileContents.Replace("<" + MyCustomTagName + ">\n", "");
@@ -85,6 +86,21 @@ namespace SevenDaysToDieModCreator.Models
         {
             using System.IO.StreamWriter file = new System.IO.StreamWriter(@path + fileName, true);
             file.WriteLine(stringToWrite);
+        }
+
+        public static void CopyAllOutputFiles()
+        {
+            string gameModDirectory = Properties.Settings.Default.GameFolderModDirectory + _ModPath;
+            if (!Directory.Exists(gameModDirectory)) Directory.CreateDirectory(gameModDirectory);
+            if (!String.IsNullOrEmpty(gameModDirectory)) 
+            {
+                foreach (string nextFile in Directory.GetFiles(_ModOutputPath, "*.xml"))
+                {
+                    string gameModDirectoryNextFile = gameModDirectory + Path.GetFileName(nextFile);
+                    if (File.Exists(gameModDirectoryNextFile)) File.Delete(gameModDirectoryNextFile);
+                    File.Copy(nextFile, gameModDirectoryNextFile);
+                }
+            }
         }
     }
 }

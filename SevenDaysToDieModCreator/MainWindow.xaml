@@ -13,11 +13,17 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Margin="0,0,0,361">
             <DockPanel>
-                <Menu DockPanel.Dock="Top">
-                    <MenuItem Header="_File" FontSize="16">
-                        <MenuItem Header="Load File(s)" Name="LoadFileMenuHeader" Click="LoadFile_Click"/>
-                        <MenuItem Name="ChangeModGameDirectoryMenu"  Header="Change Mod Game Directory" Click="ChangeModGameDirectoryMenu_Click"/>
-                        <MenuItem Header="Help" Click="HelpMenu_Click"/>
+                <Menu DockPanel.Dock="Top" FontSize="20">
+                    <MenuItem Header="_File">
+                        <MenuItem Header="Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
+                        <MenuItem Header="Save Files" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
+                        <MenuItem Header="Move Files" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
+                        <MenuItem Header="Change Auto Move Status" Name="ChangeAutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click"></MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="_Help">
+                        <MenuItem Header="Change Mod Game Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
+                        <MenuItem Header="Change Custom Tag" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click"></MenuItem>
+                        <MenuItem Header="Help" Name="HelpMenuItem"  Click="HelpMenu_Click"/>
                     </MenuItem>
                 </Menu>
                 <StackPanel></StackPanel>

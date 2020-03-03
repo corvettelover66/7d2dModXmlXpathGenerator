@@ -23,7 +23,8 @@ namespace SevenDaysToDieModCreator.Models
             }
             return xmlOut;
         }
-        public static void GenerateXmlForSave(StackPanel newObjectFormsPanel, Dictionary<string, XmlObjectsListWrapper> listWrappersInView, bool writeToLog = false)
+
+        public static void SaveAllGeneratedXmlToPath(StackPanel newObjectFormsPanel, Dictionary<string, XmlObjectsListWrapper> listWrappersInView, string path, bool writeToLog = false)
         {
             foreach (Control nextChild in newObjectFormsPanel.Children)
             {
@@ -33,14 +34,14 @@ namespace SevenDaysToDieModCreator.Models
                     TreeViewItem nextChildAsTree = (TreeViewItem)nextChild;
                     XmlObjectsListWrapper xmlObjectsListWrapper = listWrappersInView.GetValueOrDefault(nextChildAsTree.Name);
                     string xmlOut = GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper, true);
-                    if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(XmlFileManager._ModPath, xmlObjectsListWrapper.xmlFile.FileName, xmlOut, true);
-                    if(writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteXmlToLog(xmlOut, true);
+                    if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(path, xmlObjectsListWrapper.xmlFile.FileName, xmlOut, true);
+                    if (writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteXmlToLog(xmlOut, true);
                 }
             }
         }
         private static string GenerateXmlWithWrapper(Control parentControl, XmlObjectsListWrapper xmlObjectsListWrapper, bool includeExistingData = false)
         {
-            string topTag = "\n<" + Properties.Application.Default.CustomTagName + ">\n";
+            string topTag = "\n<" + Properties.Settings.Default.CustomTagName + ">\n";
             string xmlOut = "";
             string existingWrapperFileData = "";
             TreeViewItem nextChildAsTree = (TreeViewItem)parentControl;
@@ -63,11 +64,11 @@ namespace SevenDaysToDieModCreator.Models
                     }
                 }
             }
-            if(includeExistingData) existingWrapperFileData = XmlFileManager.ReadExistingFile(xmlObjectsListWrapper.xmlFile.FileName, Properties.Application.Default.CustomTagName);
+            if(includeExistingData) existingWrapperFileData = XmlFileManager.ReadExistingFile(xmlObjectsListWrapper.xmlFile.FileName, Properties.Settings.Default.CustomTagName);
             if (!String.IsNullOrEmpty(xmlOut))
             { 
                 if (!String.IsNullOrEmpty(existingWrapperFileData)) xmlOut += existingWrapperFileData;
-                xmlOut = topTag + xmlOut + "</" + Properties.Application.Default.CustomTagName + ">\n";
+                xmlOut = topTag + xmlOut + "</" + Properties.Settings.Default.CustomTagName + ">\n";
             }
             return xmlOut;
         }
@@ -197,7 +198,7 @@ namespace SevenDaysToDieModCreator.Models
         public static void GenerateXmlViewOutput(StackPanel newObjectFormsPanel, Dictionary<string, XmlObjectsListWrapper> listWrappersInObjectView, TextBox xmlOutBlock)
         {
             string addedViewTextStart = "WARNING: Direct text edits made here will NOT be saved.\n" +
-             "You can make direct changes to the file at: \n\t" + XmlFileManager._ModPath + "\n\n" +
+             "You can make direct changes to the file at: \n\t" + XmlFileManager._ModOutputPath + "\n\n" +
              "You can also select a file below and open the direct editor window.\n\n" +
              "<!-- -------------------------------------- Current Unsaved XML ----------------------------------- -->\n\n";
             string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
@@ -205,7 +206,7 @@ namespace SevenDaysToDieModCreator.Models
 
             foreach (XmlObjectsListWrapper xmlObjectsListWrapper in listWrappersInObjectView.Values) 
             {
-                existingWrapperFileData += XmlFileManager.ReadExistingFile(xmlObjectsListWrapper.xmlFile.FileName, Properties.Application.Default.CustomTagName);
+                existingWrapperFileData += XmlFileManager.ReadExistingFile(xmlObjectsListWrapper.xmlFile.FileName, Properties.Settings.Default.CustomTagName);
             }
 
             string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel, listWrappersInObjectView);

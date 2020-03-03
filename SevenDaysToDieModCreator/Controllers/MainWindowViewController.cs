@@ -30,7 +30,7 @@ namespace SevenDaysToDieModCreator.Controllers
             string[] files = Directory.GetFiles(XmlFileManager.LOCAL_DIR);
             foreach (string file in files) 
             {
-                LoadFile(allLoadedFilesBox, allLoadedObjectsBox, openDirectEditViewComboBox, file, true);
+                LoadFile(allLoadedFilesBox, allLoadedObjectsBox, openDirectEditViewComboBox, file);
             }
         }
 
@@ -47,13 +47,13 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     foreach (string nextFileName in openFileDialog.FileNames) 
                     {
-                        bool didLoad = LoadFile(allLoadedFilesBox, allLoadedObjectsBox, openDirectEditViewComboBox, nextFileName, false);
+                        bool didLoad = LoadFile(allLoadedFilesBox, allLoadedObjectsBox, openDirectEditViewComboBox, nextFileName);
                         if (!didLoad) unloadedFiles.Add(nextFileName);
                     }
                 }
                 else 
                 {
-                    bool didLoad = LoadFile(allLoadedFilesBox, allLoadedObjectsBox, openDirectEditViewComboBox, openFileDialog.FileName, false);
+                    bool didLoad = LoadFile(allLoadedFilesBox, allLoadedObjectsBox, openDirectEditViewComboBox, openFileDialog.FileName);
                     if (!didLoad) unloadedFiles.Add(openFileDialog.FileName);
                 }
             }
@@ -72,7 +72,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 MessageBox.Show(messageBoxText, caption, button, icon);
             }
         }
-        private bool LoadFile(ComboBox allLoadedFilesBox, ComboBox allLoadedObjectsBox, ComboBox openDirectEditViewComboBox, string fileName, bool isStartup) 
+        private bool LoadFile(ComboBox allLoadedFilesBox, ComboBox allLoadedObjectsBox, ComboBox openDirectEditViewComboBox, string fileName) 
         {
             bool didLoad = false;
             if (fileName.EndsWith(".xml"))
@@ -80,7 +80,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 XmlObjectsListWrapper wrapper = new XmlObjectsListWrapper(new XmlFileObject(fileName));
                 try
                 {
-                    if (!isStartup) File.Copy(fileName, XmlFileManager.LOCAL_DIR + wrapper.xmlFile.FileName);
+                    if(!File.Exists(XmlFileManager.LOCAL_DIR + wrapper.xmlFile.FileName))File.Copy(fileName, XmlFileManager.LOCAL_DIR + wrapper.xmlFile.FileName);
                     this.LoadedListWrappers.Add(wrapper.xmlFile.GetFileNameWithoutExtension(), wrapper);
                     allLoadedFilesBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
                     allLoadedObjectsBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
