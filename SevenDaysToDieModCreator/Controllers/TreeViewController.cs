@@ -88,7 +88,7 @@ namespace SevenDaysToDieModCreator.Controllers
                                 parent = parent.ParentNode;
                             }
                         }
-                        tagAttributeName = nextObjectTreeViewItem.Tag == null ? parent.Attributes[0].Value : nextObjectTreeViewItem.Tag.ToString();
+                        if(parent.Attributes != null) tagAttributeName = nextObjectTreeViewItem.Tag == null ? parent.Attributes[0].Value : nextObjectTreeViewItem.Tag.ToString();
                     }
                     Button makeObjectATargetButton = new Button
                     {

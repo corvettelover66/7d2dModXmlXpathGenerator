@@ -92,7 +92,7 @@ namespace SevenDaysToDieModCreator.Models
                 List<string> currentMap = this.objectNameToChildrenMap.GetValueOrDefault(nextObjectNode.Name);
                 if (currentMap == null) 
                 {
-                    this.objectNameToChildrenMap.Add(nextObjectNode.Name.ToLower(), new List<string>());
+                    this.objectNameToChildrenMap.Add(nextObjectNode.Name, new List<string>());
                 }
                 TraverseXmlNodeList(nextObjectNode.ChildNodes, nextObjectNode.Name);
             }

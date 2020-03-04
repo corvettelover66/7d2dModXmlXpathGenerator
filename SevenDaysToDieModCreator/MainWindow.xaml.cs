@@ -40,10 +40,10 @@ namespace SevenDaysToDieModCreator
             ChangeCustomTagMenuItem.AddOnHoverMessage("Click here to change the custom tag");
             ChangeModGameDirectoryMenu.AddOnHoverMessage("Click here to change the output directory for the Auto Move Function");
             MoveFileMenuItem.AddOnHoverMessage("Click here to move all generated mod files directly to the User Set Game Directory");
-            SaveFileMenuItem.AddOnHoverMessage("Click here to save the XML into the appropriate files found at:\n" + XmlFileManager._ModOutputPath + "\n");
+            SaveFileMenuItem.AddOnHoverMessage("Click here to save all generated XML into the appropriate files in the output location");
             LoadFileMenuItem.AddOnHoverMessage("Click to load an xml file or multiple xml files\nThis would typically be a game xml file such as recipes.xml");
             //Buttons
-            SaveXmlViewButton.AddOnHoverMessage("Click here to save all generated XML from the Object View into the appropriate files found at:\n" + XmlFileManager._ModOutputPath+"\n");
+            SaveXmlViewButton.AddOnHoverMessage("Click here to save all generated XML into the appropriate files in the output location");
             OpenDirectEditViewButton.AddOnHoverMessage("Click to open a window to make direct edits to the selected file from the combo box above");
             AddObjectViewButton.AddOnHoverMessage("Click to add a new object edit view using the object above\nWARNING: This could take awhile");
             AddNewTreeViewButton.AddOnHoverMessage("Click to add a new searchable tree view using the object above." +
@@ -60,10 +60,7 @@ namespace SevenDaysToDieModCreator
         {
             SetOnHoverMessages();
             MainWindowViewController.LoadStartingDirectory(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox, OpenDirectEditViewComboBox);
-            if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet"))
-            {
-                CustomTagDialogPopUp();
-            }
+            if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp();
             //Need to reload all events when loading state like this.
             //bool didLoad = LoadExternalXaml();
         }
@@ -131,8 +128,10 @@ namespace SevenDaysToDieModCreator
         private void HandleMissingGameModDirectory()
         {
             MessageBoxResult result = MessageBox.Show(
-             "For the Auto Move function to work you must set the Game Folder Directory. If that folder does not exist please create it first.\n\n" +
-             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation. Example: PathToGame\"7 Days To Die\\Mods\\",
+             "For the Auto Move function to work you must set the Game Folder Directory.\n\n" +
+             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation. " +
+             "Example: PathToGame\"7 Days To Die\\Mods\\ \n" +
+             "If that folder does not exist please create it first. ",
              "Set Game Mod Folder Location",
              MessageBoxButton.OK,
              MessageBoxImage.Warning);
@@ -333,53 +332,45 @@ namespace SevenDaysToDieModCreator
         private void MoveFileMenuHeader_Click(object sender, RoutedEventArgs e)
         {
             string gameModDirectory = Properties.Settings.Default.GameFolderModDirectory;
-            if (String.IsNullOrEmpty(gameModDirectory))
+            MessageBoxResult result = MessageBox.Show(
+                "This will copy all local generated xmls files at " +
+                    XmlFileManager._ModOutputPath + "\n"+
+                " and replace the files at \n" +
+                gameModDirectory + XmlFileManager._ModPath +"\n"+
+                "Are you sure?",
+                "Stage Generated XMLS",
+                MessageBoxButton.OKCancel,
+                MessageBoxImage.Warning);
+            switch (result)
             {
-                HandleMissingGameModDirectory();
-                XmlFileManager.CopyAllOutputFiles();
-            }
-            else
-            {
-                MessageBoxResult result = MessageBox.Show(
-                    "This will copy all local generated xmls files at " +
-                     XmlFileManager._ModOutputPath + "\n"+
-                    " and replace the files at \n" +
-                    gameModDirectory + XmlFileManager._ModPath +"\n"+
-                    "Are you sure?",
-                    "Stage Generated XMLS",
-                    MessageBoxButton.OKCancel,
-                    MessageBoxImage.Warning);
-                switch (result)
-                {
-                    case MessageBoxResult.OK:
-                        XmlFileManager.CopyAllOutputFiles();
-                        break;
-                }
+                case MessageBoxResult.OK:
+                    //User clicked move before setting the Game Mod folder
+                    if (String.IsNullOrEmpty(gameModDirectory))HandleMissingGameModDirectory();
+                    //Make sure they set the Game mod directory
+                    if(!String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory))XmlFileManager.CopyAllOutputFiles();
+                    break;
             }
         }
-
         private void ChangeCustomTagMenuItem_Click(object sender, RoutedEventArgs e)
         {
             CustomTagDialogPopUp("Please input/select your custom tag.\n\n" +
                 "This will also be used in the File Generation Folder and the Game Output folder with the Auto Move feature.\n\n" +
-                "It is worth noting that the current tag will generate a tag specfic folder in the output.\n" +
+                "It is worth noting that the current tag will generate a tag specific folder in the output location.\n" +
                 "This can be used to effectively \"Switch\" between mods you are working on." +
                 " If you want to start a new mod create a new tag, or select an existing tag to continue work on those mod files.\n\n"+
                 "Your current tag is: " + Properties.Settings.Default.CustomTagName);
         }
-
         private void ChangeAutoMoveMenuItem_Click(object sender, RoutedEventArgs e)
         {
             CheckAutoMoveProperty();
         }
-
         private void CheckAllSettingsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             string currentStatus = Properties.Settings.Default.AutoMoveMod ? "Activated" : "Deactived";
             string autoMoveStatus = "Auto Move Status: " + currentStatus +"\n\n";
             string autoMoveDirectory = String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory) ? "Auto Move Directory: Not Set" :
                 "Auto Move Directory: " + Properties.Settings.Default.GameFolderModDirectory + "\n\n";
-            string customTag = String.IsNullOrEmpty(Properties.Settings.Default.CustomTagName) ? "Custom Tag: Not Set"  :
+            string customTag = String.IsNullOrEmpty(Properties.Settings.Default.CustomTagName) ? "Custom Tag: Not Set\n\n"  :
                 "Custom Tag: " + Properties.Settings.Default.CustomTagName + "\n\n";
             string messageString = autoMoveStatus + autoMoveDirectory + customTag;
             MessageBox.Show(messageString, "All Settings", MessageBoxButton.OK, MessageBoxImage.Information);

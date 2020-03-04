@@ -4,9 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SevenDaysToDieModCreator.Views"
-        Height="318" Width="704" ResizeMode="NoResize">
-    <Grid Height="267">
-        <StackPanel Name="CustomDialogPanel" VerticalAlignment="Center" Height="247">
+        Height="357" Width="704" ResizeMode="NoResize">
+    <Grid Height="333">
+        <StackPanel Name="CustomDialogPanel" VerticalAlignment="Center" Height="333">
             <TextBlock FontFamily="Arial" FontSize="15" TextWrapping="Wrap" Name="LabelTextBlock" Height="196" Width="602"/>
             <Button FontFamily="Arial" Content="OK" Click="OKButton_Click" />
         </StackPanel>
