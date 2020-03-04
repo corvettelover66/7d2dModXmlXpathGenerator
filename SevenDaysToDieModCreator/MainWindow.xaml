@@ -16,13 +16,17 @@
                 <Menu DockPanel.Dock="Top" FontSize="20">
                     <MenuItem Header="_File">
                         <MenuItem Header="Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
-                        <MenuItem Header="Save Files" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
-                        <MenuItem Header="Move Files" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
-                        <MenuItem Header="Change Auto Move Status" Name="ChangeAutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click"></MenuItem>
+                        <MenuItem Header="Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
+                        <MenuItem Header="Stage All" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
+                    </MenuItem>
+                    <MenuItem Header="_Settings">
+                        <MenuItem Header="Auto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
+                        <MenuItem Header="Mod Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
+                        <MenuItem Header="Custom Tag" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click" />
+                        <MenuItem Header="Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
+
                     </MenuItem>
                     <MenuItem Header="_Help">
-                        <MenuItem Header="Change Mod Game Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
-                        <MenuItem Header="Change Custom Tag" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click"></MenuItem>
                         <MenuItem Header="Help" Name="HelpMenuItem"  Click="HelpMenu_Click"/>
                     </MenuItem>
                 </Menu>

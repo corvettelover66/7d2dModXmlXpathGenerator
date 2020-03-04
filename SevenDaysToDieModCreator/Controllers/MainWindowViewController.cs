@@ -11,7 +11,7 @@ namespace SevenDaysToDieModCreator.Controllers
     class MainWindowViewController
     {
         //A dictionary for finding XmlListWrappers by filename
-        //Key top tag name i.e. recipe, progression, item
+        //Key file name without .xml i.e. recipes, progressions, items
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
         public TreeViewController RightSearchTreeViewController { get; private set; }
@@ -26,8 +26,8 @@ namespace SevenDaysToDieModCreator.Controllers
 
         public void LoadStartingDirectory(ComboBox allLoadedFilesBox, ComboBox allLoadedObjectsBox, ComboBox openDirectEditViewComboBox)
         {
-            if (!Directory.Exists(XmlFileManager.LOCAL_DIR)) Directory.CreateDirectory(XmlFileManager.LOCAL_DIR);
-            string[] files = Directory.GetFiles(XmlFileManager.LOCAL_DIR);
+            if (!Directory.Exists(XmlFileManager._LoadedFilesPath)) Directory.CreateDirectory(XmlFileManager._LoadedFilesPath);
+            string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath);
             foreach (string file in files) 
             {
                 LoadFile(allLoadedFilesBox, allLoadedObjectsBox, openDirectEditViewComboBox, file);
@@ -80,7 +80,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 XmlObjectsListWrapper wrapper = new XmlObjectsListWrapper(new XmlFileObject(fileName));
                 try
                 {
-                    if(!File.Exists(XmlFileManager.LOCAL_DIR + wrapper.xmlFile.FileName))File.Copy(fileName, XmlFileManager.LOCAL_DIR + wrapper.xmlFile.FileName);
+                    if(!File.Exists(XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName))File.Copy(fileName, XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName);
                     this.LoadedListWrappers.Add(wrapper.xmlFile.GetFileNameWithoutExtension(), wrapper);
                     allLoadedFilesBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
                     allLoadedObjectsBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());

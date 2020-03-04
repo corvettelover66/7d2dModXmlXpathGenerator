@@ -7,9 +7,18 @@ namespace SevenDaysToDieModCreator.Models
     {
         private static string ReadFileContents;
         public static string _filePath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
-        public static string _ModPath { get; set; } = Properties.Settings.Default.CustomTagName + "/config/";
-        public static string _ModOutputPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + Properties.Settings.Default.CustomTagName + "/config/");
-        public static string LOCAL_DIR { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
+        //public static string _ModPath { get; set; } = Properties.Settings.Default.CustomTagName + "/config/";
+        public static string _ModPath
+        {
+            get => Properties.Settings.Default.CustomTagName + "/config/";
+            set => _ModPath = value;
+        }
+        public static string _ModOutputPath
+        {
+            get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + Properties.Settings.Default.CustomTagName + "/config/");
+            set => _ModOutputPath = value;
+        }
+        public static string _LoadedFilesPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
         private static readonly string logFileName =  "log.txt";
 
         public static void WriteStringToFile(string filePath, string fileName, string stringToWrite, bool addTimeStamp = false)
@@ -92,6 +101,7 @@ namespace SevenDaysToDieModCreator.Models
         {
             string gameModDirectory = Properties.Settings.Default.GameFolderModDirectory + _ModPath;
             if (!Directory.Exists(gameModDirectory)) Directory.CreateDirectory(gameModDirectory);
+            if(!Directory.Exists(_ModOutputPath)) Directory.CreateDirectory(_ModOutputPath);
             if (!String.IsNullOrEmpty(gameModDirectory)) 
             {
                 foreach (string nextFile in Directory.GetFiles(_ModOutputPath, "*.xml"))

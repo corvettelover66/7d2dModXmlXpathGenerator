@@ -25,7 +25,6 @@ namespace SevenDaysToDieModCreator
         public MainWindow()
         {
             InitializeComponent();
-            Properties.Settings.Default.GameFolderModDirectory = "";
             //Properties.Settings.Default.AutoMoveDecisionMade = false;
             this.WindowState = WindowState.Maximized;
             this.MainWindowViewController = new MainWindowViewController(NewObjectFormsPanel, XmlOutputBox, RemoveChildContextMenu_Click);
@@ -36,16 +35,16 @@ namespace SevenDaysToDieModCreator
         {
             //Menu Item
             HelpMenuItem.AddOnHoverMessage("Click to see more information about the app");
-            ChangeCustomTagMenuItem.AddOnHoverMessage("Click here to change the custom tag.\nChanging the tag also changes the name of the output folder for the mod.");
-            ChangeModGameDirectoryMenu.AddOnHoverMessage("This will be the directory used when Moving the application generated xml files.\n" +
-                "Ex: GameDirectory\\7 days to die\\Mods");
-            MoveFileMenuItem.AddOnHoverMessage("Click here to move the local app generated mod files to the Game Directory.");
-            SaveFileMenuItem.AddOnHoverMessage("Click here to save the xml files.\n" +
-                "If auto move is activated this will also move the geerated fles to the game directory.");
-            LoadFileMenuItem.AddOnHoverMessage("Click to load an xml file or multiple xml files\nLoaded files will persist on application close");
+            CheckAllSettingsMenuItem.AddOnHoverMessage("Click here to see all the User Settings above");
+            AutoMoveMenuItem.AddOnHoverMessage("Click here to change the Auto Move setting");
+            ChangeCustomTagMenuItem.AddOnHoverMessage("Click here to change the custom tag");
+            ChangeModGameDirectoryMenu.AddOnHoverMessage("Click here to change the output directory for the Auto Move Function");
+            MoveFileMenuItem.AddOnHoverMessage("Click here to move all generated mod files directly to the User Set Game Directory");
+            SaveFileMenuItem.AddOnHoverMessage("Click here to save the XML into the appropriate files found at:\n" + XmlFileManager._ModOutputPath + "\n");
+            LoadFileMenuItem.AddOnHoverMessage("Click to load an xml file or multiple xml files\nThis would typically be a game xml file such as recipes.xml");
             //Buttons
-            SaveXmlViewButton.AddOnHoverMessage("This will save the XML into the appropriate files found at:\n" + XmlFileManager._ModOutputPath+"\n");
-            OpenDirectEditViewButton.AddOnHoverMessage("Click to open a window for direct edits to the selected file above");
+            SaveXmlViewButton.AddOnHoverMessage("Click here to save all generated XML from the Object View into the appropriate files found at:\n" + XmlFileManager._ModOutputPath+"\n");
+            OpenDirectEditViewButton.AddOnHoverMessage("Click to open a window to make direct edits to the selected file from the combo box above");
             AddObjectViewButton.AddOnHoverMessage("Click to add a new object edit view using the object above\nWARNING: This could take awhile");
             AddNewTreeViewButton.AddOnHoverMessage("Click to add a new searchable tree view using the object above." +
                 "\nWith this tree you can also insert items into the existing items." +
@@ -53,7 +52,7 @@ namespace SevenDaysToDieModCreator
             ClearAllObjectsViewButton.AddOnHoverMessage("Click to remove all objects from the view above");
             ClearTreesViewButton.AddOnHoverMessage("Click to remove all trees from the view above");
             //Combo Boxes
-            OpenDirectEditViewComboBox.AddOnHoverMessage("The selected file for direct edits");
+            OpenDirectEditViewComboBox.AddOnHoverMessage("The combo box to select a file for direct edits");
             AllLoadedFilesComboBox.AddOnHoverMessage("The selected object here is used to create the tree view below\nAdd objects to the list by loading an xml file from the game folder");
             AllLoadedNewObjectViewsComboBox.AddOnHoverMessage("The selected object here is used to create the new object view below\nAdd objects to the list by loading an xml file from the game folder.");
         }
@@ -80,9 +79,14 @@ namespace SevenDaysToDieModCreator
         }
         private void SaveXmlFile_Click(object sender, RoutedEventArgs e)
         {
-            if (!Properties.Settings.Default.AutoMoveDecisionMade) CheckAutoMoveProperty("You can change this setting later using the File menu.");
+            string autoMoveString = "";
+            if (!Properties.Settings.Default.AutoMoveDecisionMade) CheckAutoMoveProperty("You can change this setting later using the Settings menu.");
+            if (Properties.Settings.Default.AutoMoveMod) autoMoveString = "Auto move is active! This will also automatically move the files to \n"+
+                                                                                    Properties.Settings.Default.GameFolderModDirectory;
             MessageBoxResult result = MessageBox.Show(
-                "This will write all current generated xml to the appropriate files in the output location. Are you sure?", 
+                "This will write all current generated xml to the appropriate files in the output location.\n" +
+                "Are you sure?\n" +
+                autoMoveString, 
                 "Save Generated XML", 
                 MessageBoxButton.OKCancel, 
                 MessageBoxImage.Warning);
@@ -129,7 +133,7 @@ namespace SevenDaysToDieModCreator
             MessageBoxResult result = MessageBox.Show(
              "For the Auto Move function to work you must set the Game Folder Directory. Please do that now.\n\n" +
              "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation.\n" +
-             "Example: \"7 Days To Die\\Mods \"If that folder does not exist please create it first.",
+             "Example: \"7 Days To Die\\Mods\" If that folder does not exist please create it first.",
              "Set Game Mod Folder Location",
              MessageBoxButton.OK,
              MessageBoxImage.Warning);
@@ -300,8 +304,20 @@ namespace SevenDaysToDieModCreator
 
         private void HelpMenu_Click(object sender, RoutedEventArgs e)
         {
-            string readmeFileContents = XmlFileManager.GetFileContents(XmlFileManager.LOCAL_DIR, "README.txt");
-            MessageBox.Show(readmeFileContents, "Help", MessageBoxButton.OK, MessageBoxImage.Information);   
+
+            string readmeFileContents = XmlFileManager.GetFileContents(Directory.GetCurrentDirectory()+"/", "README.txt");
+            if (String.IsNullOrEmpty(readmeFileContents))
+            {
+                readmeFileContents = "For more information please read the README.txt. \n" +
+                    "It can be found in the archive on downloading the app or on the Nexus." +
+                    "If you are still having trouble send me a message on the nexus with as much information as possible." +
+                    "Without enough information I cannot help you.";
+                MessageBox.Show(readmeFileContents, "Help", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else 
+            {
+                this.XmlOutputBox.Text = readmeFileContents;
+            }
         }
 
         private void ChangeModGameDirectoryMenu_Click(object sender, RoutedEventArgs e)
@@ -325,7 +341,7 @@ namespace SevenDaysToDieModCreator
                     " and replace the files at \n" +
                     gameModDirectory + XmlFileManager._ModPath +"\n"+
                     "Are you sure?",
-                    "Save Generated XML",
+                    "Stage Generated XMLS",
                     MessageBoxButton.OKCancel,
                     MessageBoxImage.Warning);
                 switch (result)
@@ -339,14 +355,29 @@ namespace SevenDaysToDieModCreator
 
         private void ChangeCustomTagMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            CustomTagDialogPopUp("Please input your new custom tag now.\n" +
+            CustomTagDialogPopUp("Please input/select your custom tag.\n\n" +
                 "This will also be used in the File Generation Folder and the Game Output folder with the Auto Move feature.\n\n" +
+                "It is worth noting that the current tag will generate a tag specfic folder in the output.\n" +
+                "This can be used to effectively \"Switch\" between mods you are working on." +
+                " If you want to start a new mod create a new tag, or select an existing tag to continue work on those mod files.\n\n"+
                 "Your current tag is: " + Properties.Settings.Default.CustomTagName);
         }
 
         private void ChangeAutoMoveMenuItem_Click(object sender, RoutedEventArgs e)
         {
             CheckAutoMoveProperty();
+        }
+
+        private void CheckAllSettingsMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            string currentStatus = Properties.Settings.Default.AutoMoveMod ? "Activated" : "Deactived";
+            string autoMoveStatus = "Auto Move Status: " + currentStatus +"\n\n";
+            string autoMoveDirectory = String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory) ? "Auto Move Directory: Not Set" :
+                "Auto Move Directory: " + Properties.Settings.Default.GameFolderModDirectory + "\n\n";
+            string customTag = String.IsNullOrEmpty(Properties.Settings.Default.CustomTagName) ? "Custom Tag: Not Set"  :
+                "Custom Tag: " + Properties.Settings.Default.CustomTagName + "\n\n";
+            string messageString = autoMoveStatus + autoMoveDirectory + customTag;
+            MessageBox.Show(messageString, "All Settings", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }
