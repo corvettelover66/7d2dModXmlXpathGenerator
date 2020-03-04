@@ -285,11 +285,18 @@ namespace SevenDaysToDieModCreator
                 }
                 catch (XmlException)
                 {
-                    MessageBox.Show("The format was incorrect, the name must follow xml naming rules!", "Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("The format was incorrect, the name must follow xml naming rules!\n\n" +
+                        "Typical errors are spaces in the name, or unusable special characters.",
+                        "Format Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }
                 catch (ArgumentNullException)
                 {
-                    MessageBox.Show("The format was incorrect, you must include something!", "Format Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("The format was incorrect, the tag cannot be empty! Please open the settings menu and set your tag.",
+                        "Format Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                 }
             }
         }
