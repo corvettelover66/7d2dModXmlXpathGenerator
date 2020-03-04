@@ -81,7 +81,7 @@ namespace SevenDaysToDieModCreator
             if (Properties.Settings.Default.AutoMoveMod) autoMoveString = "Auto move is active! This will also automatically move the files to \n"+
                                                                                     Properties.Settings.Default.GameFolderModDirectory;
             MessageBoxResult result = MessageBox.Show(
-                "This will write all current generated xml to the appropriate files in the output location.\n" +
+                "This will write all current generated xml to the appropriate files in the output location.\n\n" +
                 "Are you sure?\n" +
                 autoMoveString, 
                 "Save Generated XML", 
@@ -129,8 +129,8 @@ namespace SevenDaysToDieModCreator
         {
             MessageBoxResult result = MessageBox.Show(
              "For the Auto Move function to work you must set the Game Folder Directory.\n\n" +
-             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation. " +
-             "Example: PathToGame\"7 Days To Die\\Mods\\ \n" +
+             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation.\n\n" +
+             "Example: PathToGame \"7 Days To Die\\Mods\\\" \n\n" +
              "If that folder does not exist please create it first. ",
              "Set Game Mod Folder Location",
              MessageBoxButton.OK,
@@ -152,7 +152,7 @@ namespace SevenDaysToDieModCreator
             {
                 if (!String.IsNullOrEmpty(dialog.FileName))
                 {
-                    MessageBox.Show("You selected: " + dialog.FileName);
+                    MessageBox.Show("Success!");
                     Properties.Settings.Default.GameFolderModDirectory = dialog.FileName +"/";
                     Properties.Settings.Default.AutoMoveDecisionMade = true;
                     Properties.Settings.Default.Save();
