@@ -131,9 +131,8 @@ namespace SevenDaysToDieModCreator
         private void HandleMissingGameModDirectory()
         {
             MessageBoxResult result = MessageBox.Show(
-             "For the Auto Move function to work you must set the Game Folder Directory. Please do that now.\n\n" +
-             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation.\n" +
-             "Example: \"7 Days To Die\\Mods\" If that folder does not exist please create it first.",
+             "For the Auto Move function to work you must set the Game Folder Directory. If that folder does not exist please create it first.\n\n" +
+             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation. Example: PathToGame\"7 Days To Die\\Mods\\",
              "Set Game Mod Folder Location",
              MessageBoxButton.OK,
              MessageBoxImage.Warning);
@@ -311,7 +310,6 @@ namespace SevenDaysToDieModCreator
 
         private void HelpMenu_Click(object sender, RoutedEventArgs e)
         {
-
             string readmeFileContents = XmlFileManager.GetFileContents(Directory.GetCurrentDirectory()+"/", "README.txt");
             if (String.IsNullOrEmpty(readmeFileContents))
             {
