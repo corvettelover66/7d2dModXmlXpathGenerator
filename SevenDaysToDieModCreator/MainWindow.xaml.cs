@@ -368,7 +368,7 @@ namespace SevenDaysToDieModCreator
         {
             string currentStatus = Properties.Settings.Default.AutoMoveMod ? "Activated" : "Deactived";
             string autoMoveStatus = "Auto Move Status: " + currentStatus +"\n\n";
-            string autoMoveDirectory = String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory) ? "Auto Move Directory: Not Set" :
+            string autoMoveDirectory = String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory) ? "Auto Move Directory: Not Set\n\n" :
                 "Auto Move Directory: " + Properties.Settings.Default.GameFolderModDirectory + "\n\n";
             string customTag = String.IsNullOrEmpty(Properties.Settings.Default.CustomTagName) ? "Custom Tag: Not Set\n\n"  :
                 "Custom Tag: " + Properties.Settings.Default.CustomTagName + "\n\n";
