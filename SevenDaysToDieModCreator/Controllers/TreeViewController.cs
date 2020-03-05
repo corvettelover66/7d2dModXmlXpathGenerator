@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using System.Xml;
 
 namespace SevenDaysToDieModCreator.Controllers
@@ -22,7 +23,6 @@ namespace SevenDaysToDieModCreator.Controllers
         //Key top tag name i.e. recipe, progression, item
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
-
         public TreeViewController()
         {
             RemovedTreeViews = new Dictionary<string, List<TreeViewItem>>();
@@ -88,7 +88,8 @@ namespace SevenDaysToDieModCreator.Controllers
                                 parent = parent.ParentNode;
                             }
                         }
-                        if(parent.Attributes != null) tagAttributeName = nextObjectTreeViewItem.Tag == null ? parent.Attributes[0].Value : nextObjectTreeViewItem.Tag.ToString();
+                        string parentAttributeValue = parent.Attributes != null && parent.Attributes.Count > 0 ? parent.Attributes[0].Value : "";
+                        tagAttributeName = nextObjectTreeViewItem.Tag == null ? parentAttributeValue : nextObjectTreeViewItem.Tag.ToString();
                     }
                     Button makeObjectATargetButton = new Button
                     {

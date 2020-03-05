@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
@@ -65,7 +66,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     allFilesString += nextFile + "\n";
                 }
-                string messageBoxText = "Some files did not load correctly! \nFiles:\n" + allFilesString + "Only xml files can be loaded.";
+                string messageBoxText = "Some files did not load correctly! \nFiles:\n" + allFilesString + "Only xml files can be loaded, and the file should only be loaded once.";
                 string caption = "Error";
                 MessageBoxButton button = MessageBoxButton.OK;
                 MessageBoxImage icon = MessageBoxImage.Error;
@@ -87,13 +88,13 @@ namespace SevenDaysToDieModCreator.Controllers
                     openDirectEditViewComboBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
                     didLoad = true;
                 }
-                catch (IOException) 
+                catch (ArgumentException argException) 
                 {
-                    string messageBoxText = "You can't load another file with the same name!\nTry to change the name of the file.";
-                    string caption = "Error";
-                    MessageBoxButton button = MessageBoxButton.OK;
-                    MessageBoxImage icon = MessageBoxImage.Error;
-                    MessageBox.Show(messageBoxText, caption, button, icon);
+                    XmlFileManager.WriteStringToLog("Failed to load file with exception:\n" + argException);
+                }
+                catch (IOException ioException)
+                {
+                    XmlFileManager.WriteStringToLog("Failed to load file with exception:\n" + ioException );
                 }
             }
             return didLoad;

@@ -31,16 +31,16 @@ namespace SevenDaysToDieModCreator.Models
             }
             catch (IOException) 
             {
-                WriteXmlToLog("ERROR Writing to file @" + @filePath + fileName);
+                WriteStringToLog("ERROR Writing to file @" + @filePath + fileName);
             }
         }
-        public static void WriteXmlToLog(string xml, bool addTimeStamp = true)
+        public static void WriteStringToLog(string xml, bool addTimeStamp = true)
         {
             if (!Directory.Exists(@_filePath)) Directory.CreateDirectory(@_filePath);
             string filePath = @_filePath + logFileName;
             if (!File.Exists(filePath)) CreateFilePath(@_filePath, logFileName);
 
-            if (addTimeStamp) xml = "<!-- Xml Written " + DateTime.Now.ToString("MMMM dd, yyyy") +" at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + xml;
+            if (addTimeStamp) xml = "<!-- Written " + DateTime.Now.ToString("MMMM dd, yyyy") +" at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + xml;
 
             AppendToFile(@_filePath, logFileName, xml);
         }
@@ -75,7 +75,7 @@ namespace SevenDaysToDieModCreator.Models
             }
             catch (FileNotFoundException)
             {
-                WriteXmlToLog("ERROR Reading file @"+ @path + fileName);
+                WriteStringToLog("ERROR Reading file @"+ @path + fileName);
             }
             ReadFileContents = line;
         }
@@ -88,7 +88,7 @@ namespace SevenDaysToDieModCreator.Models
             }
             catch (IOException)
             {
-                WriteXmlToLog("ERROR Creating file @" + @path + fileName);
+                //WriteStringToLog("ERROR Creating file @" + @path + fileName);
             }
         }
         private static void AppendToFile(string path, string fileName, string stringToWrite)

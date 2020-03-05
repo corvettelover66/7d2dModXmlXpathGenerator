@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Windows.Threading;
 
 namespace SevenDaysToDieModCreator
 {
@@ -21,7 +22,6 @@ namespace SevenDaysToDieModCreator
     public partial class MainWindow : Window
     {
         private MainWindowViewController MainWindowViewController { get; set; }
-
         public MainWindow()
         {
             InitializeComponent();
@@ -30,6 +30,20 @@ namespace SevenDaysToDieModCreator
             this.MainWindowViewController = new MainWindowViewController(NewObjectFormsPanel, XmlOutputBox, RemoveChildContextMenu_Click);
             Loaded += MyWindow_Loaded;
             Closing += new CancelEventHandler(MainWindow_Closing);
+            SetupExceptionHandling();
+        }
+        private void SetupExceptionHandling()
+        {
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        }
+
+        //Global Error Processing happens in the APP view 
+        //but here I want to catch it as well to save any possible generated xml to the log
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs exception)
+        {
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
+            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
         }
         private void SetOnHoverMessages() 
         {
@@ -67,7 +81,7 @@ namespace SevenDaysToDieModCreator
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
-            if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, true);
+            if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
             //SaveExternalXaml();
         }
         private void LoadFile_Click(object sender, RoutedEventArgs e)
@@ -235,7 +249,7 @@ namespace SevenDaysToDieModCreator
         private void ResetNewObjectView() 
         {
             string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
-            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteXmlToLog(xmltoWrite, true);
+            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
             NewObjectFormsPanel.Children.Clear();
             MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Clear();
             XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers, XmlOutputBox);
@@ -250,25 +264,6 @@ namespace SevenDaysToDieModCreator
                     MainWindowViewController.RightSearchTreeViewController.LoadedListWrappers.Clear();
                     break;
             }
-        }
-        public bool LoadExternalXaml()
-        {
-            bool didLoad = false;
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Output\\state.xml");
-            if (File.Exists(path))
-            {
-                using FileStream stream = new FileStream(@path, FileMode.Open);
-                this.Content = XamlReader.Load(stream);
-                didLoad = true;
-            }
-            return didLoad;
-        }
-
-        public void SaveExternalXaml()
-        {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Output\\state.xml");
-            using FileStream stream = new FileStream(@path, FileMode.Create);
-            XamlWriter.Save(this.Content, stream);
         }
         private void CustomTagDialogPopUp(string dialogText = "")
         {
@@ -375,5 +370,24 @@ namespace SevenDaysToDieModCreator
             string messageString = autoMoveStatus + autoMoveDirectory + customTag;
             MessageBox.Show(messageString, "All Settings", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+        public bool LoadExternalXaml()
+        {
+            bool didLoad = false;
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Output\\state.xml");
+            if (File.Exists(path))
+            {
+                using FileStream stream = new FileStream(@path, FileMode.Open);
+                this.Content = XamlReader.Load(stream);
+                didLoad = true;
+            }
+            return didLoad;
+        }
+        public void SaveExternalXaml()
+        {
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Output\\state.xml");
+            using FileStream stream = new FileStream(@path, FileMode.Create);
+            XamlWriter.Save(this.Content, stream);
+        }
+
     }
 }
