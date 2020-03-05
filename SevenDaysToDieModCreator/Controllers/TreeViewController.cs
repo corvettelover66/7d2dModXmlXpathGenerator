@@ -160,7 +160,10 @@ namespace SevenDaysToDieModCreator.Controllers
             List<TreeViewItem> treesToAdd = new List<TreeViewItem>();
             foreach (TreeViewItem nextTreeViewItem in children)
             {
-                if (nextTreeViewItem.Tag.ToString().ToLower().Contains(contents.ToLower()))
+                string treeIdentifier = nextTreeViewItem.Tag == null ?
+                    nextTreeViewItem.Header.ToString().ToLower() :
+                    nextTreeViewItem.Tag.ToString().ToLower();
+                if (treeIdentifier.Contains(contents.ToLower()))
                 {
                     treesToAdd.Add(nextTreeViewItem);
                 }
