@@ -1,4 +1,5 @@
-﻿using SevenDaysToDieModCreator.Extensions;
+﻿using ICSharpCode.AvalonEdit.Search;
+using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.ComponentModel;
@@ -20,7 +21,8 @@ namespace SevenDaysToDieModCreator.Views
             SaveXmlButton.AddOnHoverMessage("Click to save all changes and close the window");
             if (contentsForXmlOutputBox == null) UpdateViewComponents();
             else XmlOutputBox.Text = contentsForXmlOutputBox;
-            XmlOutputBox.Foreground =  new SolidColorBrush(Properties.Settings.Default.SavedXmlColor);
+            SearchPanel.Install(XmlOutputBox);
+
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
 

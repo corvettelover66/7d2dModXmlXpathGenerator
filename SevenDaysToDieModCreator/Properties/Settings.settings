@@ -14,11 +14,5 @@
     <Setting Name="AutoMoveDecisionMade" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="UnsavedXmlColor" Type="System.Windows.Media.Color" Scope="User">
-      <Value Profile="(Default)">#FF228B22</Value>
-    </Setting>
-    <Setting Name="SavedXmlColor" Type="System.Windows.Media.Color" Scope="User">
-      <Value Profile="(Default)">#FF800080</Value>
-    </Setting>
   </Settings>
 </SettingsFile>

@@ -70,29 +70,5 @@ namespace SevenDaysToDieModCreator.Properties {
                 this["AutoMoveDecisionMade"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF228B22")]
-        public global::System.Windows.Media.Color UnsavedXmlColor {
-            get {
-                return ((global::System.Windows.Media.Color)(this["UnsavedXmlColor"]));
-            }
-            set {
-                this["UnsavedXmlColor"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#FF800080")]
-        public global::System.Windows.Media.Color SavedXmlColor {
-            get {
-                return ((global::System.Windows.Media.Color)(this["SavedXmlColor"]));
-            }
-            set {
-                this["SavedXmlColor"] = value;
-            }
-        }
     }
 }

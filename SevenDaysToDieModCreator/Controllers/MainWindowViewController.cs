@@ -18,11 +18,11 @@ namespace SevenDaysToDieModCreator.Controllers
         public TreeViewController RightSearchTreeViewController { get; private set; }
         public ObjectViewController LeftNewObjectViewController { get; private set; }
 
-        public MainWindowViewController(StackPanel NewObjectsFormsPanel, RichTextBox XmlOutBox, RoutedEventHandler removeChildContextMenu_Click) 
+        public MainWindowViewController(StackPanel NewObjectsFormsPanel, ICSharpCode.AvalonEdit.TextEditor xmlOutputBox,  RoutedEventHandler removeChildContextMenu_Click) 
         {
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.RightSearchTreeViewController = new TreeViewController();
-            this.LeftNewObjectViewController = new ObjectViewController(NewObjectsFormsPanel, XmlOutBox, removeChildContextMenu_Click);
+            this.LeftNewObjectViewController = new ObjectViewController(NewObjectsFormsPanel, xmlOutputBox, removeChildContextMenu_Click);
         }
 
         public void LoadStartingDirectory(ComboBox allLoadedFilesBox, ComboBox allLoadedObjectsBox, ComboBox openDirectEditViewComboBox)

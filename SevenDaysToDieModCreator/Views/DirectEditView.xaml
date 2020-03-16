@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+
         xmlns:local="clr-namespace:SevenDaysToDieModCreator.Views"
         mc:Ignorable="d"
         Title="Direct File Edit" Height="564" Width="1020" >
@@ -12,11 +14,8 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Margin="0,0,0,46" Grid.RowSpan="2">
-            <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalContentAlignment="Center"  VerticalAlignment="Top" >
-                <StackPanel VerticalAlignment="Bottom">
-                    <TextBox x:Name="XmlOutputBox" AcceptsReturn="True" FontFamily="Arial" FontSize="20"/>
-                </StackPanel>
-            </ScrollViewer>
+            <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
+            </avalonedit:TextEditor>
         </Grid>
         <Grid Grid.Row="1">
             <StackPanel VerticalAlignment="Bottom">

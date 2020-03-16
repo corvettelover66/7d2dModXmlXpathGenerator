@@ -195,7 +195,7 @@ namespace SevenDaysToDieModCreator.Models
             if (hasFoundItem) xmlOut += ">\n";
             return xmlOut;
         }
-        public static void GenerateXmlViewOutput(StackPanel newObjectFormsPanel, Dictionary<string, XmlObjectsListWrapper> listWrappersInObjectView, RichTextBox xmlOutBlock)
+        public static void GenerateXmlViewOutput(StackPanel newObjectFormsPanel, Dictionary<string, XmlObjectsListWrapper> listWrappersInObjectView, ICSharpCode.AvalonEdit.TextEditor xmlOutBlock)
         {
             string addedViewTextStart = "WARNING: Direct text edits made here will NOT be saved.\n\n" +
              "To make direct file edits you can select a file below and open the direct editor window for the file.\n\n" +
@@ -211,27 +211,7 @@ namespace SevenDaysToDieModCreator.Models
             }
 
             string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel, listWrappersInObjectView);
-            FlowDocument document = new FlowDocument();
-
-            Paragraph paragraphStart = new Paragraph();
-            paragraphStart.Foreground = Brushes.Red;
-            paragraphStart.Inlines.Add(new Run(addedViewTextStart));
-            document.Blocks.Add( paragraphStart);
-
-            Paragraph generatedXmlParagraph = new Paragraph();
-            SolidColorBrush unsavedXmlColor = new SolidColorBrush(Properties.Settings.Default.UnsavedXmlColor);
-            generatedXmlParagraph.Foreground = unsavedXmlColor;
-            generatedXmlParagraph.Inlines.Add(new Run(unsavedGeneratedXmlStart));
-            generatedXmlParagraph.Inlines.Add(new Run(allGeneratedXml));
-            generatedXmlParagraph.Inlines.Add(new Run(unsavedGeneratedXmlEnd));
-            document.Blocks.Add(generatedXmlParagraph);
-
-            Paragraph existingWrapperData = new Paragraph();
-            SolidColorBrush savedXmlColor = new SolidColorBrush(Properties.Settings.Default.SavedXmlColor);
-            existingWrapperData.Foreground = savedXmlColor;
-            existingWrapperData.Inlines.Add(new Run(existingWrapperFileData));
-            document.Blocks.Add(existingWrapperData);
-            xmlOutBlock.Document = document;
+            xmlOutBlock.Text = addedViewTextStart+ unsavedGeneratedXmlStart + allGeneratedXml + unsavedGeneratedXmlEnd + existingWrapperFileData;
         }
         public static XmlAttribute GetAvailableAttribute(XmlNode nextObjectNode)
         {

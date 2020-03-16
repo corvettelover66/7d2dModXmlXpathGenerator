@@ -13,7 +13,7 @@ namespace SevenDaysToDieModCreator.Controllers
         private List<ComboBox> recentComboBoxList { get; set; }
 
         private StackPanel newObjectFormView { get; set; }
-        private RichTextBox xmlOutBlock { get; set; }
+        private ICSharpCode.AvalonEdit.TextEditor xmlOutBlock { get; set; }
         private RoutedEventHandler RemoveChildContextMenu_Click { get; set; }
 
 
@@ -22,12 +22,12 @@ namespace SevenDaysToDieModCreator.Controllers
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> loadedListWrappers { get; private set; }
 
-        public ObjectViewController(StackPanel newObjectsFormPanel, RichTextBox xmlOutBlock, RoutedEventHandler RemoveChildContextMenu_Click)
+        public ObjectViewController(StackPanel newObjectsFormPanel, ICSharpCode.AvalonEdit.TextEditor xmlOutputBox, RoutedEventHandler RemoveChildContextMenu_Click)
         {
             this.loadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.recentComboBoxList = new List<ComboBox>();
             this.newObjectFormView = newObjectsFormPanel;
-            this.xmlOutBlock = xmlOutBlock;
+            this.xmlOutBlock = xmlOutputBox;
             this.RemoveChildContextMenu_Click = RemoveChildContextMenu_Click;
         }
         private void NewAttributesComboBox_LostFocus(object sender, RoutedEventArgs e)

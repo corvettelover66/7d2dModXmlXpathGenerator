@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace SevenDaysToDieModCreator.Views
 {
@@ -15,8 +14,6 @@ namespace SevenDaysToDieModCreator.Views
     public partial class CustomDialogBox : Window
     {
         private ComboBox AllTagsComboBox = new ComboBox();
-        private Xceed.Wpf.Toolkit.ColorPicker picker { get; set; }
-        private Color responseColor { get; set; }
         public CustomDialogBox(string textBoxBody = "")
         {
             InitializeComponent();
@@ -40,39 +37,6 @@ namespace SevenDaysToDieModCreator.Views
             AllTagsComboBox.IsEditable = true;
             CustomDialogPanel.Children.Add(AllTagsComboBox);
             LabelTextBlock.Text = defaultText;
-        }
-        public CustomDialogBox(Color xmlColorProperty)
-        {
-            InitializeComponent();
-            CustomDialogPanel.VerticalAlignment = VerticalAlignment.Top;
-            Xceed.Wpf.Toolkit.ColorPicker picker = new Xceed.Wpf.Toolkit.ColorPicker();
-            picker.FontSize = 25;
-            OkButton.FontSize = 25;
-            LabelTextBlock.FontSize = 25;
-            picker.SelectedColor = xmlColorProperty;
-            this.responseColor = xmlColorProperty;
-            SolidColorBrush xmlColorBrush = new SolidColorBrush(this.responseColor);
-            LabelTextBlock.Foreground = xmlColorBrush;
-            picker.DisplayColorAndName = true;
-            picker.SelectedColorChanged += Picker_SelectedColorChanged;
-            picker.AvailableColorsSortingMode = Xceed.Wpf.Toolkit.ColorSortingMode.HueSaturationBrightness;
-            this.picker = picker;
-            CustomDialogPanel.Children.Add(picker);
-            LabelTextBlock.Text = "Please select a color. (Preview)";
-        }
-
-        private void Picker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (picker.SelectedColor.HasValue)
-            {
-                this.responseColor = picker.SelectedColor.Value;
-                SolidColorBrush xmlColorBrush = new SolidColorBrush(this.responseColor);
-                LabelTextBlock.Foreground = xmlColorBrush;
-            } 
-        }
-        public Color ResponseColor
-        {
-            get { return this.responseColor; }
         }
         public string ResponseText
         {

@@ -12,9 +12,7 @@ using System.Windows.Markup;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows.Input;
-using System.Windows.Documents;
-using System.Windows.Media;
-using System.Text.RegularExpressions;
+using ICSharpCode.AvalonEdit.Search;
 
 namespace SevenDaysToDieModCreator
 {
@@ -78,6 +76,7 @@ namespace SevenDaysToDieModCreator
             MainWindowViewController.LoadStartingDirectory(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox, OpenDirectEditViewComboBox);
             if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("");
             XmlOutputBox.GotKeyboardFocus += GotKeyboardFocus_Handler;
+            SearchPanel.Install(XmlOutputBox);
             //Need to reload all events when loading state like this.
             //bool didLoad = LoadExternalXaml();
         }
@@ -303,16 +302,6 @@ namespace SevenDaysToDieModCreator
                 }
             }
         }
-        private Color CustomTagDialogPopUp(Color xmlColorProperty)
-        {
-            var dialog = new CustomDialogBox(xmlColorProperty);
-            Color selectedColor = default;
-            if (dialog.ShowDialog() == true)
-            {
-                 selectedColor = dialog.ResponseColor;
-            }
-            return selectedColor;
-        }
         private void OpenDirectEditViewButton_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = OpenDirectEditViewComboBox.Text;
@@ -335,11 +324,7 @@ namespace SevenDaysToDieModCreator
             }
             else 
             {
-                FlowDocument document = new FlowDocument();
-                Paragraph paragraph = new Paragraph();
-                paragraph.Inlines.Add(readmeFileContents);
-                document.Blocks.Add(paragraph);
-                XmlOutputBox.Document = document;
+                XmlOutputBox.Text = readmeFileContents;
             }
         }
 
@@ -391,19 +376,10 @@ namespace SevenDaysToDieModCreator
                 "Auto Move Directory: " + Properties.Settings.Default.GameFolderModDirectory + "\n\n";
             string customTag = String.IsNullOrEmpty(Properties.Settings.Default.CustomTagName) ? "Custom Tag: Not Set\n\n"  :
                 "Custom Tag: " + Properties.Settings.Default.CustomTagName + "\n\n";
-            string unsavedColor = ColorsStruct.GetColorName(Properties.Settings.Default.UnsavedXmlColor.ToString()) == null
-                ? "Custom Color(" + Properties.Settings.Default.UnsavedXmlColor.ToString() + ")"
-                : ColorsStruct.GetColorName(Properties.Settings.Default.UnsavedXmlColor.ToString());
-            string unsavedXmlColor = "Unsaved xml color: " + unsavedColor +"\n\n";
-            string savedColor = ColorsStruct.GetColorName(Properties.Settings.Default.SavedXmlColor.ToString()) == null
-                ? "Custom Color(" + Properties.Settings.Default.SavedXmlColor.ToString()+")"
-                : ColorsStruct.GetColorName(Properties.Settings.Default.SavedXmlColor.ToString());
-            string savedXmlColor = "Saved xml color: " + savedColor + "\n\n";
 
-            string messageString = autoMoveStatus + autoMoveDirectory + customTag + unsavedXmlColor + savedXmlColor;
+            string messageString = autoMoveStatus + autoMoveDirectory + customTag;
             MessageBox.Show(messageString, "All Settings", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
         public bool LoadExternalXaml()
         {
             bool didLoad = false;
@@ -421,26 +397,6 @@ namespace SevenDaysToDieModCreator
             string path = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\Output\\state.xml");
             using FileStream stream = new FileStream(@path, FileMode.Create);
             XamlWriter.Save(this.Content, stream);
-        }
-
-        private void UnsavedColorMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Color selectedColor = CustomTagDialogPopUp(Properties.Settings.Default.UnsavedXmlColor);
-            if(selectedColor != default) 
-            {
-                Properties.Settings.Default.UnsavedXmlColor = selectedColor;
-                Properties.Settings.Default.Save();
-            }
-        }
-
-        private void SavedColorMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Color selectedColor = CustomTagDialogPopUp(Properties.Settings.Default.SavedXmlColor);
-            if (selectedColor != default)
-            {
-                Properties.Settings.Default.SavedXmlColor = selectedColor;
-                Properties.Settings.Default.Save();
-            }
         }
     }
 }
