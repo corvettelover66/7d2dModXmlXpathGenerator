@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
 using System.Xml;
 
 namespace SevenDaysToDieModCreator.Controllers
@@ -69,7 +68,9 @@ namespace SevenDaysToDieModCreator.Controllers
                     SetTreeViewSearchBoxHeader(nextObjectTreeViewItem, xmlObjectListWrapper, xmlObjectListWrapper.FirstChildTagName);
                 }
                 //If it is an edge case tree with multiple top levels we need to set it on all of those (EX: progressions)
-                else if (xmlObjectListWrapper.allTopLevelTags.Count > 1 && xmlObjectListWrapper.allTopLevelTags.Contains(nextObjectNode.Name))
+                else if (xmlObjectListWrapper.allTopLevelTags.Count > 1
+                    && xmlObjectListWrapper.allTopLevelTags.Contains(nextObjectNode.Name)
+                    && xmlObjectListWrapper.TopTagName.Equals(StringConstants.PROGRESSION_TAG_NAME))
                 {
                     List<string> children = xmlObjectListWrapper.objectNameToChildrenMap.GetValueOrDefault(nextObjectNode.Name);
                     if (children != null && children.Count > 0) SetTreeViewSearchBoxHeader(nextObjectTreeViewItem, xmlObjectListWrapper, children[0]);
@@ -77,30 +78,21 @@ namespace SevenDaysToDieModCreator.Controllers
                 //It is an internal node make it a button with the target action
                 else
                 {
-                    string tagAttributeName = "";
-                    if (!nextObjectNode.Name.Equals(StringConstants.PROGRESSION_TAG_NAME))
+                    XmlAttribute valueToUse = XmlXpathGenerator.GetAvailableAttribute(nextObjectNode);
+                    string attributeValue = valueToUse != null ? ":" + valueToUse.Value : "";
+                    if (!String.IsNullOrEmpty(attributeValue))
                     {
-                        XmlNode parent = nextObjectNode.ParentNode;
-                        if (xmlObjectListWrapper.TopTagName.Equals(StringConstants.PROGRESSION_TAG_NAME))
+                        Button makeObjectATargetButton = new Button
                         {
-                            while (parent.Attributes.Count < 1 && (nextObjectTreeViewItem.Tag != null || !parent.Name.Equals(xmlObjectListWrapper.TopTagName)))
-                            {
-                                parent = parent.ParentNode;
-                            }
-                        }
-                        string parentAttributeValue = parent.Attributes != null && parent.Attributes.Count > 0 ? parent.Attributes[0].Value : "";
-                        tagAttributeName = nextObjectTreeViewItem.Tag == null ? parentAttributeValue : nextObjectTreeViewItem.Tag.ToString();
+                            Content = nextObjectNode.Name + attributeValue,
+                            Name = wrapperKey,
+                            Tag = nextObjectNode
+                        };
+                        makeObjectATargetButton.AddOnHoverMessage("Click here to make this a target for object insertion");
+                        makeObjectATargetButton.Width = 250;
+                        makeObjectATargetButton.Click += MakeObjectATargetButton_Click;
+                        nextObjectTreeViewItem.Header = makeObjectATargetButton;
                     }
-                    Button makeObjectATargetButton = new Button
-                    {
-                        Content = nextObjectNode.Name + ":" + tagAttributeName,
-                        Name = wrapperKey,
-                        Tag = nextObjectNode
-                    };
-                    makeObjectATargetButton.AddOnHoverMessage("Click here to make this a target for object insertion");
-                    makeObjectATargetButton.Width = 250;
-                    makeObjectATargetButton.Click += MakeObjectATargetButton_Click;
-                    nextObjectTreeViewItem.Header = makeObjectATargetButton;
                 }
                 nextObjectTreeViewItem = SetObjectTreeView(nextObjectTreeViewItem, nextObjectNode.ChildNodes, wrapperKey, xmlObjectListWrapper, MakeObjectATargetButton_Click);
             }

@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using SevenDaysToDieModCreator.Controllers;
+﻿using SevenDaysToDieModCreator.Controllers;
 using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using SevenDaysToDieModCreator.Views;
@@ -12,7 +11,10 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using System.Windows.Threading;
+using System.Windows.Input;
+using System.Windows.Documents;
+using System.Windows.Media;
+using System.Text.RegularExpressions;
 
 namespace SevenDaysToDieModCreator
 {
@@ -74,10 +76,17 @@ namespace SevenDaysToDieModCreator
         {
             SetOnHoverMessages();
             MainWindowViewController.LoadStartingDirectory(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox, OpenDirectEditViewComboBox);
-            if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp();
+            if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("");
+            XmlOutputBox.GotKeyboardFocus += GotKeyboardFocus_Handler;
             //Need to reload all events when loading state like this.
             //bool didLoad = LoadExternalXaml();
         }
+
+        private void GotKeyboardFocus_Handler(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers, XmlOutputBox);
+        }
+
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
@@ -265,9 +274,10 @@ namespace SevenDaysToDieModCreator
                     break;
             }
         }
-        private void CustomTagDialogPopUp(string dialogText = "")
+        private void CustomTagDialogPopUp(string dialogText)
         {
             var dialog = new CustomDialogBox(dialogText);
+
             if (dialog.ShowDialog() == true)
             {
                 try
@@ -293,6 +303,16 @@ namespace SevenDaysToDieModCreator
                 }
             }
         }
+        private Color CustomTagDialogPopUp(Color xmlColorProperty)
+        {
+            var dialog = new CustomDialogBox(xmlColorProperty);
+            Color selectedColor = default;
+            if (dialog.ShowDialog() == true)
+            {
+                 selectedColor = dialog.ResponseColor;
+            }
+            return selectedColor;
+        }
         private void OpenDirectEditViewButton_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = OpenDirectEditViewComboBox.Text;
@@ -315,7 +335,11 @@ namespace SevenDaysToDieModCreator
             }
             else 
             {
-                this.XmlOutputBox.Text = readmeFileContents;
+                FlowDocument document = new FlowDocument();
+                Paragraph paragraph = new Paragraph();
+                paragraph.Inlines.Add(readmeFileContents);
+                document.Blocks.Add(paragraph);
+                XmlOutputBox.Document = document;
             }
         }
 
@@ -367,9 +391,19 @@ namespace SevenDaysToDieModCreator
                 "Auto Move Directory: " + Properties.Settings.Default.GameFolderModDirectory + "\n\n";
             string customTag = String.IsNullOrEmpty(Properties.Settings.Default.CustomTagName) ? "Custom Tag: Not Set\n\n"  :
                 "Custom Tag: " + Properties.Settings.Default.CustomTagName + "\n\n";
-            string messageString = autoMoveStatus + autoMoveDirectory + customTag;
+            string unsavedColor = ColorsStruct.GetColorName(Properties.Settings.Default.UnsavedXmlColor.ToString()) == null
+                ? "Custom Color(" + Properties.Settings.Default.UnsavedXmlColor.ToString() + ")"
+                : ColorsStruct.GetColorName(Properties.Settings.Default.UnsavedXmlColor.ToString());
+            string unsavedXmlColor = "Unsaved xml color: " + unsavedColor +"\n\n";
+            string savedColor = ColorsStruct.GetColorName(Properties.Settings.Default.SavedXmlColor.ToString()) == null
+                ? "Custom Color(" + Properties.Settings.Default.SavedXmlColor.ToString()+")"
+                : ColorsStruct.GetColorName(Properties.Settings.Default.SavedXmlColor.ToString());
+            string savedXmlColor = "Saved xml color: " + savedColor + "\n\n";
+
+            string messageString = autoMoveStatus + autoMoveDirectory + customTag + unsavedXmlColor + savedXmlColor;
             MessageBox.Show(messageString, "All Settings", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+
         public bool LoadExternalXaml()
         {
             bool didLoad = false;
@@ -389,5 +423,24 @@ namespace SevenDaysToDieModCreator
             XamlWriter.Save(this.Content, stream);
         }
 
+        private void UnsavedColorMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Color selectedColor = CustomTagDialogPopUp(Properties.Settings.Default.UnsavedXmlColor);
+            if(selectedColor != default) 
+            {
+                Properties.Settings.Default.UnsavedXmlColor = selectedColor;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private void SavedColorMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Color selectedColor = CustomTagDialogPopUp(Properties.Settings.Default.SavedXmlColor);
+            if (selectedColor != default)
+            {
+                Properties.Settings.Default.SavedXmlColor = selectedColor;
+                Properties.Settings.Default.Save();
+            }
+        }
     }
 }

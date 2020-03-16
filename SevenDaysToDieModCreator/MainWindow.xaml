@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas/xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:SevenDaysToDieModCreator"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1200">
@@ -11,9 +12,9 @@
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="0,0,0,361">
+        <Grid Grid.Row="0" Margin="0,0,0,348">
             <DockPanel>
-                <Menu DockPanel.Dock="Top" FontSize="20">
+                <Menu DockPanel.Dock="Top" FontSize="20" Height="31">
                     <MenuItem Header="_File">
                         <MenuItem Header="Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
                         <MenuItem Header="Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
@@ -23,17 +24,17 @@
                         <MenuItem Header="Auto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
                         <MenuItem Header="Mod Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
                         <MenuItem Header="Custom Tag" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click" />
+                        <MenuItem Header="Unsaved Xml Color" Name="UnsavedColorMenuItem"  Click="UnsavedColorMenuItem_Click" />
+                        <MenuItem Header="Saved Xml Color" Name="SavedColorMenuItem"  Click="SavedColorMenuItem_Click" />
                         <MenuItem Header="Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
-
                     </MenuItem>
                     <MenuItem Header="_Help">
                         <MenuItem Header="Help" Name="HelpMenuItem"  Click="HelpMenu_Click"/>
                     </MenuItem>
                 </Menu>
-                <StackPanel></StackPanel>
             </DockPanel>
         </Grid>
-        <Grid Margin="0,36,0,0" Grid.RowSpan="2">
+        <Grid Margin="0,66,0,0" Grid.RowSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="350*" />
                 <ColumnDefinition Width="5" />
@@ -48,9 +49,9 @@
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,182" >
+                    <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,152" >
                         <StackPanel Name="MainSP" VerticalAlignment="Top">
-                            <ComboBox Name="AllLoadedNewObjectViewsComboBox" FontSize="20"></ComboBox>
+                            <ComboBox Name="AllLoadedNewObjectViewsComboBox" FontSize="20" ></ComboBox>
                             <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
                         </StackPanel >
                     </Grid>
@@ -74,14 +75,12 @@
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,41">
-                    <ScrollViewer HorizontalContentAlignment="Left" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
-                        <TextBox x:Name="XmlOutputBox" FontSize="18" AcceptsReturn="True" FontFamily="Arial">
-                        </TextBox>
-                    </ScrollViewer>
+                    <RichTextBox VerticalScrollBarVisibility="Visible" IsDocumentEnabled="True" x:Name="XmlOutputBox" FontSize="18" AcceptsReturn="True" AcceptsTab="True" FontFamily="Arial" >
+                    </RichTextBox>
                 </Grid>
                 <Grid Grid.Row="1" Margin="0,313,0,-79">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="794">
-                        <ComboBox Name="OpenDirectEditViewComboBox" HorizontalContentAlignment="Center" FontSize="20" />
+                        <ComboBox Name="OpenDirectEditViewComboBox" HorizontalContentAlignment="Center" FontSize="20" Background="Beige" />
                         <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18" >Open Direct Editor Window</Button>
                         <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>
@@ -95,8 +94,8 @@
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
-                    <StackPanel Margin="0,0,0,184">
-                        <ComboBox Name="AllLoadedFilesComboBox" FontSize="20">
+                    <StackPanel Margin="0,0,0,172">
+                        <ComboBox Name="AllLoadedFilesComboBox" FontSize="20" >
                         </ComboBox>
                         <Button x:Name="AddNewTreeViewButton" Click="AddNewTreeView_Click" FontSize="18">Add Search Tree</Button>
                     </StackPanel>

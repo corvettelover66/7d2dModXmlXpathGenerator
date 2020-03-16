@@ -13,7 +13,7 @@ namespace SevenDaysToDieModCreator.Controllers
         private List<ComboBox> recentComboBoxList { get; set; }
 
         private StackPanel newObjectFormView { get; set; }
-        private TextBox xmlOutBlock { get; set; }
+        private RichTextBox xmlOutBlock { get; set; }
         private RoutedEventHandler RemoveChildContextMenu_Click { get; set; }
 
 
@@ -22,7 +22,7 @@ namespace SevenDaysToDieModCreator.Controllers
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> loadedListWrappers { get; private set; }
 
-        public ObjectViewController(StackPanel newObjectsFormPanel, TextBox xmlOutBlock, RoutedEventHandler RemoveChildContextMenu_Click)
+        public ObjectViewController(StackPanel newObjectsFormPanel, RichTextBox xmlOutBlock, RoutedEventHandler RemoveChildContextMenu_Click)
         {
             this.loadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.recentComboBoxList = new List<ComboBox>();

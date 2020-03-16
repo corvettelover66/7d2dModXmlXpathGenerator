@@ -3,6 +3,7 @@ using SevenDaysToDieModCreator.Models;
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Media;
 
 namespace SevenDaysToDieModCreator.Views
 {
@@ -19,6 +20,7 @@ namespace SevenDaysToDieModCreator.Views
             SaveXmlButton.AddOnHoverMessage("Click to save all changes and close the window");
             if (contentsForXmlOutputBox == null) UpdateViewComponents();
             else XmlOutputBox.Text = contentsForXmlOutputBox;
+            XmlOutputBox.Foreground =  new SolidColorBrush(Properties.Settings.Default.SavedXmlColor);
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
 

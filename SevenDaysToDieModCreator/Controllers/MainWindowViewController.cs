@@ -18,7 +18,7 @@ namespace SevenDaysToDieModCreator.Controllers
         public TreeViewController RightSearchTreeViewController { get; private set; }
         public ObjectViewController LeftNewObjectViewController { get; private set; }
 
-        public MainWindowViewController(StackPanel NewObjectsFormsPanel, TextBox XmlOutBox, RoutedEventHandler removeChildContextMenu_Click) 
+        public MainWindowViewController(StackPanel NewObjectsFormsPanel, RichTextBox XmlOutBox, RoutedEventHandler removeChildContextMenu_Click) 
         {
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.RightSearchTreeViewController = new TreeViewController();
