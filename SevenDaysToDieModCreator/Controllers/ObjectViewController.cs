@@ -29,14 +29,6 @@ namespace SevenDaysToDieModCreator.Controllers
             this.xmlOutBlock = xmlOutputBox;
             this.RemoveChildContextMenu_Click = RemoveChildContextMenu_Click;
         }
-        private void NewAttributesComboBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            XmlXpathGenerator.GenerateXmlViewOutput(this.newObjectFormView, this.loadedListWrappers, this.xmlOutBlock);
-        }
-        private void NewAttributesComboBox_DropDownClosed(object sender, EventArgs e)
-        {
-            XmlXpathGenerator.GenerateXmlViewOutput(this.newObjectFormView, this.loadedListWrappers, this.xmlOutBlock);
-        }
         private void AddNewObjectButton_Click(object sender, RoutedEventArgs e)
         {
             Button senderAsButton = (Button)sender;
@@ -161,6 +153,14 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             return newAttributesViewItem;
         }
+        private void NewAttributesComboBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            XmlXpathGenerator.GenerateXmlViewOutput(this.newObjectFormView, this.loadedListWrappers, this.xmlOutBlock);
+        }
+        private void NewAttributesComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            XmlXpathGenerator.GenerateXmlViewOutput(this.newObjectFormView, this.loadedListWrappers, this.xmlOutBlock);
+        }
         public TreeViewItem GetObjectTreeViewRecursive(XmlObjectsListWrapper xmlObjectListWrapper)
         {
             XmlNodeList allObjects = xmlObjectListWrapper.xmlFile.xmlDocument.GetElementsByTagName(xmlObjectListWrapper.TopTagName);
@@ -191,6 +191,8 @@ namespace SevenDaysToDieModCreator.Controllers
         private void AddContextMenuToTreeView(TreeViewItem nextTreeView)
         {
             nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Append to target");
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Set to target");
+
         }
 
         private void AppendToContextMenu_ClickFunction(object sender, RoutedEventArgs e)
@@ -302,15 +304,18 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             removedTreeList.Clear();
 
-            string contents = senderAsBox.Text;
+            string searchText = senderAsBox.Text;
             List<TreeViewItem> children = GetChildren(topTreeView);
             List<TreeViewItem> treesToAdd = new List<TreeViewItem>();
             foreach (TreeViewItem nextTreeViewItem in children)
             {
-                string treeIdentifier = nextTreeViewItem.Tag == null ?
-                    nextTreeViewItem.Header.ToString().ToLower() :
-                    nextTreeViewItem.Tag.ToString().ToLower();
-                if (treeIdentifier.Contains(contents.ToLower()))
+                string treeIdentifier = nextTreeViewItem.Header.ToString().ToLower();
+                if (nextTreeViewItem.Header.GetType() == typeof(ComboBox))
+                {
+                    XmlNode myNode = (XmlNode)nextTreeViewItem.Tag;
+                    treeIdentifier =  myNode.GetAvailableAttribute().Value.ToLower();
+                }
+                if (treeIdentifier.Contains(searchText.ToLower()))
                 {
                     treesToAdd.Add(nextTreeViewItem);
                 }

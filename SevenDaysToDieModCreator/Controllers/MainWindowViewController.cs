@@ -15,13 +15,11 @@ namespace SevenDaysToDieModCreator.Controllers
         //Key file name without .xml i.e. recipes, progressions, items
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
-        public TreeViewController RightSearchTreeViewController { get; private set; }
         public ObjectViewController LeftNewObjectViewController { get; private set; }
 
         public MainWindowViewController(ICSharpCode.AvalonEdit.TextEditor xmlOutputBox,  RoutedEventHandler removeChildContextMenu_Click) 
         {
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
-            this.RightSearchTreeViewController = new TreeViewController();
             this.LeftNewObjectViewController = new ObjectViewController(xmlOutputBox, removeChildContextMenu_Click);
         }
 
