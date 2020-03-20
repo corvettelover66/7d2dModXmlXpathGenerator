@@ -55,8 +55,6 @@
                     </Grid>
                     <Grid Margin="0,67,0,56" Grid.RowSpan="3">
                         <ScrollViewer Name="CreateLabelScroller" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
-                            <StackPanel x:Name="NewObjectFormsPanel">
-                            </StackPanel>
                         </ScrollViewer>
                     </Grid>
                     <Grid Grid.Column="0" Grid.Row="2" Margin="0,209,0,0">
@@ -78,7 +76,7 @@
                 </Grid>
                 <Grid Grid.Row="1" Margin="0,313,0,-79">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="794">
-                        <ComboBox Name="OpenDirectEditViewComboBox" HorizontalContentAlignment="Center" FontSize="20" Background="Beige" />
+                        <ComboBox Name="OpenDirectEditViewComboBox" HorizontalAlignment="Center" FontSize="20" Background="Beige" />
                         <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18" >Open Direct Editor Window</Button>
                         <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>

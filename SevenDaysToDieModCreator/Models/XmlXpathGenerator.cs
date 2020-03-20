@@ -91,7 +91,7 @@ namespace SevenDaysToDieModCreator.Models
             string pathToParent = "";
             do
             {
-                XmlAttribute attributeToUse = GetAvailableAttribute(nextParentNode);
+                XmlAttribute attributeToUse = nextParentNode.GetAvailableAttribute();
                 if (attributeToUse != null)
                 {
                     string targetString = attributeToUse != null ? "[@" + attributeToUse.Name + "='" + attributeToUse.Value + "']" : "";
@@ -212,22 +212,6 @@ namespace SevenDaysToDieModCreator.Models
 
             string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel, listWrappersInObjectView);
             xmlOutBlock.Text = addedViewTextStart+ unsavedGeneratedXmlStart + allGeneratedXml + unsavedGeneratedXmlEnd + existingWrapperFileData;
-        }
-        public static XmlAttribute GetAvailableAttribute(XmlNode nextObjectNode)
-        {
-            XmlAttribute valueToReturn = null;
-            if (nextObjectNode.Attributes != null)
-            {
-                XmlAttribute attributeToUse = null;
-                foreach (XmlAttribute nextAttribute in nextObjectNode.Attributes)
-                {
-                    if (nextAttribute.Name.ToLower().Equals("name")) attributeToUse = nextAttribute;
-                    if (nextAttribute.Name.ToLower().Equals("id") && attributeToUse == null) attributeToUse = nextAttribute;
-                    valueToReturn = nextAttribute;
-                }
-                if (attributeToUse != null) valueToReturn = attributeToUse;
-            }
-            return valueToReturn;
         }
     }
 }

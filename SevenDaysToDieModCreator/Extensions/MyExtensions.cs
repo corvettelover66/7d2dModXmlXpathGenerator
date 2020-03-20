@@ -11,15 +11,49 @@ namespace SevenDaysToDieModCreator.Extensions
 {
     static class MyExtensions
     {
-        public static void AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction)
+        public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText)
         {
-            ContextMenu newButtonRightClickMenu = new ContextMenu();
+            ContextMenu newButtonRightClickMenu = objectControl.ContextMenu == null ? new ContextMenu() : objectControl.ContextMenu;
             MenuItem addUnlockingContextMenu = new MenuItem();
-            addUnlockingContextMenu.Header = "Remove Object From View";
+            addUnlockingContextMenu.Header = headerText;
             addUnlockingContextMenu.Click += myOnClickFunction;
             addUnlockingContextMenu.Tag = objectControl;
             newButtonRightClickMenu.Items.Add(addUnlockingContextMenu);
             objectControl.ContextMenu = newButtonRightClickMenu;
+            return newButtonRightClickMenu;
+        }
+        public static List<string> GetAllCommonAttributes(this XmlNode nextObjectNode)
+        {
+            List<string> allCommonAttributes = new List<string>();
+            foreach (XmlNode nextNode in nextObjectNode.ChildNodes)
+            {
+                XmlAttribute nextAvaliableAttribute = nextNode.GetAvailableAttribute();
+                if (nextAvaliableAttribute != null) allCommonAttributes.Add(nextAvaliableAttribute.Value);
+            }
+            return allCommonAttributes;
+        }
+        public static XmlAttribute GetAvailableAttribute(this XmlNode nextObjectNode)
+        {
+            XmlAttribute valueToReturn = null;
+            if (nextObjectNode.Attributes != null)
+            {
+                XmlAttribute attributeToUse = null;
+                foreach (XmlAttribute nextAttribute in nextObjectNode.Attributes)
+                {
+                    if (nextAttribute.Name.ToLower().Equals("name")) attributeToUse = nextAttribute;
+                    if (nextAttribute.Name.ToLower().Equals("id") && attributeToUse == null) attributeToUse = nextAttribute;
+                }
+                if (attributeToUse != null) valueToReturn = attributeToUse;
+                else
+                {
+                    foreach (XmlAttribute nextAttribute in nextObjectNode.Attributes)
+                    {
+                        valueToReturn = nextAttribute;
+                        if (valueToReturn != null) break;
+                    }
+                }
+            }
+            return valueToReturn;
         }
         public static Queue<TreeViewItem> getChildTreeViewQueue(this TreeViewItem nextTreeItem, string childName)
         {
@@ -149,6 +183,42 @@ namespace SevenDaysToDieModCreator.Extensions
             }
             newBox.ItemsSource = allItems;
             return newBox;
+        }
+        public static ComboBox AddToComboBox(this ComboBox boxToAddTo, List<string> listToUse)
+        {
+            for (int i = 0; i < boxToAddTo.Items.Count; i++)
+            {
+                ComboBoxItem it = (ComboBoxItem)boxToAddTo.Items[i];
+                string nextItemValue = it.Content == null ? "" : it.Content.ToString();
+                listToUse.Add(nextItemValue);
+            }
+            List<ComboBoxItem> allItems = new List<ComboBoxItem>();
+            foreach (string nextString in listToUse)
+            {
+                ComboBoxItem newItem = new ComboBoxItem
+                {
+                    Content = nextString.ToString()
+                };
+                allItems.Add(newItem);
+            }
+            boxToAddTo.ItemsSource = allItems;
+            return boxToAddTo;
+        }
+        public static Queue<XmlNode> GetAllDifferentChildrenQueue(this XmlNode topXmlNode)
+        {
+            Queue<XmlNode> allUniqueChildren = new Queue<XmlNode>();
+            foreach (XmlNode nextChild in topXmlNode.ChildNodes)
+            {
+                if (!nextChild.Name.Contains("#"))
+                {
+                    if (allUniqueChildren.Count == 0) allUniqueChildren.Enqueue(nextChild);
+                    else if (!allUniqueChildren.Peek().Name.Equals(nextChild.Name))
+                    {
+                        allUniqueChildren.Enqueue(nextChild);
+                    }
+                }
+            }
+            return allUniqueChildren;
         }
         public static bool HasString(this ComboBox listToUse, string value)
         {

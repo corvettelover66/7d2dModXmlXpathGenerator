@@ -3,7 +3,6 @@ using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using SevenDaysToDieModCreator.Views;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -22,12 +21,15 @@ namespace SevenDaysToDieModCreator
     public partial class MainWindow : Window
     {
         private MainWindowViewController MainWindowViewController { get; set; }
+        private MyStackPanel NewObjectFormsPanel { get; set; }
         public MainWindow()
         {
             InitializeComponent();
-            //Properties.Settings.Default.AutoMoveDecisionMade = false;
             this.WindowState = WindowState.Maximized;
-            this.MainWindowViewController = new MainWindowViewController(NewObjectFormsPanel, XmlOutputBox, RemoveChildContextMenu_Click);
+            this.MainWindowViewController = new MainWindowViewController(XmlOutputBox, RemoveChildContextMenu_Click);
+            NewObjectFormsPanel = new MyStackPanel(this.MainWindowViewController);
+            this.MainWindowViewController.LeftNewObjectViewController.newObjectFormView = NewObjectFormsPanel;
+            CreateLabelScroller.Content = NewObjectFormsPanel;
             Loaded += MyWindow_Loaded;
             Closing += new CancelEventHandler(MainWindow_Closing);
             SetupExceptionHandling();
@@ -187,53 +189,14 @@ namespace SevenDaysToDieModCreator
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
             MainWindowViewController.LeftNewObjectViewController.CreateNewObjectFormTree(selectedWrapper);
-            if (!MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.ContainsValue(selectedWrapper) && selectedWrapper != null) 
-            {
-                MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
-            }
         }
         private void AddNewTreeView_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = AllLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
-            TreeViewItem nextTreeView = MainWindowViewController.RightSearchTreeViewController.GetObjectTreeViewRecursive(selectedWrapper, MakeObjectATargetButton_Click);
+            TreeViewItem nextTreeView = MainWindowViewController.LeftNewObjectViewController.GetObjectTreeViewRecursive(selectedWrapper);
             ViewSp.Children.Add(nextTreeView);
-            if (!MainWindowViewController.RightSearchTreeViewController.LoadedListWrappers.ContainsValue(selectedWrapper) && selectedWrapper != null)
-            {
-                MainWindowViewController.RightSearchTreeViewController.LoadedListWrappers.Add(selectedWrapper.xmlFile.GetFileNameWithoutExtension(), selectedWrapper);
-            }
-        }
-        private void MakeObjectATargetButton_Click(object sender, RoutedEventArgs e)
-        {
-            Button senderAsButton = (Button)sender;
-            XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsButton.Name);
-            if (!MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
-            {
-                MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
-            }
-            string[] contentSplit = senderAsButton.Content.ToString().Split(":");
-
-            TreeViewItem newObjectFormTree = this.MainWindowViewController.LeftNewObjectViewController.GenerateNewObjectFormTreeAddButton(wrapperToUse, contentSplit[0], true);
-            //Set the name to the wrapper so we can find the wrapper later
-            newObjectFormTree.Name = senderAsButton.Name.ToString();
-            //set the xmlNode that was included with the object into the top tree view
-            newObjectFormTree.Tag = senderAsButton.Tag;
-            //The button should be in the form "TagName:AttribiuteNameVaue"
-            if (contentSplit.Length > 1)
-            {
-                newObjectFormTree.Header = senderAsButton.Content.ToString();
-            }
-            //There is the edge case where the object did not have a name value to use
-            else
-            {
-                newObjectFormTree.Header = ((Button)newObjectFormTree.Header).Content;
-            }
-            newObjectFormTree.AddOnHoverMessage("Using this form you can add new objects into the " + newObjectFormTree.Header + " object\n" +
-                "For Example: You want to add an ingredient into a certain, existing, recipe.");
-            newObjectFormTree.AddContextMenu(RemoveChildContextMenu_Click);
-            NewObjectFormsPanel.Children.Add(newObjectFormTree);
-            //OpenTargetDialogWindow(newObjectFormTree, wrapperToUse, senderAsButton.Content.ToString().Split(":")[1]);
         }
         private void RemoveChildContextMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -269,7 +232,6 @@ namespace SevenDaysToDieModCreator
             {
                 case MessageBoxResult.OK:
                     ViewSp.Children.Clear();
-                    MainWindowViewController.RightSearchTreeViewController.LoadedListWrappers.Clear();
                     break;
             }
         }
