@@ -17,23 +17,26 @@ namespace SevenDaysToDieModCreator.Models
 
         protected override void OnVisualChildrenChanged(System.Windows.DependencyObject visualAdded, System.Windows.DependencyObject visualRemoved)
         {
-            if (visualAdded.GetType() == typeof(Button))
+            if (visualAdded != null) 
             {
-                Button senderAsButton = (Button)visualAdded;
-                XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsButton.Name);
-                if (!MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
+                if (visualAdded.GetType() == typeof(Button))
                 {
-                    MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
+                    Button senderAsButton = (Button)visualAdded;
+                    XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsButton.Name);
+                    if (!MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
+                    {
+                        MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
+                    }
                 }
-            }
-            else if (visualAdded.GetType() == typeof(TreeViewItem))
-            {
-                TreeViewItem senderAsButton = (TreeViewItem)visualAdded;
-                XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsButton.Name);
-                if (!MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
+                else if (visualAdded.GetType() == typeof(TreeViewItem))
                 {
-                    MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
-                }
+                    TreeViewItem senderAsButton = (TreeViewItem)visualAdded;
+                    XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsButton.Name);
+                    if (!MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
+                    {
+                        MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
+                    }
+                }            
             }
         }
     }

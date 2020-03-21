@@ -13,7 +13,7 @@ namespace SevenDaysToDieModCreator.Controllers
     {
         private const int FONT_SIZE = 20;
 
-        public StackPanel newObjectFormView { get; set; }
+        public MyStackPanel newObjectFormView { get; set; }
         private ICSharpCode.AvalonEdit.TextEditor xmlOutBlock { get; set; }
         private RoutedEventHandler RemoveChildContextMenu_Click { get; set; }
 
@@ -181,61 +181,54 @@ namespace SevenDaysToDieModCreator.Controllers
 
                 if (nextTreeView != null)
                 {
-                    AddContextMenuToTreeView(nextTreeView);
+                    if(nextTreeView.Header.GetType() != typeof(MyComboBox))AddContextMenuToControl(nextTreeView);
                     topObjectsTreeView.Items.Add(nextTreeView);
                 }
             }
             return topObjectsTreeView;
         }
-
-        private void AddContextMenuToTreeView(TreeViewItem nextTreeView)
+        public void AddContextMenuToControl(Control nextTreeView)
         {
             nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Append to target");
             nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Set to target");
-
         }
-
         private void AppendToContextMenu_ClickFunction(object sender, RoutedEventArgs e)
         {
-            //The code below was what was previously there for the same function,
-            // now the difference is that the sender will be the context menu button. 
-            // Need to use that to find the correct information to generate an object tree
-            throw new NotImplementedException("Need to finish the function");
-
-
-            //Finish writing the 
-            //Button senderAsButton = (Button)sender;
-            //string[] contentSplit = senderAsButton.Content.ToString().Split(":");
-            //XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsButton.Name);
-            //if (!MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
-            //{
-            //    MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
-            //}
-            //TreeViewItem newObjectFormTree = this.MainWindowViewController.LeftNewObjectViewController.GenerateNewObjectFormTreeAddButton(wrapperToUse, contentSplit[0], true);
-            ////Set the name to the wrapper so we can find the wrapper later
-            //newObjectFormTree.Name = senderAsButton.Name.ToString();
-            ////set the xmlNode that was included with the object into the top tree view
-            //newObjectFormTree.Tag = senderAsButton.Tag;
-            ////The button should be in the form "TagName:AttribiuteNameVaue"
-            //if (contentSplit.Length > 1)
-            //{
-            //    newObjectFormTree.Header = senderAsButton.Content.ToString();
-            //}
-            ////There is the edge case where the object did not have a name value to use
-            //else
-            //{
-            //    newObjectFormTree.Header = ((Button)newObjectFormTree.Header).Content;
-            //}
-            //newObjectFormTree.AddOnHoverMessage("Using this form you can add new objects into the " + newObjectFormTree.Header + " object\n" +
-            //    "For Example: You want to add an ingredient into a certain, existing, recipe.");
-            //newObjectFormTree.AddContextMenu(RemoveChildContextMenu_Click, "Remove Object From View");
-            //NewObjectFormsPanel.Children.Add(newObjectFormTree);
+            MenuItem senderAsMenuItem = (MenuItem)sender;
+            TreeViewItem treeViewItem = senderAsMenuItem.Tag as TreeViewItem;
+            if (treeViewItem != null)
+            {
+                XmlObjectsListWrapper wrapperToUse = this.loadedListWrappers.GetValueOrDefault(treeViewItem.Name.ToString());
+                //Literally a hack to force the stackpanel to add a loaded list wrapper if it is empty
+                // This relies on the StackPanel OnVisualChanged
+                if (wrapperToUse == null)
+                {
+                    Button tempLabel = new Button() { Name = treeViewItem.Name };
+                    newObjectFormView.Children.Add(tempLabel);
+                    wrapperToUse = this.loadedListWrappers.GetValueOrDefault(treeViewItem.Name.ToString());
+                    newObjectFormView.Children.Remove(tempLabel);
+                }
+                XmlNode xmlNode = treeViewItem.Tag as XmlNode;
+                //I stopped here
+                TreeViewItem newObjectFormTree = this.GenerateNewObjectFormTreeAddButton(wrapperToUse, xmlNode.Name.ToString(), true);
+                //Set the name to the wrapper so we can find the wrapper later
+                newObjectFormTree.Name = treeViewItem.Name.ToString();
+                //set the xmlNode that was included with the object into the top tree view
+                newObjectFormTree.Tag = xmlNode;
+                XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
+                string attributeValue = avalailableAttribute == null ? "" : ": " + avalailableAttribute.Value + " (" + avalailableAttribute.Name + ")";
+                newObjectFormTree.Header = xmlNode.Name + attributeValue;
+                newObjectFormTree.AddOnHoverMessage("Using this form you can add new objects into the " + newObjectFormTree.Header.ToString() + " object\n" +
+                    "For Example: You want to add an ingredient into a certain, existing, recipe.");
+                newObjectFormTree.AddContextMenu(RemoveChildContextMenu_Click, "Remove Object From View");
+                newObjectFormView.Children.Add(newObjectFormTree);
+            }
         }
         private TreeViewItem SetNextObject(XmlNode nextObjectNode, string wrapperKey, XmlObjectsListWrapper xmlObjectListWrapper)
         {
             if (nextObjectNode.Name.Contains("#") || nextObjectNode == null) return null;
             XmlAttribute nextAvailableAttribute = nextObjectNode.GetAvailableAttribute();
-            string attributeValue = nextAvailableAttribute == null ? "" : ":" + nextAvailableAttribute.Value + " (" + nextAvailableAttribute.Name + ")";
+            string attributeValue = nextAvailableAttribute == null ? "" : ": " + nextAvailableAttribute.Value + " (" + nextAvailableAttribute.Name + ")";
             TreeViewItem nextObjectTreeViewItem = new TreeViewItem
             {
                 Name = wrapperKey,
@@ -261,18 +254,18 @@ namespace SevenDaysToDieModCreator.Controllers
         private void MakeSearchTreeView(TreeViewItem nextObjectTreeViewItem, XmlNode nextObjectNode)
         {
             //make a new treeview item with the box as the header add all children to that.
-            ComboBox topTreeSearchBox = null;
             List<string> attributeCommon = nextObjectNode.GetAllCommonAttributes();
-            topTreeSearchBox = topTreeSearchBox == null ? attributeCommon.CreateComboBoxList() : topTreeSearchBox.AddToComboBox(attributeCommon);
+            MyComboBox topTreeSearchBox = attributeCommon.CreateMyComboBoxList(this);
             XmlAttribute valueToUse = nextObjectNode.GetAvailableAttribute();
             string attributeValue = valueToUse != null ? ": " + valueToUse.Value + " (" + valueToUse.Name + ") " : "";
+            topTreeSearchBox.Name = nextObjectTreeViewItem.Name;
             topTreeSearchBox.Text = nextObjectNode.Name + attributeValue;
             topTreeSearchBox.Width = 325;
             topTreeSearchBox.FontSize = 18;
             topTreeSearchBox.DropDownClosed += TopTreeSearchBox_LostKeyboard_Focus;
             topTreeSearchBox.PreviewKeyDown += TopTreeSearchBox_KeyDown_Focus;
-            nextObjectTreeViewItem.Header = topTreeSearchBox;
             topTreeSearchBox.AddOnHoverMessage(nextObjectNode.Name + attributeValue + " search box. ");
+            nextObjectTreeViewItem.Header = topTreeSearchBox;
         }
 
         private void TopTreeSearchBox_KeyDown_Focus(object sender, KeyEventArgs e)

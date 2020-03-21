@@ -1,4 +1,5 @@
-﻿using SevenDaysToDieModCreator.Models;
+﻿using SevenDaysToDieModCreator.Controllers;
+using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,11 +14,12 @@ namespace SevenDaysToDieModCreator.Extensions
     {
         public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText)
         {
+
             ContextMenu newButtonRightClickMenu = objectControl.ContextMenu == null ? new ContextMenu() : objectControl.ContextMenu;
             MenuItem addUnlockingContextMenu = new MenuItem();
             addUnlockingContextMenu.Header = headerText;
             addUnlockingContextMenu.Click += myOnClickFunction;
-            addUnlockingContextMenu.Tag = objectControl;
+            addUnlockingContextMenu.Tag = objectControl.GetType() == typeof(TextBox) ? objectControl.Tag : objectControl;
             newButtonRightClickMenu.Items.Add(addUnlockingContextMenu);
             objectControl.ContextMenu = newButtonRightClickMenu;
             return newButtonRightClickMenu;
@@ -169,6 +171,24 @@ namespace SevenDaysToDieModCreator.Extensions
         public static ComboBox CreateComboBoxList<T>(this IList<T> listToUse, string name = null)
         {
             ComboBox newBox = new ComboBox();
+            newBox.IsEditable = true;
+            if (name != null) newBox.Name = name;
+            List<ComboBoxItem> allItems = new List<ComboBoxItem>();
+            allItems.Add(new ComboBoxItem());
+            foreach (T nextString in listToUse)
+            {
+                ComboBoxItem newItem = new ComboBoxItem
+                {
+                    Content = nextString.ToString()
+                };
+                allItems.Add(newItem);
+            }
+            newBox.ItemsSource = allItems;
+            return newBox;
+        }
+        public static MyComboBox CreateMyComboBoxList<T>(this IList<T> listToUse, ObjectViewController objectViewController, string name = null)
+        {
+            MyComboBox newBox = new MyComboBox(objectViewController);
             newBox.IsEditable = true;
             if (name != null) newBox.Name = name;
             List<ComboBoxItem> allItems = new List<ComboBoxItem>();
