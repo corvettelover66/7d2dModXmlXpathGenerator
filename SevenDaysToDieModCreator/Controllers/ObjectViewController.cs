@@ -44,7 +44,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 ((StackPanel)sendersParent.Parent).Children.Add(topTreeLabel);
                 ((StackPanel)sendersParent.Parent).Children.Add(newObjectFormTreeView);
             }
-            else ((TreeViewItem)sendersParent.Parent).Items.Add(newObjectFormTreeView);
+            else if (sendersParent.Parent.GetType() == typeof(TreeViewItem)) ((TreeViewItem)sendersParent.Parent).Items.Add(newObjectFormTreeView);
         }
         public void CreateNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper)
         {
@@ -181,7 +181,7 @@ namespace SevenDaysToDieModCreator.Controllers
 
                 if (nextTreeView != null)
                 {
-                    if(nextTreeView.Header.GetType() != typeof(MyComboBox))AddContextMenuToControl(nextTreeView);
+                    if (nextTreeView.Header.GetType() != typeof(MyComboBox)) AddContextMenuToControl(nextTreeView);
                     topObjectsTreeView.Items.Add(nextTreeView);
                 }
             }
@@ -189,41 +189,123 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         public void AddContextMenuToControl(Control nextTreeView)
         {
-            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Append to target");
-            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Set to target");
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Append to target", XmlXpathGenerator.XPATH_ACTION_APPEND).
+                AddOnHoverMessage("The append command is used to add either more nodes or more attribute values");
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Remove target", XmlXpathGenerator.XPATH_ACTION_REMOVE).
+                AddOnHoverMessage("The remove command is used to remove nodes or attributes");
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Insert After target", XmlXpathGenerator.XPATH_ACTION_INSERT_AFTER).
+                AddOnHoverMessage("Much like append, insertAfter will add nodes and attributes after the selected xpath");
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Insert Before target", XmlXpathGenerator.XPATH_ACTION_INSERT_BEFORE).
+                AddOnHoverMessage("Much like insertAfter, insertBefore will add nodes and attributes before the selected xpath");
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Set", XmlXpathGenerator.XPATH_ACTION_SET).
+                AddOnHoverMessage("The set command is used to change individual attributes");
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Remove Attribute", XmlXpathGenerator.XPATH_ACTION_REMOVE_ATTRIBUTE).
+                AddOnHoverMessage("The removeattributes command is used to remove an existing attribute from an XML node");
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Set Attribute", XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE).
+                AddOnHoverMessage("The setattribute command is used to add a new attribute to an XML node");
         }
         private void AppendToContextMenu_ClickFunction(object sender, RoutedEventArgs e)
         {
             MenuItem senderAsMenuItem = (MenuItem)sender;
-            TreeViewItem treeViewItem = senderAsMenuItem.Tag as TreeViewItem;
-            if (treeViewItem != null)
+            TreeViewItem senderTreeView = senderAsMenuItem.Tag as TreeViewItem;
+
+            if (senderTreeView != null)
             {
-                XmlObjectsListWrapper wrapperToUse = this.loadedListWrappers.GetValueOrDefault(treeViewItem.Name.ToString());
+                XmlObjectsListWrapper wrapperToUse = this.loadedListWrappers.GetValueOrDefault(senderTreeView.Name.ToString());
                 //Literally a hack to force the stackpanel to add a loaded list wrapper if it is empty
                 // This relies on the StackPanel OnVisualChanged
                 if (wrapperToUse == null)
                 {
-                    Button tempLabel = new Button() { Name = treeViewItem.Name };
+                    Button tempLabel = new Button() { Name = senderTreeView.Name };
                     newObjectFormView.Children.Add(tempLabel);
-                    wrapperToUse = this.loadedListWrappers.GetValueOrDefault(treeViewItem.Name.ToString());
+                    wrapperToUse = this.loadedListWrappers.GetValueOrDefault(senderTreeView.Name.ToString());
                     newObjectFormView.Children.Remove(tempLabel);
                 }
-                XmlNode xmlNode = treeViewItem.Tag as XmlNode;
-                //I stopped here
-                TreeViewItem newObjectFormTree = this.GenerateNewObjectFormTreeAddButton(wrapperToUse, xmlNode.Name.ToString(), true);
+                XmlNode xmlNode = senderTreeView.Tag as XmlNode;
+                string isAttributeAction = "";
+                TreeViewItem newObjectFormTree;
+                //If there is an attribute Create a Special Object View with just the box for the attribute or a holder for the xml to generate.
+                if (senderTreeView.Uid.Equals(XmlXpathGenerator.ATTRIBUTE_NAME))
+                {
+                    XmlAttribute treeAttribute = senderTreeView.Tag as XmlAttribute;
+                    isAttributeAction = ":" + treeAttribute.Name;
+                    newObjectFormTree = GenerateAttributeTree(senderAsMenuItem, xmlNode, treeAttribute, wrapperToUse);
+                }
+                else
+                {
+                    newObjectFormTree = this.GenerateNewObjectFormTreeAddButton(wrapperToUse, xmlNode.Name.ToString(), true);
+                    XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
+                    string attributeValue = avalailableAttribute == null ? "" : ": " + avalailableAttribute.Value + " (" + avalailableAttribute.Name + ")";
+                    newObjectFormTree.Header = xmlNode.Name + attributeValue;
+                }
                 //Set the name to the wrapper so we can find the wrapper later
-                newObjectFormTree.Name = treeViewItem.Name.ToString();
-                //set the xmlNode that was included with the object into the top tree view
+                newObjectFormTree.Name = senderTreeView.Name.ToString();
+                //Set the xmlNode that was included with the object into the top tree view
                 newObjectFormTree.Tag = xmlNode;
-                XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
-                string attributeValue = avalailableAttribute == null ? "" : ": " + avalailableAttribute.Value + " (" + avalailableAttribute.Name + ")";
-                newObjectFormTree.Header = xmlNode.Name + attributeValue;
+                //Set the newObjectFormTree uuid to the XmlXpath action that is set on the menu item name
+                newObjectFormTree.Uid = senderAsMenuItem.Name + isAttributeAction;
+
                 newObjectFormTree.AddOnHoverMessage("Using this form you can add new objects into the " + newObjectFormTree.Header.ToString() + " object\n" +
                     "For Example: You want to add an ingredient into a certain, existing, recipe.");
                 newObjectFormTree.AddContextMenu(RemoveChildContextMenu_Click, "Remove Object From View");
                 newObjectFormView.Children.Add(newObjectFormTree);
             }
         }
+
+        private TreeViewItem GenerateAttributeTree(MenuItem senderAsMenuItem, XmlNode xmlNode, XmlAttribute xmlAttribute, XmlObjectsListWrapper xmlObjectListWrapper)
+        {
+            TreeViewItem newObjectFormTree = new TreeViewItem
+            {
+                FontSize = FONT_SIZE,
+                //                          FileName                                   Xpath action                   Node Name                      Attribute targeted
+                Header = xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension() + " action (" + senderAsMenuItem.Name + ") Node:" + xmlNode.Name + " target attribute:" + xmlAttribute.Name
+            };
+            if (senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE))
+            {
+                Label attributeNameLabel = new Label { Content = "New Attribute Name" };
+                newObjectFormTree.Items.Add(attributeNameLabel);
+                TreeViewItem newAttributeTreeView = new TreeViewItem
+                {
+                    FontSize = FONT_SIZE,
+                    Header = new TextBox { FontSize = FONT_SIZE }.AddOnHoverMessage("Add new attribute name here."),
+                    Name = XmlXpathGenerator.ATTRIBUTE_NAME
+                };
+                newObjectFormTree.Items.Add(newAttributeTreeView);
+                Label attributeValueLabel = new Label { Content = "New Attribute Value" };
+                newObjectFormTree.Items.Add(attributeValueLabel);
+                TreeViewItem newAttributeValueTreeView = new TreeViewItem
+                {
+                    FontSize = FONT_SIZE,
+                    Header = new TextBox { FontSize = FONT_SIZE }.AddOnHoverMessage("Add new attribute value here."), 
+                    Name = XmlXpathGenerator.ATTRIBUTE_VALUE
+
+                };
+                newObjectFormTree.Items.Add(newAttributeValueTreeView);
+            }
+            else if (!senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_REMOVE) 
+                || !senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_REMOVE_ATTRIBUTE)) 
+            {
+                List<string> attributeCommon = xmlObjectListWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(xmlNode.Name).GetValueOrDefault(xmlAttribute.Name);
+                ComboBox newAttributesComboBox = attributeCommon != null ? attributeCommon.CreateComboBoxList() : null;
+                if(newAttributesComboBox != null)
+                {
+                    newAttributesComboBox.Width = 300;
+                    newAttributesComboBox.DropDownClosed += NewAttributesComboBox_DropDownClosed;
+                    newAttributesComboBox.LostFocus += NewAttributesComboBox_LostFocus;
+                    newAttributesComboBox.Tag = xmlAttribute.Name;
+                    newAttributesComboBox.AddOnHoverMessage("Here you can set the value of the " + xmlAttribute.Name + " for the " + xmlNode.Name);
+                    TreeViewItem headerTreeView = new TreeViewItem
+                    {
+                        FontSize = FONT_SIZE,
+                        Header = newAttributesComboBox,
+                        Name = XmlXpathGenerator.ATTRIBUTE_VALUE
+                    };
+                    newObjectFormTree.Items.Add(headerTreeView);
+                }
+            }
+            return newObjectFormTree;
+        }
+
         private TreeViewItem SetNextObject(XmlNode nextObjectNode, string wrapperKey, XmlObjectsListWrapper xmlObjectListWrapper)
         {
             if (nextObjectNode.Name.Contains("#") || nextObjectNode == null) return null;
@@ -238,7 +320,7 @@ namespace SevenDaysToDieModCreator.Controllers
             };
             if (nextObjectNode.Attributes != null)
             {
-                SetNextObjectTreeViewAtrributes(nextObjectTreeViewItem, nextObjectNode.Attributes, nextObjectNode.Name);
+                SetNextObjectTreeViewAtrributes(nextObjectTreeViewItem, nextObjectNode.Attributes, wrapperKey);
             }
             if (nextObjectNode.HasChildNodes)
             {
@@ -345,23 +427,32 @@ namespace SevenDaysToDieModCreator.Controllers
 
             return children;
         }
-        private void SetNextObjectTreeViewAtrributes(TreeViewItem nextObjectTreeViewItem, XmlAttributeCollection attributes, string objectNodeName)
+        private void SetNextObjectTreeViewAtrributes(TreeViewItem nextObjectTreeViewItem, XmlAttributeCollection attributes, string wrapperKey)
         {
             foreach (XmlAttribute nextAttribute in attributes)
             {
                 TreeViewItem attributeBox = new TreeViewItem
                 {
                     Header = nextAttribute.Name + " = " + nextAttribute.Value,
-                    Tag = nextAttribute
+                    Tag = nextAttribute,
+                    Uid = XmlXpathGenerator.ATTRIBUTE_NAME, 
+                    Name = wrapperKey
                 };
                 if (!nextAttribute.Name.Contains("#whitespace"))
                 {
                     attributeBox.AddOnHoverMessage("You can click me to copy the value");
+                    AddContextMenuToControl(attributeBox); 
                     attributeBox.PreviewMouseDown += NewObjectTreeAttributeCombo_MouseDown;
                     nextObjectTreeViewItem.Items.Add(attributeBox);
                 }
             }
         }
+
+        private void HandleAttributeActionMenu_ClickFunction(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         private void NewObjectTreeAttributeCombo_MouseDown(object sender, RoutedEventArgs e)
         {
             Clipboard.SetText(((TreeViewItem)sender).Header.ToString().Split("=")[1].Trim());

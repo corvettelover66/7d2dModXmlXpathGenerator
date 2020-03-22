@@ -12,11 +12,12 @@ namespace SevenDaysToDieModCreator.Extensions
 {
     static class MyExtensions
     {
-        public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText)
+        public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText, string xpathAction = "")
         {
 
             ContextMenu newButtonRightClickMenu = objectControl.ContextMenu == null ? new ContextMenu() : objectControl.ContextMenu;
             MenuItem addUnlockingContextMenu = new MenuItem();
+            addUnlockingContextMenu.Name = xpathAction;
             addUnlockingContextMenu.Header = headerText;
             addUnlockingContextMenu.Click += myOnClickFunction;
             addUnlockingContextMenu.Tag = objectControl.GetType() == typeof(TextBox) ? objectControl.Tag : objectControl;
