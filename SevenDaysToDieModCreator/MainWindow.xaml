@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Margin="0,0,0,348">
             <DockPanel>
-                <Menu DockPanel.Dock="Top" FontSize="20" Height="31">
+                <Menu DockPanel.Dock="Top" FontSize="20" Height="39">
                     <MenuItem Header="_File">
                         <MenuItem Header="Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
                         <MenuItem Header="Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
@@ -57,7 +57,7 @@
                         <ScrollViewer Name="CreateLabelScroller" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
                         </ScrollViewer>
                     </Grid>
-                    <Grid Grid.Column="0" Grid.Row="2" Margin="0,209,0,0">
+                    <Grid Grid.Column="0" Grid.Row="2" Margin="0,203,0,0">
                         <StackPanel>
                             <Button x:Name="ClearAllObjectsViewButton" Click="ClearAllObjectView_Click" FontSize="18">Clear View</Button>
                         </StackPanel>
@@ -71,13 +71,13 @@
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,41">
-                    <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20" Margin="0,10,0,0">
+                    <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20" Margin="0,0,0,-36">
                     </avalonedit:TextEditor>
                 </Grid>
                 <Grid Grid.Row="1" Margin="0,313,0,-79">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="794">
-                        <ComboBox Name="OpenDirectEditViewComboBox" HorizontalAlignment="Center" FontSize="20" Background="Beige" />
-                        <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18" >Open Direct Editor Window</Button>
+                        <ComboBox Name="OpenDirectEditViewComboBox" HorizontalAlignment="Center" FontSize="20" Background="Beige" Width="626" />
+                        <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18" Width="624" >Open Direct Editor Window</Button>
                         <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>
                 </Grid>
@@ -104,7 +104,7 @@
                 </Grid>
                 <Grid Grid.Row="2" Margin="0,203,0,10">
                     <StackPanel VerticalAlignment="Bottom">
-                        <Button x:Name="ClearTreesViewButton" Click="ClearAllTreesView_Click" FontSize="18">Clear View</Button>
+                        <Button x:Name="ClearTreesViewButton" Click="ClearAllTreesView_Click" FontSize="18" Content="Clear View"/>
                     </StackPanel>
                 </Grid>
             </Grid>

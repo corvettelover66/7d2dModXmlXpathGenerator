@@ -12,6 +12,27 @@ namespace SevenDaysToDieModCreator.Extensions
 {
     static class MyExtensions
     {
+        public static List<TreeViewItem> GetChildren(this TreeViewItem parent)
+        {
+            List<TreeViewItem> children = new List<TreeViewItem>();
+
+            if (parent != null)
+            {
+                foreach (var item in parent.Items)
+                {
+                    TreeViewItem child = item as TreeViewItem;
+
+                    if (child == null)
+                    {
+                        child = parent.ItemContainerGenerator.ContainerFromItem(child) as TreeViewItem;
+                    }
+
+                    if (child != null) children.Add(child);
+                }
+            }
+
+            return children;
+        }
         public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText, string xpathAction = "")
         {
 
@@ -204,55 +225,6 @@ namespace SevenDaysToDieModCreator.Extensions
             }
             newBox.ItemsSource = allItems;
             return newBox;
-        }
-        public static ComboBox AddToComboBox(this ComboBox boxToAddTo, List<string> listToUse)
-        {
-            for (int i = 0; i < boxToAddTo.Items.Count; i++)
-            {
-                ComboBoxItem it = (ComboBoxItem)boxToAddTo.Items[i];
-                string nextItemValue = it.Content == null ? "" : it.Content.ToString();
-                listToUse.Add(nextItemValue);
-            }
-            List<ComboBoxItem> allItems = new List<ComboBoxItem>();
-            foreach (string nextString in listToUse)
-            {
-                ComboBoxItem newItem = new ComboBoxItem
-                {
-                    Content = nextString.ToString()
-                };
-                allItems.Add(newItem);
-            }
-            boxToAddTo.ItemsSource = allItems;
-            return boxToAddTo;
-        }
-        public static Queue<XmlNode> GetAllDifferentChildrenQueue(this XmlNode topXmlNode)
-        {
-            Queue<XmlNode> allUniqueChildren = new Queue<XmlNode>();
-            foreach (XmlNode nextChild in topXmlNode.ChildNodes)
-            {
-                if (!nextChild.Name.Contains("#"))
-                {
-                    if (allUniqueChildren.Count == 0) allUniqueChildren.Enqueue(nextChild);
-                    else if (!allUniqueChildren.Peek().Name.Equals(nextChild.Name))
-                    {
-                        allUniqueChildren.Enqueue(nextChild);
-                    }
-                }
-            }
-            return allUniqueChildren;
-        }
-        public static bool HasString(this ComboBox listToUse, string value)
-        {
-            bool hasString = false;
-            List<ComboBoxItem> allItems = (List<ComboBoxItem>)listToUse.ItemsSource;
-            if (allItems != null)
-            {
-                foreach (ComboBoxItem nextBox in allItems)
-                {
-                    if (nextBox.Content.ToString().Contains(value)) hasString = true;
-                }
-            }
-            return hasString;
         }
         public static void AddUniqueValueTo(this ComboBox boxToAddTo, string valueToAdd)
         {

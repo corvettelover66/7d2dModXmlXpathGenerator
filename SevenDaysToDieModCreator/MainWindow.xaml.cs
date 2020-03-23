@@ -85,7 +85,7 @@ namespace SevenDaysToDieModCreator
 
         private void GotKeyboardFocus_Handler(object sender, KeyboardFocusChangedEventArgs e)
         {
-            XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers, XmlOutputBox);
+            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -223,7 +223,7 @@ namespace SevenDaysToDieModCreator
             if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
             NewObjectFormsPanel.Children.Clear();
             MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Clear();
-            XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers, XmlOutputBox);
+            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
         }
         private void ClearAllTreesView_Click(object sender, RoutedEventArgs e)
         {
@@ -237,7 +237,7 @@ namespace SevenDaysToDieModCreator
         }
         private void CustomTagDialogPopUp(string dialogText)
         {
-            var dialog = new CustomDialogBox(dialogText);
+            var dialog = new CustomDialogBox(true, dialogText);
 
             if (dialog.ShowDialog() == true)
             {

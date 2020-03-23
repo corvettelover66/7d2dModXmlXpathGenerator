@@ -14,7 +14,7 @@ namespace SevenDaysToDieModCreator.Views
     public partial class CustomDialogBox : Window
     {
         private ComboBox AllTagsComboBox = new ComboBox();
-        public CustomDialogBox(string textBoxBody = "")
+        public CustomDialogBox(bool doLoadModPath, string textBoxBody = "")
         {
             InitializeComponent();
             string defaultText = "Thank you for downloading the 7 days to die Mod Creator! " +
@@ -25,17 +25,20 @@ namespace SevenDaysToDieModCreator.Views
                 "Any time you close the app or reset the object view, the xml that could be generated is output in that log. " +
                 "If you like the mod don't forget to drop an endorsment and tell your friends!\n\n\n\n\n\n";
             if (!String.IsNullOrEmpty(textBoxBody)) defaultText = textBoxBody + "\n\n\n\n\n\n";
-            if (!Directory.Exists(XmlFileManager._filePath + "/Mods/")) Directory.CreateDirectory(XmlFileManager._filePath + "/Mods/");
-            string[] allDirs = Directory.GetDirectories(XmlFileManager._filePath + "/Mods/", "*");
-            List<string> justChildrenPathNames = new List<string>();
-            foreach (string nextDir in allDirs) 
+            if (doLoadModPath)
             {
-                justChildrenPathNames.Add( Path.GetFileName(nextDir));
+                if (!Directory.Exists(XmlFileManager._filePath + "/Mods/")) Directory.CreateDirectory(XmlFileManager._filePath + "/Mods/");
+                string[] allDirs = Directory.GetDirectories(XmlFileManager._filePath + "/Mods/", "*");
+                List<string> justChildrenPathNames = new List<string>();
+                foreach (string nextDir in allDirs)
+                {
+                    justChildrenPathNames.Add(Path.GetFileName(nextDir));
+                }
+                AllTagsComboBox = justChildrenPathNames.CreateComboBoxList();
+                AllTagsComboBox.AddOnHoverMessage("Input a new tag or select a tag from the list of existing tags");
+                AllTagsComboBox.IsEditable = true;
+                CustomDialogPanel.Children.Add(AllTagsComboBox);
             }
-            AllTagsComboBox = justChildrenPathNames.CreateComboBoxList();
-            AllTagsComboBox.AddOnHoverMessage("Input a new tag or select a tag from the list of existing tags");
-            AllTagsComboBox.IsEditable = true;
-            CustomDialogPanel.Children.Add(AllTagsComboBox);
             LabelTextBlock.Text = defaultText;
         }
         public string ResponseText

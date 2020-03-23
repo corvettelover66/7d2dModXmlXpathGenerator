@@ -17,7 +17,7 @@ namespace SevenDaysToDieModCreator.Models
 
         protected override void OnVisualChildrenChanged(System.Windows.DependencyObject visualAdded, System.Windows.DependencyObject visualRemoved)
         {
-            if (visualAdded != null) 
+            if (visualAdded != null)
             {
                 if (visualAdded.GetType() == typeof(Button))
                 {
@@ -37,6 +37,7 @@ namespace SevenDaysToDieModCreator.Models
                         MainWindowViewController.LeftNewObjectViewController.loadedListWrappers.Add(wrapperToUse.xmlFile.GetFileNameWithoutExtension(), wrapperToUse);
                     }
                 }            
+                this.MainWindowViewController.LeftNewObjectViewController.xmlOutBlock.Text = XmlXpathGenerator.GenerateXmlViewOutput(this.MainWindowViewController.LeftNewObjectViewController.newObjectFormView, this.MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
             }
         }
     }

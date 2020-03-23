@@ -1,7 +1,6 @@
 ﻿using SevenDaysToDieModCreator.Controllers;
-using SevenDaysToDieModCreator.Extensions;
-using System;
-using System.Windows;
+
+using System.Collections.Generic;
 using System.Windows.Controls;
 
 namespace SevenDaysToDieModCreator.Models
@@ -22,7 +21,7 @@ namespace SevenDaysToDieModCreator.Models
             var textBox = Template.FindName("PART_EditableTextBox", this) as TextBox;
             MyTextBox = textBox;
             MyTextBox.Tag = this.Parent;
-            this.ObjectViewController.AddContextMenuToControl(MyTextBox);
+            this.ObjectViewController.AddTargetContextMenuToControl(MyTextBox);
         }
     }
 }
