@@ -7,9 +7,11 @@ namespace SevenDaysToDieModCreator.Models
     public class XmlFileObject
     {
         public string FileName { get; private set; }
+        public long FileSize { get; }
         public XmlDocument xmlDocument { get; private set; }
         public XmlFileObject(string directory)
         {
+            FileSize = new System.IO.FileInfo(directory).Length;
             LoadFile(directory);
             FileName = ParseFileName(directory);
         }

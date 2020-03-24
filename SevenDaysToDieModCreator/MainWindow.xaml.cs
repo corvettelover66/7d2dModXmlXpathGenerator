@@ -12,6 +12,7 @@ using System.Xml;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows.Input;
 using ICSharpCode.AvalonEdit.Search;
+using System.Collections.Generic;
 
 namespace SevenDaysToDieModCreator
 {
@@ -22,14 +23,14 @@ namespace SevenDaysToDieModCreator
     {
         private MainWindowViewController MainWindowViewController { get; set; }
         private MyStackPanel NewObjectFormsPanel { get; set; }
+        private MyStackPanel SearchTreeFormsPanel { get; set; }
+        private SearchViewCache SearchTreeFormsPanelCache { get; set; }
+        static BackgroundWorker myBackgroundWorker { get; } = new BackgroundWorker();
+        private long FILE_SIZE_THRESHOLD = 1000000;
         public MainWindow()
         {
             InitializeComponent();
             this.WindowState = WindowState.Maximized;
-            this.MainWindowViewController = new MainWindowViewController(XmlOutputBox, RemoveChildContextMenu_Click);
-            NewObjectFormsPanel = new MyStackPanel(this.MainWindowViewController);
-            this.MainWindowViewController.LeftNewObjectViewController.newObjectFormView = NewObjectFormsPanel;
-            CreateLabelScroller.Content = NewObjectFormsPanel;
             Loaded += MyWindow_Loaded;
             Closing += new CancelEventHandler(MainWindow_Closing);
             SetupExceptionHandling();
@@ -44,7 +45,7 @@ namespace SevenDaysToDieModCreator
         //but here I want to catch it as well to save any possible generated xml to the log
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs exception)
         {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers);
             if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
         }
         private void SetOnHoverMessages() 
@@ -75,22 +76,42 @@ namespace SevenDaysToDieModCreator
         private void MyWindow_Loaded(object sender, RoutedEventArgs e)
         {
             SetOnHoverMessages();
+            this.MainWindowViewController = new MainWindowViewController(XmlOutputBox, RemoveChildContextMenu_Click);
+            SearchTreeFormsPanelCache = new SearchViewCache(this.MainWindowViewController);
+            NewObjectFormsPanel = new MyStackPanel(this.MainWindowViewController, SearchTreeFormsPanelCache);
+            this.MainWindowViewController.LeftNewObjectViewController.NewObjectFormViewPanel = NewObjectFormsPanel;
+
+            CreateLabelScroller.Content = NewObjectFormsPanel;
+            SearchTreeFormsPanel = new MyStackPanel(this.MainWindowViewController, SearchTreeFormsPanelCache);
+            this.MainWindowViewController.LeftNewObjectViewController.SearchTreeFormViewPanel = SearchTreeFormsPanel;
+            SearchObjectScrollViewer.Content = SearchTreeFormsPanel;
+
             MainWindowViewController.LoadStartingDirectory(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox, OpenDirectEditViewComboBox);
             if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("");
             XmlOutputBox.GotKeyboardFocus += GotKeyboardFocus_Handler;
             SearchPanel.Install(XmlOutputBox);
+            //myBackgroundWorker.DoWork += MyBackgroundWorker_DoWork;
+            //myBackgroundWorker.RunWorkerAsync();
             //Need to reload all events when loading state like this.
             //bool didLoad = LoadExternalXaml();
         }
 
+        private void MyBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke((Action)delegate
+            {
+                SearchTreeFormsPanelCache.LoadCache();
+            });
+        }
+
         private void GotKeyboardFocus_Handler(object sender, KeyboardFocusChangedEventArgs e)
         {
-            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
+            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers);
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers);
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers);
             if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
             //SaveExternalXaml();
         }
@@ -114,7 +135,7 @@ namespace SevenDaysToDieModCreator
             switch (result)
             {
                 case MessageBoxResult.OK:
-                    XmlXpathGenerator.SaveAllGeneratedXmlToPath(NewObjectFormsPanel, MainWindowViewController.LeftNewObjectViewController.loadedListWrappers, XmlFileManager._ModOutputPath, true);
+                    XmlXpathGenerator.SaveAllGeneratedXmlToPath(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers, XmlFileManager._ModOutputPath, true);
                     if(Properties.Settings.Default.AutoMoveMod) XmlFileManager.CopyAllOutputFiles();
                     break;
             }
@@ -190,13 +211,41 @@ namespace SevenDaysToDieModCreator
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
             MainWindowViewController.LeftNewObjectViewController.CreateNewObjectFormTree(selectedWrapper);
         }
-        private void AddNewTreeView_Click(object sender, RoutedEventArgs e)
+        private void AddNewSearchTreeView_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = AllLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
-            TreeViewItem nextTreeView = MainWindowViewController.LeftNewObjectViewController.GetObjectTreeViewRecursive(selectedWrapper);
-            ViewSp.Children.Add(nextTreeView);
+            XmlObjectsListWrapper leftObjectWrapper = SearchTreeFormsPanel.LoadedListWrappers.GetValueOrDefault(selectedObject);
+            if (leftObjectWrapper == null || leftObjectWrapper.xmlFile.FileSize < this.FILE_SIZE_THRESHOLD)
+            {
+                TreeViewItem nextTreeView = MainWindowViewController.LeftNewObjectViewController.GetSearchTreeViewRecursive(selectedWrapper);
+                SearchTreeFormsPanel.Children.Add(nextTreeView);
+            }
+            else 
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "That is a large file and consumes a considerable amount of resources, you already have one of those objects in the view. Are you sure you want another? ",
+                    "Add Another Large Search Tree",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Exclamation);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        TreeViewItem nextTreeView = MainWindowViewController.LeftNewObjectViewController.GetSearchTreeViewRecursive(selectedWrapper);
+                        SearchTreeFormsPanel.Children.Add(nextTreeView);
+                        break;
+                }
+            }
+            //TreeViewItem nextTreeView = MainWindowViewController.LeftNewObjectViewController.GetSearchTreeViewRecursive(nextXmlObjectsListWrapper);
+            //if (this.SearchTreeFormsPanelCache.HasTreeView(selectedObject))
+            //{
+            //        SearchTreeFormsPanel.Children.Add(this.SearchTreeFormsPanelCache.GetTreeViewByKey(selectedObject));
+            //}
+            //else 
+            //{
+            //    MessageBox.Show("Still Loading Cache");
+            //}
         }
         private void RemoveChildContextMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -231,7 +280,7 @@ namespace SevenDaysToDieModCreator
             switch (result)
             {
                 case MessageBoxResult.OK:
-                    ViewSp.Children.Clear();
+                    SearchTreeFormsPanel.Children.Clear();
                     break;
             }
         }
