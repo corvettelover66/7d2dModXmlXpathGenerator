@@ -23,13 +23,18 @@ namespace SevenDaysToDieModCreator.Controllers
             this.LeftNewObjectViewController = new ObjectViewController(xmlOutputBox, removeChildContextMenu_Click);
         }
 
-        public void LoadStartingDirectory(ComboBox allLoadedFilesBox, ComboBox allLoadedObjectsBox, ComboBox openDirectEditViewComboBox)
+        public void LoadStartingDirectory(ComboBox SearchTreeLoadedFilesComboBox, ComboBox NewObjectViewLoadedFilesComboBox, ComboBox OpenDirectEditLoadedFilesComboBox)
         {
             if (!Directory.Exists(XmlFileManager._LoadedFilesPath)) Directory.CreateDirectory(XmlFileManager._LoadedFilesPath);
             string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath);
-            foreach (string file in files) 
+            string[] directories = Directory.GetDirectories(XmlFileManager._LoadedFilesPath);
+            foreach (string file in files)
             {
-                LoadFile(allLoadedFilesBox, allLoadedObjectsBox, openDirectEditViewComboBox, file);
+                LoadFile(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, OpenDirectEditLoadedFilesComboBox, file);
+            }
+            foreach (string directory in directories)
+            {
+                LoadModDirectory(SearchTreeLoadedFilesComboBox, directory);
             }
         }
 
@@ -71,6 +76,14 @@ namespace SevenDaysToDieModCreator.Controllers
                 MessageBox.Show(messageBoxText, caption, button, icon);
             }
         }
+        private bool LoadModDirectory(ComboBox searchTreeLoadedFilesComboBox, string directory)
+        {
+            bool didLoad = false;
+            if (directory.EndsWith(".xml"))
+            {
+            }
+            return didLoad;
+        }
         private bool LoadFile(ComboBox allLoadedFilesBox, ComboBox allLoadedObjectsBox, ComboBox openDirectEditViewComboBox, string fileName) 
         {
             bool didLoad = false;
@@ -79,11 +92,15 @@ namespace SevenDaysToDieModCreator.Controllers
                 XmlObjectsListWrapper wrapper = new XmlObjectsListWrapper(new XmlFileObject(fileName));
                 try
                 {
-                    if(!File.Exists(XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName))File.Copy(fileName, XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName);
-                    this.LoadedListWrappers.Add(wrapper.xmlFile.GetFileNameWithoutExtension(), wrapper);
-                    allLoadedFilesBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
-                    allLoadedObjectsBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
-                    openDirectEditViewComboBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
+                    string wrapperDictionKey = wrapper.xmlFile.GetFileNameWithoutExtension();
+                    //If the first tag is not similar to the file name it is most likely a mod.
+                    bool isModFile = !wrapperDictionKey.Contains(wrapper.FirstChildTagName);
+                    //Try to copy the file
+                    if(!File.Exists(XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName) ) File.Copy(fileName, XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName);
+                    this.LoadedListWrappers.Add(wrapperDictionKey, wrapper);
+                    allLoadedFilesBox.AddUniqueValueTo(wrapperDictionKey);
+                    allLoadedObjectsBox.AddUniqueValueTo(wrapperDictionKey);
+                    openDirectEditViewComboBox.AddUniqueValueTo(wrapperDictionKey);
                     didLoad = true;
                 }
                 catch (ArgumentException argException) 

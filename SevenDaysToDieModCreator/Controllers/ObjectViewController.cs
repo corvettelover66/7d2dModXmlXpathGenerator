@@ -199,39 +199,32 @@ namespace SevenDaysToDieModCreator.Controllers
             XmlNode xmlNode = nextTreeView.Tag as XmlNode;
             TreeViewItem comboParent = nextTreeView.Tag as TreeViewItem;
             if (comboParent != null) xmlNode = comboParent.Tag as XmlNode;
-            if (xmlNode.HasChildNodes || isAttributeControl) nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Append", XmlXpathGenerator.XPATH_ACTION_APPEND);
-            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Remove", XmlXpathGenerator.XPATH_ACTION_REMOVE);
-            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Insert After", XmlXpathGenerator.XPATH_ACTION_INSERT_AFTER);
-            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Insert Before", XmlXpathGenerator.XPATH_ACTION_INSERT_BEFORE);
-            if (isAttributeControl) nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Set", XmlXpathGenerator.XPATH_ACTION_SET);
-            else  nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, "Set Attribute", XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE);
-            nextTreeView.AddContextMenu(HelpContextMenu_ClickFunction, "Help");
+            if (xmlNode.HasChildNodes || isAttributeControl) 
+                nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, 
+                "Append", 
+                "The append command is used to add either more nodes or more attribute values", 
+                XmlXpathGenerator.XPATH_ACTION_APPEND);
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+                "Remove",
+                "The remove command is used to remove nodes or attributes",
+                XmlXpathGenerator.XPATH_ACTION_REMOVE);
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+                "Insert After",
+                "Much like append, insertAfter will add nodes and attributes after the selected xpath",
+                xpathAction: XmlXpathGenerator.XPATH_ACTION_INSERT_AFTER);
+            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+                "Insert Before",
+                "Much like insertAfter, insertBefore will add nodes and attributes before the selected xpath",
+                xpathAction: XmlXpathGenerator.XPATH_ACTION_INSERT_BEFORE);
+            if (isAttributeControl) nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+                "Set",
+                "The set command is used to change individual attributes",
+                xpathAction: XmlXpathGenerator.XPATH_ACTION_SET);
+            else  nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+                "Set Attribute",
+                "The setattribute command is used to add a new attribute to an XML node",
+                xpathAction: XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE);
         }
-
-        private void HelpContextMenu_ClickFunction(object sender, RoutedEventArgs e)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("Append:");
-            builder.AppendLine("\tThe append command is used to add either more nodes or more attribute values");
-            builder.AppendLine();
-            builder.AppendLine("Remove:");
-            builder.AppendLine("\tThe remove command is used to remove nodes or attributes");
-            builder.AppendLine();
-            builder.AppendLine("Insert After:");
-            builder.AppendLine("\tMuch like append, insertAfter will add nodes and attributes after the selected xpath");
-            builder.AppendLine();
-            builder.AppendLine("Insert Before:");
-            builder.AppendLine("\tMuch like insertAfter, insertBefore will add nodes and attributes before the selected xpath");
-            builder.AppendLine();
-            builder.AppendLine("Set:");
-            builder.AppendLine("\tThe set command is used to change individual attributes");
-            builder.AppendLine();
-            builder.AppendLine("Set Attribute:");
-            builder.AppendLine("\tThe setattribute command is used to add a new attribute to an XML node");
-            var dialog = new CustomDialogBox(false, builder.ToString());
-            dialog.ShowDialog();
-        }
-
         private void AppendToContextMenu_ClickFunction(object sender, RoutedEventArgs e)
         {
             MenuItem senderAsMenuItem = (MenuItem)sender;

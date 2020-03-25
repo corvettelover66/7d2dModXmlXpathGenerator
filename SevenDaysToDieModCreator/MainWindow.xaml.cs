@@ -69,9 +69,9 @@ namespace SevenDaysToDieModCreator
             ClearAllObjectsViewButton.AddOnHoverMessage("Click to remove all objects from the view above");
             ClearTreesViewButton.AddOnHoverMessage("Click to remove all trees from the view above");
             //Combo Boxes
-            OpenDirectEditViewComboBox.AddOnHoverMessage("The combo box to select a file for direct edits");
-            AllLoadedFilesComboBox.AddOnHoverMessage("The selected object here is used to create the tree view below\nAdd objects to the list by loading an xml file from the game folder");
-            AllLoadedNewObjectViewsComboBox.AddOnHoverMessage("The selected object here is used to create the new object view below\nAdd objects to the list by loading an xml file from the game folder.");
+            OpenDirectEditLoadedFilesComboBox.AddOnHoverMessage("The combo box to select a file for direct edits");
+            SearchTreeLoadedFilesComboBox.AddOnHoverMessage("The selected object here is used to create the tree view below\nAdd objects to the list by loading an xml file from the game folder");
+            NewObjectViewLoadedFilesComboBox.AddOnHoverMessage("The selected object here is used to create the new object view below\nAdd objects to the list by loading an xml file from the game folder.");
         }
         private void MyWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -86,7 +86,7 @@ namespace SevenDaysToDieModCreator
             this.MainWindowViewController.LeftNewObjectViewController.SearchTreeFormViewPanel = SearchTreeFormsPanel;
             SearchObjectScrollViewer.Content = SearchTreeFormsPanel;
 
-            MainWindowViewController.LoadStartingDirectory(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox, OpenDirectEditViewComboBox);
+            MainWindowViewController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, OpenDirectEditLoadedFilesComboBox);
             if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("");
             XmlOutputBox.GotKeyboardFocus += GotKeyboardFocus_Handler;
             SearchPanel.Install(XmlOutputBox);
@@ -117,7 +117,7 @@ namespace SevenDaysToDieModCreator
         }
         private void LoadFile_Click(object sender, RoutedEventArgs e)
         {
-            MainWindowViewController.LoadFilesViewControl(AllLoadedFilesComboBox, AllLoadedNewObjectViewsComboBox, OpenDirectEditViewComboBox);
+            MainWindowViewController.LoadFilesViewControl(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, OpenDirectEditLoadedFilesComboBox);
         }
         private void SaveXmlFile_Click(object sender, RoutedEventArgs e)
         {
@@ -206,14 +206,14 @@ namespace SevenDaysToDieModCreator
         }
         private void AddObjectView_Click(object sender, RoutedEventArgs e)
         {
-            string selectedObject = AllLoadedNewObjectViewsComboBox.Text;
+            string selectedObject = NewObjectViewLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
             MainWindowViewController.LeftNewObjectViewController.CreateNewObjectFormTree(selectedWrapper);
         }
         private void AddNewSearchTreeView_Click(object sender, RoutedEventArgs e)
         {
-            string selectedObject = AllLoadedFilesComboBox.Text;
+            string selectedObject = SearchTreeLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
             XmlObjectsListWrapper leftObjectWrapper = SearchTreeFormsPanel.LoadedListWrappers.GetValueOrDefault(selectedObject);
@@ -315,7 +315,7 @@ namespace SevenDaysToDieModCreator
         }
         private void OpenDirectEditViewButton_Click(object sender, RoutedEventArgs e)
         {
-            string selectedObject = OpenDirectEditViewComboBox.Text;
+            string selectedObject = OpenDirectEditLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
             DirectEditView directEdit = new DirectEditView(selectedWrapper);

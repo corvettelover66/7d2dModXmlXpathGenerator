@@ -49,7 +49,7 @@
                     </Grid.RowDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,152" >
                         <StackPanel Name="MainSP" VerticalAlignment="Top">
-                            <ComboBox Name="AllLoadedNewObjectViewsComboBox" FontSize="20" ></ComboBox>
+                            <ComboBox Name="NewObjectViewLoadedFilesComboBox" FontSize="20" ></ComboBox>
                             <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
                         </StackPanel >
                     </Grid>
@@ -76,7 +76,7 @@
                 </Grid>
                 <Grid Grid.Row="1" Margin="0,313,0,-79">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="794">
-                        <ComboBox Name="OpenDirectEditViewComboBox" HorizontalAlignment="Center" FontSize="20" Background="Beige" Width="626" />
+                        <ComboBox Name="OpenDirectEditLoadedFilesComboBox" HorizontalAlignment="Center" FontSize="20" Background="Beige" Width="626" />
                         <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18" Width="624" >Open Direct Editor Window</Button>
                         <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>
@@ -91,7 +91,7 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <StackPanel Margin="0,0,0,172">
-                        <ComboBox Name="AllLoadedFilesComboBox" FontSize="20" >
+                        <ComboBox Name="SearchTreeLoadedFilesComboBox" FontSize="20" >
                         </ComboBox>
                         <Button x:Name="AddNewTreeViewButton" Click="AddNewSearchTreeView_Click" FontSize="18">Add Search Tree</Button>
                     </StackPanel>

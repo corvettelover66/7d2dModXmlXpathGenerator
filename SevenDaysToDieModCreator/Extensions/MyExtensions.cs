@@ -40,16 +40,17 @@ namespace SevenDaysToDieModCreator.Extensions
             }
             return count;
         }
-        public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText, string xpathAction = "")
+        public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText, string onHoverMessageText = "",  string xpathAction = "")
         {
 
             ContextMenu newButtonRightClickMenu = objectControl.ContextMenu == null ? new ContextMenu() : objectControl.ContextMenu;
-            MenuItem addUnlockingContextMenu = new MenuItem();
-            addUnlockingContextMenu.Name = xpathAction;
-            addUnlockingContextMenu.Header = headerText;
-            addUnlockingContextMenu.Click += myOnClickFunction;
-            addUnlockingContextMenu.Tag = objectControl.GetType() == typeof(TextBox) ? objectControl.Tag : objectControl;
-            newButtonRightClickMenu.Items.Add(addUnlockingContextMenu);
+            MenuItem newContextMenuItem = new MenuItem();
+            if (!String.IsNullOrEmpty(onHoverMessageText)) newContextMenuItem.AddOnHoverMessage(onHoverMessageText);
+            newContextMenuItem.Name = xpathAction;
+            newContextMenuItem.Header = headerText;
+            newContextMenuItem.Click += myOnClickFunction;
+            newContextMenuItem.Tag = objectControl.GetType() == typeof(TextBox) ? objectControl.Tag : objectControl;
+            newButtonRightClickMenu.Items.Add(newContextMenuItem);
             objectControl.ContextMenu = newButtonRightClickMenu;
             return newButtonRightClickMenu;
         }

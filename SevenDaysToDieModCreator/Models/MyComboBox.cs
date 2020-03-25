@@ -1,6 +1,5 @@
 ﻿using SevenDaysToDieModCreator.Controllers;
 
-using System.Collections.Generic;
 using System.Windows.Controls;
 
 namespace SevenDaysToDieModCreator.Models
