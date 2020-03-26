@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace SevenDaysToDieModCreator.Models
@@ -20,7 +21,10 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static string _LoadedFilesPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
         private static readonly string logFileName =  "log.txt";
-
+        public static string Get_ModOutputPath(string customTagName) 
+        {
+            return Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + customTagName + "/config/");
+        }
         public static void WriteStringToFile(string filePath, string fileName, string stringToWrite, bool addTimeStamp = false)
         {
             if (!Directory.Exists(filePath)) Directory.CreateDirectory(filePath);
@@ -33,6 +37,37 @@ namespace SevenDaysToDieModCreator.Models
             {
                 WriteStringToLog("ERROR Writing to file @" + @filePath + fileName);
             }
+        }
+        public static List<string> GetCustomModsInModPath()
+        {
+            if (!Directory.Exists(@_filePath + "/Mods/")) Directory.CreateDirectory(@_filePath + "/Mods/");
+            string[] allDirs = Directory.GetDirectories(@_filePath + "/Mods/", "*");
+            List<string> justChildrenPathNames = new List<string>();
+            foreach (string nextDir in allDirs)
+            {
+                justChildrenPathNames.Add(Path.GetFileName(nextDir));
+            }
+            return justChildrenPathNames;
+        }
+        public static List<string> GetCustomModFiles(string customTag)
+        {
+            List<string> allModFiles = new List<string>();
+            string customModFilesInOutputDirectory = Get_ModOutputPath(customTag);
+            foreach (string nextFile in Directory.GetFiles(customModFilesInOutputDirectory, "*.xml")) 
+            {
+                allModFiles.Add(customTag + ":" +Path.GetFileName(nextFile.Substring(0, nextFile.Length - 4)));
+            }
+            return allModFiles;
+
+            //string customModFilesNewOutputLocation = @_LoadedFilesPath + "/" + customTag+ "/";
+            //if(!Directory.Exists(customModFilesNewOutputLocation)) Directory.CreateDirectory(customModFilesNewOutputLocation);
+            //foreach (string nextFile in )
+            //{
+            //    string dirForNextModFile = customModFilesNewOutputLocation + Path.GetFileName(nextFile);
+            //    if (File.Exists(dirForNextModFile)) File.Delete(dirForNextModFile);
+            //    File.Copy(nextFile, dirForNextModFile);
+            //}
+            //return justChildrenPathNames;
         }
         public static void WriteStringToLog(string xml, bool addTimeStamp = true)
         {
@@ -111,6 +146,12 @@ namespace SevenDaysToDieModCreator.Models
                     File.Copy(nextFile, gameModDirectoryNextFile);
                 }
             }
+        }
+        public static bool IsDirectory(string path)
+        {
+            bool isDirectory = false;
+            if (Directory.Exists(path)) isDirectory = true; // is a directory 
+            return isDirectory;
         }
     }
 }

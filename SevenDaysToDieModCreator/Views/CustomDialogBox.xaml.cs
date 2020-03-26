@@ -27,14 +27,8 @@ namespace SevenDaysToDieModCreator.Views
             if (!String.IsNullOrEmpty(textBoxBody)) defaultText = textBoxBody + "\n\n\n\n\n\n";
             if (doLoadModPath)
             {
-                if (!Directory.Exists(XmlFileManager._filePath + "/Mods/")) Directory.CreateDirectory(XmlFileManager._filePath + "/Mods/");
-                string[] allDirs = Directory.GetDirectories(XmlFileManager._filePath + "/Mods/", "*");
-                List<string> justChildrenPathNames = new List<string>();
-                foreach (string nextDir in allDirs)
-                {
-                    justChildrenPathNames.Add(Path.GetFileName(nextDir));
-                }
-                AllTagsComboBox = justChildrenPathNames.CreateComboBoxList();
+                List<string> allCustomModsInPath =  XmlFileManager.GetCustomModsInModPath();
+                AllTagsComboBox = allCustomModsInPath.CreateComboBoxList();
                 AllTagsComboBox.AddOnHoverMessage("Input a new tag or select a tag from the list of existing tags");
                 AllTagsComboBox.IsEditable = true;
                 CustomDialogPanel.Children.Add(AllTagsComboBox);

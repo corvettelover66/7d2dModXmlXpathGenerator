@@ -197,12 +197,9 @@ namespace SevenDaysToDieModCreator.Extensions
             controlObject.ToolTip = newToolTip;
             return isHoverMessageAdded;
         }
-        //Creates a ComboBox using a list object
-        public static ComboBox CreateComboBoxList<T>(this IList<T> listToUse, string name = null)
+        public static void SetComboBox<T>(this ComboBox comboBox, IList<T> listToUse, string name = null)
         {
-            ComboBox newBox = new ComboBox();
-            newBox.IsEditable = true;
-            if (name != null) newBox.Name = name;
+            if (name != null) comboBox.Name = name;
             List<ComboBoxItem> allItems = new List<ComboBoxItem>();
             allItems.Add(new ComboBoxItem());
             foreach (T nextString in listToUse)
@@ -213,12 +210,19 @@ namespace SevenDaysToDieModCreator.Extensions
                 };
                 allItems.Add(newItem);
             }
-            newBox.ItemsSource = allItems;
+            comboBox.ItemsSource = allItems;
+        }
+        //Creates a ComboBox using a list object
+        public static ComboBox CreateComboBoxList<T>(this IList<T> listToUse, string name = null)
+        {
+            ComboBox newBox = new ComboBox();
+            newBox.IsEditable = true;
+            newBox.SetComboBox(listToUse, name);
             return newBox;
         }
-        public static MyComboBox CreateMyComboBoxList<T>(this IList<T> listToUse, ObjectViewController objectViewController, string name = null)
+        public static MyComboBox CreateMyComboBoxList<T>(this IList<T> listToUse, ObjectViewController objectViewController, bool doAddContextMenu = true, string name = null)
         {
-            MyComboBox newBox = new MyComboBox(objectViewController);
+            MyComboBox newBox = new MyComboBox(objectViewController, doAddContextMenu);
             newBox.IsEditable = true;
             if (name != null) newBox.Name = name;
             List<ComboBoxItem> allItems = new List<ComboBoxItem>();

@@ -168,7 +168,7 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             this.xmlOutBlock.Text = XmlXpathGenerator.GenerateXmlViewOutput(this.NewObjectFormViewPanel, this.NewObjectFormViewPanel.LoadedListWrappers);
         }
-        public TreeViewItem GetSearchTreeViewRecursive(XmlObjectsListWrapper xmlObjectListWrapper)
+        public TreeViewItem GetSearchTreeViewRecursive(XmlObjectsListWrapper xmlObjectListWrapper, bool addContextMenu = true)
         {
             XmlNodeList allObjects = xmlObjectListWrapper.xmlFile.xmlDocument.GetElementsByTagName(xmlObjectListWrapper.TopTagName);
             TreeViewItem topObjectsTreeView = new TreeViewItem()
@@ -177,18 +177,18 @@ namespace SevenDaysToDieModCreator.Controllers
                 IsExpanded = true,
                 FontSize = SEARCH_VIEW_FONT_SIZE + 3
             };
-            topObjectsTreeView = SetSearchTreeViewNextObject(topObjectsTreeView, allObjects, xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension(), xmlObjectListWrapper);
+            topObjectsTreeView = SetSearchTreeViewNextObject(topObjectsTreeView, allObjects, xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension(), xmlObjectListWrapper, addContextMenu);
             return topObjectsTreeView;
         }
-        private TreeViewItem SetSearchTreeViewNextObject(TreeViewItem topObjectsTreeView, XmlNodeList allObjects, string wrapperName, XmlObjectsListWrapper xmlObjectListWrapper)
+        private TreeViewItem SetSearchTreeViewNextObject(TreeViewItem topObjectsTreeView, XmlNodeList allObjects, string wrapperName, XmlObjectsListWrapper xmlObjectListWrapper, bool addContextMenu = true)
         {
             foreach (XmlNode nextObjectNode in allObjects)
             {
-                TreeViewItem nextTreeView = SetNextSearchTreeObject(nextObjectNode, wrapperName, xmlObjectListWrapper);
+                TreeViewItem nextTreeView = SetNextSearchTreeObject(nextObjectNode, wrapperName, xmlObjectListWrapper, addContextMenu);
 
                 if (nextTreeView != null)
                 {
-                    if (nextTreeView.Header.GetType() != typeof(MyComboBox)) AddTargetContextMenuToControl(nextTreeView);
+                    if (nextTreeView.Header.GetType() != typeof(MyComboBox) && addContextMenu) AddTargetContextMenuToControl(nextTreeView);
                     topObjectsTreeView.Items.Add(nextTreeView);
                 }
             }
@@ -229,7 +229,6 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             MenuItem senderAsMenuItem = (MenuItem)sender;
             TreeViewItem senderTreeView = senderAsMenuItem.Tag as TreeViewItem;
-
             if (senderTreeView != null)
             {
                 XmlObjectsListWrapper wrapperToUse = this.SearchTreeFormViewPanel.LoadedListWrappers.GetValueOrDefault(senderTreeView.Name.ToString());
@@ -350,7 +349,7 @@ namespace SevenDaysToDieModCreator.Controllers
             return newObjectFormTree;
         }
 
-        private TreeViewItem SetNextSearchTreeObject(XmlNode nextObjectNode, string wrapperKey, XmlObjectsListWrapper xmlObjectListWrapper)
+        private TreeViewItem SetNextSearchTreeObject(XmlNode nextObjectNode, string wrapperKey, XmlObjectsListWrapper xmlObjectListWrapper, bool addContextMenu = true)
         {
             if (nextObjectNode.Name.Contains("#") || nextObjectNode == null) return null;
             XmlAttribute nextAvailableAttribute = nextObjectNode.GetAvailableAttribute();
@@ -364,44 +363,44 @@ namespace SevenDaysToDieModCreator.Controllers
             };
             if (nextObjectNode.Attributes != null)
             {
-                SetNextObjectTreeViewAtrributes(nextObjectTreeViewItem, nextObjectNode.Attributes, wrapperKey, nextObjectNode);
+                SetNextObjectTreeViewAtrributes(nextObjectTreeViewItem, nextObjectNode.Attributes, wrapperKey, nextObjectNode, addContextMenu);
             }
             if (nextObjectNode.HasChildNodes)
             {
                 if (nextObjectNode.GetValidChildrenCount() > SEARCH_VIEW_SEARCH_BOX_CREATION_THRESHOLD)
                 {
-                    MakeSearchTreeView(nextObjectTreeViewItem, nextObjectNode);
+                    MakeSearchTreeView(nextObjectTreeViewItem, nextObjectNode, addContextMenu);
                 }
-                nextObjectTreeViewItem = SetSearchTreeViewNextObject(nextObjectTreeViewItem, nextObjectNode.ChildNodes, wrapperKey, xmlObjectListWrapper);
+                nextObjectTreeViewItem = SetSearchTreeViewNextObject(nextObjectTreeViewItem, nextObjectNode.ChildNodes, wrapperKey, xmlObjectListWrapper, addContextMenu);
             }
             return nextObjectTreeViewItem;
         }
 
-        private void MakeSearchTreeView(TreeViewItem nextObjectTreeViewItem, XmlNode nextObjectNode)
+        private void MakeSearchTreeView(TreeViewItem nextObjectTreeViewItem, XmlNode nextObjectNode, bool doAddContextMenu = true)
         {
             //make a new treeview item with the box as the header add all children to that.
             List<string> attributeCommon = nextObjectNode.GetAllCommonAttributes();
-            MyComboBox topTreeSearchBox = attributeCommon.CreateMyComboBoxList(this);
+            MyComboBox topTreeSearchBox = attributeCommon.CreateMyComboBoxList(this, doAddContextMenu);
             XmlAttribute valueToUse = nextObjectNode.GetAvailableAttribute();
             string attributeValue = valueToUse != null ? ": " + valueToUse.Value + " (" + valueToUse.Name + ") " : "";
             topTreeSearchBox.Name = nextObjectTreeViewItem.Name;
             topTreeSearchBox.Text = nextObjectNode.Name + attributeValue;
             topTreeSearchBox.Width = 325;
             topTreeSearchBox.FontSize = SEARCH_VIEW_FONT_SIZE;
-            topTreeSearchBox.DropDownClosed += TopTreeSearchBox_LostKeyboard_Focus;
-            topTreeSearchBox.PreviewKeyDown += TopTreeSearchBox_KeyDown_Focus;
+            topTreeSearchBox.DropDownClosed += TopTreeSearchBox_DropDownClosed;
+            topTreeSearchBox.PreviewKeyDown += TopTreeSearchBox_KeyEnterDown_Focus;
             topTreeSearchBox.AddOnHoverMessage(nextObjectNode.Name + attributeValue + " search box. ");
             nextObjectTreeViewItem.Header = topTreeSearchBox;
         }
 
-        private void TopTreeSearchBox_KeyDown_Focus(object sender, KeyEventArgs e)
+        private void TopTreeSearchBox_KeyEnterDown_Focus(object sender, KeyEventArgs e)
         {
             if (e.Key == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Return)
             {
                 SearchBoxUpdate(sender);
             }
         }
-        private void TopTreeSearchBox_LostKeyboard_Focus(object sender, EventArgs e)
+        private void TopTreeSearchBox_DropDownClosed(object sender, EventArgs e)
         {
             SearchBoxUpdate(sender);
         }
@@ -450,7 +449,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 topTreeView.Items.Add(treeViewItem);
             }
         }
-        private void SetNextObjectTreeViewAtrributes(TreeViewItem nextObjectTreeViewItem, XmlAttributeCollection attributes, string wrapperKey, XmlNode currentNode)
+        private void SetNextObjectTreeViewAtrributes(TreeViewItem nextObjectTreeViewItem, XmlAttributeCollection attributes, string wrapperKey, XmlNode currentNode, bool addContextMenu = true)
         {
             foreach (XmlAttribute nextAttribute in attributes)
             {
@@ -465,8 +464,8 @@ namespace SevenDaysToDieModCreator.Controllers
                 if (!nextAttribute.Name.Contains("#whitespace"))
                 {
                     attributeBox.AddOnHoverMessage("You can click me to copy the value");
-                    AddTargetContextMenuToControl(attributeBox, true); 
                     attributeBox.PreviewMouseDown += NewObjectTreeAttributeCombo_MouseDown;
+                    if(addContextMenu)AddTargetContextMenuToControl(attributeBox, true); 
                     nextObjectTreeViewItem.Items.Add(attributeBox);
                 }
             }
@@ -474,7 +473,13 @@ namespace SevenDaysToDieModCreator.Controllers
 
         private void NewObjectTreeAttributeCombo_MouseDown(object sender, RoutedEventArgs e)
         {
-            Clipboard.SetText(((TreeViewItem)sender).Header.ToString().Split("=")[1].Trim());
+            string textToSet = null;
+            foreach (string nextString in ((TreeViewItem)sender).Header.ToString().Split("=")) 
+            {
+                if (textToSet == null) textToSet = "";
+                else textToSet += nextString;
+            }
+            Clipboard.SetText(textToSet);
         }
     }
 }

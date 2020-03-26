@@ -4,7 +4,7 @@ using SevenDaysToDieModCreator.Models;
 using System;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Media;
+using System.Windows.Input;
 
 namespace SevenDaysToDieModCreator.Views
 {
@@ -22,8 +22,23 @@ namespace SevenDaysToDieModCreator.Views
             if (contentsForXmlOutputBox == null) UpdateViewComponents();
             else XmlOutputBox.Text = contentsForXmlOutputBox;
             SearchPanel.Install(XmlOutputBox);
-
+            XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
             Closing += new CancelEventHandler(DirectEditView_Closing);
+        }
+
+        private void XmlOutputBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (Keyboard.Modifiers != ModifierKeys.Control) return;
+            //User rotated forward
+            if (e.Delta > 0)
+            {
+                if (XmlOutputBox.FontSize != 200) XmlOutputBox.FontSize += 1;
+            }
+            //User rotated backwards
+            else if (e.Delta < 0)
+            {
+                if (XmlOutputBox.FontSize != 10) XmlOutputBox.FontSize -= 1;
+            }
         }
 
         private void DirectEditView_Closing(object sender, CancelEventArgs e)

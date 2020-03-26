@@ -48,7 +48,7 @@
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,152" >
-                        <StackPanel Name="MainSP" VerticalAlignment="Top">
+                        <StackPanel Name="MainSP" VerticalAlignment="Top" Height="91" Margin="0,-30,0,0">
                             <ComboBox Name="NewObjectViewLoadedFilesComboBox" FontSize="20" ></ComboBox>
                             <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
                         </StackPanel >
@@ -65,19 +65,19 @@
                 </Grid>
             </Grid>
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
-            <Grid Grid.Column="1" Grid.ColumnSpan="3" Margin="5,0,5,86">
+            <Grid Grid.Column="2" >
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,41">
-                    <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20" Margin="0,0,0,-36">
+                <Grid Grid.Row="0" Margin="0,0,0,106" Grid.RowSpan="2">
+                    <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
                     </avalonedit:TextEditor>
                 </Grid>
-                <Grid Grid.Row="1" Margin="0,313,0,-79">
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Width="794">
-                        <ComboBox Name="OpenDirectEditLoadedFilesComboBox" HorizontalAlignment="Center" FontSize="20" Background="Beige" Width="626" />
-                        <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18" Width="624" >Open Direct Editor Window</Button>
+                <Grid Grid.Row="1" VerticalAlignment="Bottom">
+                    <StackPanel VerticalAlignment="Bottom">
+                        <ComboBox Name="OpenDirectEditLoadedFilesComboBox" FontSize="20" Background="Beige"/>
+                        <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
                         <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>
                 </Grid>
@@ -89,18 +89,20 @@
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
-                    <StackPanel Margin="0,0,0,172">
-                        <ComboBox Name="SearchTreeLoadedFilesComboBox" FontSize="20" >
+                <Grid Grid.Row="0" Margin="0,-25,0,164">
+                    <StackPanel >
+                        <ComboBox Name="SearchTreeLoadedFilesComboBox" FontSize="20" Height="35" >
                         </ComboBox>
-                        <Button x:Name="AddNewTreeViewButton" Click="AddNewSearchTreeView_Click" FontSize="18">Add Search Tree</Button>
+                        <Button x:Name="AddNewTreeViewButton" Click="AddNewSearchTreeView_Click" FontSize="18">Add Game Search Tree</Button>
+                        <ComboBox Name="LoadedModsComboBox" FontSize="20" >
+                        </ComboBox>
                     </StackPanel>
                 </Grid>
-                <Grid Margin="0,68,0,51" Grid.RowSpan="3">
-                    <ScrollViewer Name="SearchObjectScrollViewer" HorizontalContentAlignment="Right">>
+                <Grid Margin="0,80,0,33" Grid.RowSpan="3">
+                    <ScrollViewer Name="SearchObjectScrollViewer" HorizontalContentAlignment="Right" HorizontalScrollBarVisibility="Auto">
                     </ScrollViewer>
                 </Grid>
-                <Grid Grid.Row="2" Margin="0,203,0,10">
+                <Grid Grid.Row="2" VerticalAlignment="Bottom">
                     <StackPanel VerticalAlignment="Bottom">
                         <Button x:Name="ClearTreesViewButton" Click="ClearAllTreesView_Click" FontSize="18" Content="Clear View"/>
                     </StackPanel>
