@@ -90,7 +90,7 @@ namespace SevenDaysToDieModCreator.Models
             string attributeInAction = actionSplit.Length > 1 ? actionSplit[1].Trim() : "";
             string attributeName = "";
 
-            string generatedXml = GenerateXmlForObject(xmlObjectsListWrapper, topTree, "", nodeName, xPathAction, nodeName);
+            string generatedXml = GenerateXmlForObject(xmlObjectsListWrapper, topTree, "", nodeName, xPathAction, nodeName, 1);
 
             if (actionSplit[0].Equals(XPATH_ACTION_SET_ATTRIBUTE)) attributeName = ((topTree.Items.GetItemAt(0) as TreeViewItem).Header as TextBox).Text;
 
@@ -102,7 +102,7 @@ namespace SevenDaysToDieModCreator.Models
         {
             if (String.IsNullOrEmpty(generatedXml) && !xpathAction.Equals(XPATH_ACTION_REMOVE)) return "";
 
-            string startingXml = "<"+ xpathAction + " xpath=\"";
+            string startingXml = "\t<"+ xpathAction + " xpath=\"";
 
             XmlNode nextParentNode = currentXmlNode;
             //
@@ -122,7 +122,7 @@ namespace SevenDaysToDieModCreator.Models
             if (!String.IsNullOrEmpty(attributeInAction))attributeInAction =  "/@" + attributeInAction;
             if (!String.IsNullOrEmpty(attributeName)) attributeInAction =  " name=\""+ attributeName + "\" ";
             pathToParent = "/" + topTagName + pathToParent + attributeInAction;
-            string endingXml = "\">\n" + generatedXml + "</"+ xpathAction + ">\n";
+            string endingXml = "\">\n" + generatedXml + "\t</"+ xpathAction + ">\n";
             if(xpathAction.Equals(XPATH_ACTION_REMOVE)) endingXml = "\"/>\n";
 
             return startingXml + pathToParent + endingXml;
@@ -166,6 +166,7 @@ namespace SevenDaysToDieModCreator.Models
             if (didAddAttributes) xmlOut = tabs + xmlOut;
 
             List<TreeViewItem> tVChildren = nextTreeItem.GetChildren();
+            //There are children trees to check
             if (tVChildren != null && tVChildren.Count> 0)
             {
                 string childXml = "";
@@ -181,12 +182,14 @@ namespace SevenDaysToDieModCreator.Models
                     if (targetNodeContent + "" != nodeToSkip) xmlOut += childXml+ tabs + "</" + targetNodeContent + ">\n";
                     else xmlOut += childXml;
                 }
+                //there are child trees and attributes for the tag but no children xml 
+                //Need to remove the previous closing tag and add the xml closing tag
                 else if (!String.IsNullOrEmpty(xmlOut) && didAddAttributes)
                 {
                     xmlOut = xmlOut.Substring(0, xmlOut.Length - 3) + "/>\n";
                 }
             }
-            //There were attributes but no children, add closing tag.
+            //There were attributes but no children trees, add closing tag.
             else if ((didAddAttributes && targetNodeContent + "" != nodeToSkip))
             {
                 xmlOut += "/>\n";
@@ -212,6 +215,7 @@ namespace SevenDaysToDieModCreator.Models
                 }
             }
             List<TreeViewItem> tVChildren = nextTreeItem.GetChildren();
+            //If there are children trees and attributes were added to the tag.
             if (tVChildren != null && tVChildren.Count > 0 && hasFoundItem) xmlOut += ">\n";
             return hasFoundItem;
         }

@@ -27,9 +27,9 @@ namespace SevenDaysToDieModCreator.Views
             if (!String.IsNullOrEmpty(textBoxBody)) defaultText = textBoxBody + "\n\n\n\n\n\n";
             if (doLoadModPath)
             {
-                List<string> allCustomModsInPath =  XmlFileManager.GetCustomModsInModPath();
+                List<string> allCustomModsInPath =  XmlFileManager.GetCustomModFoldersInOutput();
                 AllTagsComboBox = allCustomModsInPath.CreateComboBoxList();
-                AllTagsComboBox.AddOnHoverMessage("Input a new tag or select a tag from the list of existing tags");
+                AllTagsComboBox.AddToolTip("Input a new tag or select a tag from the list of existing tags");
                 AllTagsComboBox.IsEditable = true;
                 CustomDialogPanel.Children.Add(AllTagsComboBox);
             }

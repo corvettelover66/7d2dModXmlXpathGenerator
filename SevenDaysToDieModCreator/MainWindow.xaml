@@ -48,12 +48,12 @@
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Grid.Column="0" Grid.Row="0" Margin="0,0,0,152" >
-                        <StackPanel Name="MainSP" VerticalAlignment="Top" Height="91" Margin="0,-30,0,0">
+                        <StackPanel Name="MainSP" VerticalAlignment="Top" Height="73" Margin="0,-30,0,0">
                             <ComboBox Name="NewObjectViewLoadedFilesComboBox" FontSize="20" ></ComboBox>
                             <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
                         </StackPanel >
                     </Grid>
-                    <Grid Margin="0,67,0,56" Grid.RowSpan="3">
+                    <Grid Margin="0,43,0,56" Grid.RowSpan="3">
                         <ScrollViewer Name="CreateLabelScroller" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
                         </ScrollViewer>
                     </Grid>
@@ -69,14 +69,18 @@
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Margin="0,0,0,106" Grid.RowSpan="2">
+                <Grid Grid.Row="0" Margin="0,-24,0,233">
+                    <ComboBox Name="ChangeLoadedCustomModFilesComboBox" FontSize="20"/>
+                </Grid>
+                <Grid Margin="0,35,0,106" Grid.RowSpan="3">
                     <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
                     </avalonedit:TextEditor>
                 </Grid>
-                <Grid Grid.Row="1" VerticalAlignment="Bottom">
+                <Grid Grid.Row="2" VerticalAlignment="Bottom">
                     <StackPanel VerticalAlignment="Bottom">
-                        <ComboBox Name="OpenDirectEditLoadedFilesComboBox" FontSize="20" Background="Beige"/>
+                        <ComboBox Name="OpenDirectEditLoadedFilesComboBox" FontSize="20" />
                         <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
                         <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>

@@ -38,7 +38,7 @@ namespace SevenDaysToDieModCreator.Models
                 WriteStringToLog("ERROR Writing to file @" + @filePath + fileName);
             }
         }
-        public static List<string> GetCustomModsInModPath()
+        public static List<string> GetCustomModFoldersInOutput()
         {
             if (!Directory.Exists(@_filePath + "/Mods/")) Directory.CreateDirectory(@_filePath + "/Mods/");
             string[] allDirs = Directory.GetDirectories(@_filePath + "/Mods/", "*");
@@ -49,25 +49,16 @@ namespace SevenDaysToDieModCreator.Models
             }
             return justChildrenPathNames;
         }
-        public static List<string> GetCustomModFiles(string customTag)
+        public static List<string> GetCustomModFilesInOutput(string customTag, string filePrefix = "")
         {
             List<string> allModFiles = new List<string>();
             string customModFilesInOutputDirectory = Get_ModOutputPath(customTag);
+            if (!Directory.Exists(customModFilesInOutputDirectory)) Directory.CreateDirectory(customModFilesInOutputDirectory);
             foreach (string nextFile in Directory.GetFiles(customModFilesInOutputDirectory, "*.xml")) 
             {
-                allModFiles.Add(customTag + ":" +Path.GetFileName(nextFile.Substring(0, nextFile.Length - 4)));
+                allModFiles.Add(filePrefix + Path.GetFileName(nextFile.Substring(0, nextFile.Length - 4)));
             }
             return allModFiles;
-
-            //string customModFilesNewOutputLocation = @_LoadedFilesPath + "/" + customTag+ "/";
-            //if(!Directory.Exists(customModFilesNewOutputLocation)) Directory.CreateDirectory(customModFilesNewOutputLocation);
-            //foreach (string nextFile in )
-            //{
-            //    string dirForNextModFile = customModFilesNewOutputLocation + Path.GetFileName(nextFile);
-            //    if (File.Exists(dirForNextModFile)) File.Delete(dirForNextModFile);
-            //    File.Copy(nextFile, dirForNextModFile);
-            //}
-            //return justChildrenPathNames;
         }
         public static void WriteStringToLog(string xml, bool addTimeStamp = true)
         {

@@ -70,12 +70,23 @@ namespace SevenDaysToDieModCreator.Controllers
             string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath);
             foreach (string file in files)
             {
-                XmlObjectsListWrapper wrapper = LoadWrapperFromFile(file, "", SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox);
+                XmlObjectsListWrapper wrapper = LoadWrapperFromFile(file);
                 if (wrapper != null && !File.Exists(XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName))
                     File.Copy(file, XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName);
+                if (wrapper != null)
+                {
+                    string wrapperDictionaryKey = wrapper.xmlFile.GetFileNameWithoutExtension();
+                    UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
+                    SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                    NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                }
             }
-
-            LoadCustomTagsFileWrappers(LoadedModsComboBox, OpenDirectEditLoadedFilesComboBox);
+            List<string> allCustomTagDirectories = XmlFileManager.GetCustomModFoldersInOutput();
+            LoadedModsComboBox.AddUniqueValueTo("");
+            foreach (string nextModTag in allCustomTagDirectories)
+            {
+                LoadCustomTagWrappers(nextModTag, LoadedModsComboBox, OpenDirectEditLoadedFilesComboBox);
+            }
         }
         public void LoadDirectoryViewControl(ComboBox SearchTreeLoadedFilesComboBox)
         {
@@ -117,20 +128,39 @@ namespace SevenDaysToDieModCreator.Controllers
             {
                 if (openFileDialog.FileNames.Length > 1) 
                 {
-                    foreach (string nextFileName in openFileDialog.FileNames) 
+                    foreach (string nextFileName in openFileDialog.FileNames)
                     {
-                        XmlObjectsListWrapper wrapper = LoadWrapperFromFile(nextFileName, "", SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox);
+                        XmlObjectsListWrapper wrapper = LoadWrapperFromFile(nextFileName);
+                       
                         if (wrapper == null) unloadedFiles.Add(nextFileName);
                         else if (!File.Exists(XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName))
                             File.Copy(nextFileName, XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName);
+
+                        if (wrapper != null) 
+                        {
+                            string wrapperDictionaryKey = wrapper.xmlFile.GetFileNameWithoutExtension();
+                            UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
+                            SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                            NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                        }
                     }
                 }
                 else 
                 {
-                    XmlObjectsListWrapper wrapper = LoadWrapperFromFile(openFileDialog.FileName, "", SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox);
+                    XmlObjectsListWrapper wrapper = LoadWrapperFromFile(openFileDialog.FileName);
                     if (wrapper == null) unloadedFiles.Add(openFileDialog.FileName);
-                    else if (!File.Exists(XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName))
+                    else if (!File.Exists(XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName)) 
+                    {
                         File.Copy(openFileDialog.FileName, XmlFileManager._LoadedFilesPath + wrapper.xmlFile.FileName);
+                        this.LoadedListWrappers.Add(wrapper.xmlFile.GetFileNameWithoutExtension(), wrapper);
+                    }
+                    if (wrapper != null)
+                    {
+                        string wrapperDictionaryKey = wrapper.xmlFile.GetFileNameWithoutExtension();
+                        UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
+                        SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                        NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                    }
                 }
             }
             //There were files with problems
@@ -148,60 +178,42 @@ namespace SevenDaysToDieModCreator.Controllers
                 MessageBox.Show(messageBoxText, caption, button, icon);
             }
         }
-        private void LoadCustomTagsFileWrappers(ComboBox LoadedModsComboBox, ComboBox openDirectEditLoadedFilesComboBox)
+        public void LoadCustomTagWrappers(string nextModTag, ComboBox loadedModsComboBox, ComboBox openDirectEditLoadedFilesComboBox) 
         {
-            List<string> allCustomTagDirectories = XmlFileManager.GetCustomModsInModPath();
-            LoadedModsComboBox.AddUniqueValueTo("");
-            foreach (string nextMod in allCustomTagDirectories)
+            loadedModsComboBox.AddUniqueValueTo(nextModTag);
+            string modOutputPath = XmlFileManager.Get_ModOutputPath(nextModTag);
+            string[] modOutputFiles = Directory.GetFiles(modOutputPath);
+            string modFileTagPath = String.IsNullOrEmpty(nextModTag) ? "" : nextModTag + "/";
+            string newOutputLocation = XmlFileManager._LoadedFilesPath + modFileTagPath;
+            foreach (string nextModFile in modOutputFiles)
             {
-                LoadedModsComboBox.AddUniqueValueTo(nextMod);
-                string modOutputPath = XmlFileManager.Get_ModOutputPath(nextMod);
-                string[] modOutputFiles = Directory.GetFiles(modOutputPath);
-                string modFileTagPath = String.IsNullOrEmpty(nextMod) ? "" : nextMod + "/";
-                string newOutputLocation = XmlFileManager._LoadedFilesPath + modFileTagPath;
-                foreach (string nextModFile in modOutputFiles)
+                XmlObjectsListWrapper wrapper = LoadWrapperFromFile(nextModFile);
+                if (wrapper != null)
                 {
-                    XmlObjectsListWrapper wrapper =  LoadWrapperFromFile(nextModFile, nextMod);
-                    if (wrapper != null) 
-                    {
-                        if (nextMod.Equals(Properties.Settings.Default.CustomTagName)) openDirectEditLoadedFilesComboBox.AddUniqueValueTo(Path.GetFileName(nextModFile));
-                        if (!Directory.Exists(newOutputLocation)) Directory.CreateDirectory(newOutputLocation);
-                        if(!File.Exists(newOutputLocation + wrapper.xmlFile.FileName)) File.Copy(nextModFile, XmlFileManager._LoadedFilesPath + modFileTagPath + wrapper.xmlFile.FileName);
-                    }
+                    string wrapperDictionKey = nextModTag + ":" + wrapper.xmlFile.GetFileNameWithoutExtension();
+                    UpdateWrapperInDictionary(wrapperDictionKey, wrapper);
+                    if (nextModTag.Equals(Properties.Settings.Default.CustomTagName)) openDirectEditLoadedFilesComboBox.AddUniqueValueTo(wrapper.xmlFile.GetFileNameWithoutExtension());
+                    if (!Directory.Exists(newOutputLocation)) Directory.CreateDirectory(newOutputLocation);
+                    if (!File.Exists(newOutputLocation + wrapper.xmlFile.FileName)) File.Copy(nextModFile, XmlFileManager._LoadedFilesPath + modFileTagPath + wrapper.xmlFile.FileName);
                 }
             }
         }
-        private XmlObjectsListWrapper LoadWrapperFromFile(string fileName, string modFileTag)
+        private void UpdateWrapperInDictionary(string key, XmlObjectsListWrapper updatedWrapper) 
         {
-            return LoadWrapperFromFile(fileName, modFileTag, null, null);
+            this.LoadedListWrappers.Remove(key);
+            this.LoadedListWrappers.Add(key, updatedWrapper);
         }
-        private XmlObjectsListWrapper LoadWrapperFromFile(string fileName, string modFileTag, ComboBox SearchTreeLoadedFilesComboBox, ComboBox NewObjectViewLoadedFilesComboBox) 
+        private XmlObjectsListWrapper LoadWrapperFromFile(string fileName) 
         {
-            XmlObjectsListWrapper wrapper = null;
             long fileSize = new System.IO.FileInfo(fileName).Length;
             if (fileSize < 1) return null;
+
+            XmlObjectsListWrapper wrapper = null;
             if (fileName.EndsWith(".xml"))
             {
                 try
                 {
                     wrapper = new XmlObjectsListWrapper(new XmlFileObject(fileName));
-                    string wrapperDictionKey = String.IsNullOrEmpty(modFileTag) 
-                        ? wrapper.xmlFile.GetFileNameWithoutExtension() 
-                        : modFileTag + ":" + wrapper.xmlFile.GetFileNameWithoutExtension();
-                    //Try to copy the file
-                    this.LoadedListWrappers.Add(wrapperDictionKey, wrapper);
-                    if(SearchTreeLoadedFilesComboBox != null) SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionKey);
-                    if(NewObjectViewLoadedFilesComboBox != null) NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionKey);
-                }
-                catch (ArgumentException argException) 
-                {
-                    XmlFileManager.WriteStringToLog("Failed to load file with exception:\n" + argException);
-                    wrapper = null;
-                }
-                catch (IOException ioException)
-                {
-                    XmlFileManager.WriteStringToLog("Failed to load file with exception:\n" + ioException );
-                    wrapper = null;
                 }
                 catch (Exception exception)
                 {

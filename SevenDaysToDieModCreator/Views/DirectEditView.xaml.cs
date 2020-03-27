@@ -18,7 +18,7 @@ namespace SevenDaysToDieModCreator.Views
         {
             InitializeComponent();
             this.Wrapper = wrapperToUse;
-            SaveXmlButton.AddOnHoverMessage("Click to save all changes and close the window");
+            SaveXmlButton.AddToolTip("Click to save all changes and close the window");
             if (contentsForXmlOutputBox == null) UpdateViewComponents();
             else XmlOutputBox.Text = contentsForXmlOutputBox;
             SearchPanel.Install(XmlOutputBox);

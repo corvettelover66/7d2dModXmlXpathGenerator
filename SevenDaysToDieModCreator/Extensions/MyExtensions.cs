@@ -3,8 +3,10 @@ using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Xml;
 
 namespace SevenDaysToDieModCreator.Extensions
@@ -45,7 +47,7 @@ namespace SevenDaysToDieModCreator.Extensions
 
             ContextMenu newButtonRightClickMenu = objectControl.ContextMenu == null ? new ContextMenu() : objectControl.ContextMenu;
             MenuItem newContextMenuItem = new MenuItem();
-            if (!String.IsNullOrEmpty(onHoverMessageText)) newContextMenuItem.AddOnHoverMessage(onHoverMessageText);
+            if (!String.IsNullOrEmpty(onHoverMessageText)) newContextMenuItem.AddToolTip(onHoverMessageText);
             newContextMenuItem.Name = xpathAction;
             newContextMenuItem.Header = headerText;
             newContextMenuItem.Click += myOnClickFunction;
@@ -187,7 +189,7 @@ namespace SevenDaysToDieModCreator.Extensions
             }
         }
         //Adds a hover message to a button
-        public static bool AddOnHoverMessage(this Control controlObject, string onHoverMessage)
+        public static bool AddToolTip(this Control controlObject, string onHoverMessage)
         {
             bool isHoverMessageAdded = true;
             if (onHoverMessage.Length < 1) isHoverMessageAdded = false;
@@ -213,9 +215,10 @@ namespace SevenDaysToDieModCreator.Extensions
             comboBox.ItemsSource = allItems;
         }
         //Creates a ComboBox using a list object
-        public static ComboBox CreateComboBoxList<T>(this IList<T> listToUse, string name = null)
+        public static ComboBox CreateComboBoxList<T>(this IList<T> listToUse, string name = null, SolidColorBrush forgroundColor = null)
         {
             ComboBox newBox = new ComboBox();
+            if (forgroundColor != null) newBox.Foreground = forgroundColor;
             newBox.IsEditable = true;
             newBox.SetComboBox(listToUse, name);
             return newBox;
@@ -240,14 +243,22 @@ namespace SevenDaysToDieModCreator.Extensions
         }
         public static void AddUniqueValueTo(this ComboBox boxToAddTo, string valueToAdd)
         {
-            ObservableCollection<string> allItems = (ObservableCollection<string>)boxToAddTo.ItemsSource;
-            if (allItems == null)
+            if (boxToAddTo.ItemsSource == null) 
             {
-                allItems = new ObservableCollection<string>();
+                ObservableCollection<string> allItems = new ObservableCollection<string>();
+                allItems.Add(valueToAdd);
+                boxToAddTo.ItemsSource = allItems;
             }
-            if(!allItems.Contains(valueToAdd))allItems.Add(valueToAdd);
-
-            boxToAddTo.ItemsSource = allItems;
+            else if (boxToAddTo.ItemsSource.GetType() == typeof(ObservableCollection<string>))
+            {
+                ObservableCollection<string> allItems = (ObservableCollection<string>)boxToAddTo.ItemsSource;
+                if (allItems == null)
+                {
+                    allItems = new ObservableCollection<string>();
+                }
+                if (!allItems.Contains(valueToAdd)) allItems.Add(valueToAdd);
+                boxToAddTo.ItemsSource = allItems;     
+            }
         }
     }
 }
