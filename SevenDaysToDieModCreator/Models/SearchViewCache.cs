@@ -19,16 +19,16 @@ namespace SevenDaysToDieModCreator.Models
 
         public void LoadCache(string addedWrapperKey = "")
         {
-            foreach (string wrapperKey in this.MainWindowViewController.LoadedListWrappers.Keys)
-            {
-                XmlObjectsListWrapper nextXmlObjectsListWrapper = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(wrapperKey);
-                if (!this.HasTreeView(wrapperKey) || wrapperKey.Equals(addedWrapperKey)) 
-                {
-                    TreeViewItem nextTreeView = MainWindowViewController.LeftNewObjectViewController.GetSearchTreeViewRecursive(nextXmlObjectsListWrapper);
-                    if(this.HasTreeView(wrapperKey)) this.ViewCacheMap.Remove(wrapperKey);
-                    this.AddToCache(wrapperKey, nextTreeView);
-                }
-            }
+            //foreach (string wrapperKey in this.MainWindowViewController.LoadedListWrappers.Keys)
+            //{
+            //    XmlObjectsListWrapper nextXmlObjectsListWrapper = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(wrapperKey);
+            //    if (!this.HasTreeView(wrapperKey) || wrapperKey.Equals(addedWrapperKey)) 
+            //    {
+            //        TreeViewItem nextTreeView = MainWindowViewController.LeftNewObjectViewController.GetSearchTreeViewRecursive(nextXmlObjectsListWrapper);
+            //        if(this.HasTreeView(wrapperKey)) this.ViewCacheMap.Remove(wrapperKey);
+            //        this.AddToCache(wrapperKey, nextTreeView);
+            //    }
+            //}
         }
 
         public void AddToCache(string treeID, TreeViewItem topTree) 

@@ -30,10 +30,10 @@ namespace SevenDaysToDieModCreator.Models
         {
             if (visualAdded != null)
             {
-                if (MainWindowViewController != null) HandleVisualChangedForController(visualAdded);
+                if (MainWindowViewController != null) HandleVisualChangedAdded(visualAdded);
             }
         }
-        private void HandleVisualChangedForController(System.Windows.DependencyObject visualAdded) 
+        private void HandleVisualChangedAdded(System.Windows.DependencyObject visualAdded) 
         {
             if (visualAdded.GetType() == typeof(Button))
             {

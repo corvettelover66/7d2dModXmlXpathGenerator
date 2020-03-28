@@ -1,6 +1,7 @@
 ﻿using SevenDaysToDieModCreator.Extensions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -49,8 +50,9 @@ namespace SevenDaysToDieModCreator.Models
                 {
                     TreeViewItem nextChildAsTree = (TreeViewItem)nextChild;
                     XmlObjectsListWrapper xmlObjectsListWrapper = listWrappersInView.GetValueOrDefault(nextChildAsTree.Name);
+                    string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
                     string xmlOut = xmlObjectsListWrapper == null ? "" : GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper, true);
-                    if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(path, xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut + topTagEnd, true);
+                    if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut + topTagEnd, true);
                     if (writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToLog(xmlOut, true);
                 }
             }
@@ -165,7 +167,7 @@ namespace SevenDaysToDieModCreator.Models
             bool didAddAttributes =  AddTagWithAttributes(nextTreeItem, ref xmlOut, targetNodeContent);
             if (didAddAttributes) xmlOut = tabs + xmlOut;
 
-            List<TreeViewItem> tVChildren = nextTreeItem.GetChildren();
+            List<TreeViewItem> tVChildren = nextTreeItem.GetTreeViewChildren();
             //There are children trees to check
             if (tVChildren != null && tVChildren.Count> 0)
             {
@@ -214,7 +216,7 @@ namespace SevenDaysToDieModCreator.Models
                     }
                 }
             }
-            List<TreeViewItem> tVChildren = nextTreeItem.GetChildren();
+            List<TreeViewItem> tVChildren = nextTreeItem.GetTreeViewChildren();
             //If there are children trees and attributes were added to the tag.
             if (tVChildren != null && tVChildren.Count > 0 && hasFoundItem) xmlOut += ">\n";
             return hasFoundItem;

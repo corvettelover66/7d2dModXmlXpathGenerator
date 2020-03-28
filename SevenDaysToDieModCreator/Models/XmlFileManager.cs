@@ -7,23 +7,24 @@ namespace SevenDaysToDieModCreator.Models
     class XmlFileManager
     {
         private static string ReadFileContents;
-        public static string _filePath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
-        //public static string _ModPath { get; set; } = Properties.Settings.Default.CustomTagName + "/config/";
+        public static string _fileOutputPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
         public static string _ModPath
         {
-            get => Properties.Settings.Default.CustomTagName + "/config/";
+            get => Properties.Settings.Default.CustomTagName + "/Config/";
             set => _ModPath = value;
         }
         public static string _ModOutputPath
         {
-            get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + Properties.Settings.Default.CustomTagName + "/config/");
+            get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + Properties.Settings.Default.CustomTagName + "/Config/");
             set => _ModOutputPath = value;
         }
         public static string _LoadedFilesPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
+        public static string Xui_Folder_Name = "XUi";
+        public static string Xui_Menu_Folder_Name = "XUi_Menu";
         private static readonly string logFileName =  "log.txt";
         public static string Get_ModOutputPath(string customTagName) 
         {
-            return Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + customTagName + "/config/");
+            return Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + customTagName + "/Config/");
         }
         public static void WriteStringToFile(string filePath, string fileName, string stringToWrite, bool addTimeStamp = false)
         {
@@ -31,7 +32,7 @@ namespace SevenDaysToDieModCreator.Models
             if (addTimeStamp && !String.IsNullOrEmpty(stringToWrite)) stringToWrite ="<!-- Xml Written " + DateTime.Now.ToString("MMMM dd, yyyy") + " at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + stringToWrite ;
             try
             {
-                System.IO.File.WriteAllText(@filePath + fileName, stringToWrite);
+                System.IO.File.WriteAllText(Path.Combine(@filePath, fileName), stringToWrite);
             }
             catch (IOException) 
             {
@@ -40,8 +41,8 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static List<string> GetCustomModFoldersInOutput()
         {
-            if (!Directory.Exists(@_filePath + "/Mods/")) Directory.CreateDirectory(@_filePath + "/Mods/");
-            string[] allDirs = Directory.GetDirectories(@_filePath + "/Mods/", "*");
+            if (!Directory.Exists(_fileOutputPath + "/Mods/")) Directory.CreateDirectory(_fileOutputPath + "/Mods/");
+            string[] allDirs = Directory.GetDirectories(_fileOutputPath + "/Mods/", "*");
             List<string> justChildrenPathNames = new List<string>();
             foreach (string nextDir in allDirs)
             {
@@ -49,33 +50,49 @@ namespace SevenDaysToDieModCreator.Models
             }
             return justChildrenPathNames;
         }
-        public static List<string> GetCustomModFilesInOutput(string customTag, string filePrefix = "")
+        public static List<string> GetCustomModFilesInOutput(string customTag, string prefix = "")
         {
             List<string> allModFiles = new List<string>();
             string customModFilesInOutputDirectory = Get_ModOutputPath(customTag);
-            if (!Directory.Exists(customModFilesInOutputDirectory)) Directory.CreateDirectory(customModFilesInOutputDirectory);
-            foreach (string nextFile in Directory.GetFiles(customModFilesInOutputDirectory, "*.xml")) 
+            Directory.CreateDirectory(customModFilesInOutputDirectory);
+            string[] allXmlsInOutputPath =  Directory.GetFiles(customModFilesInOutputDirectory, "*.xml");
+            AddFilesToList(allModFiles, allXmlsInOutputPath, prefix);
+            if (Directory.Exists(Path.Combine(customModFilesInOutputDirectory, Xui_Folder_Name)))
+            {
+                string[] xuiFiles = Directory.GetFiles(Path.Combine(customModFilesInOutputDirectory, Xui_Folder_Name));
+                if (xuiFiles.Length > 0) AddFilesToList(allModFiles, xuiFiles, prefix + Xui_Folder_Name + "_"); 
+
+            }
+            if (Directory.Exists(Path.Combine(customModFilesInOutputDirectory, Xui_Menu_Folder_Name)))
+            {
+                string[] xuiMenuFiles = Directory.GetFiles(Path.Combine(customModFilesInOutputDirectory, Xui_Menu_Folder_Name));
+                if (xuiMenuFiles.Length > 0) AddFilesToList(allModFiles, xuiMenuFiles, prefix + Xui_Menu_Folder_Name + "_"); 
+            }
+            //Check for Xui menu files
+            return allModFiles;
+        }
+        private static void AddFilesToList(List<string> allModFiles, string[] allXmlsInOutputPath, string filePrefix = "")
+        {
+            foreach (string nextFile in allXmlsInOutputPath )
             {
                 allModFiles.Add(filePrefix + Path.GetFileName(nextFile.Substring(0, nextFile.Length - 4)));
             }
-            return allModFiles;
         }
         public static void WriteStringToLog(string xml, bool addTimeStamp = true)
         {
-            if (!Directory.Exists(@_filePath)) Directory.CreateDirectory(@_filePath);
-            string filePath = @_filePath + logFileName;
-            if (!File.Exists(filePath)) CreateFilePath(@_filePath, logFileName);
+            if (!Directory.Exists(_fileOutputPath)) Directory.CreateDirectory(_fileOutputPath);
+            string filePath = _fileOutputPath + logFileName;
+            if (!File.Exists(filePath)) CreateFilePath(_fileOutputPath, logFileName);
 
             if (addTimeStamp) xml = "<!-- Written " + DateTime.Now.ToString("MMMM dd, yyyy") +" at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + xml;
 
-            AppendToFile(@_filePath, logFileName, xml);
+            AppendToFile(_fileOutputPath, logFileName, xml);
         }
         public static string GetFileContents(string path, string fileName)
         {
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             string filePath = @path + fileName;
-            if (!File.Exists(filePath)) CreateFilePath(path, fileName);
-            ReadFile(path, fileName);
+            if (File.Exists(filePath)) ReadFile(path, fileName);
             return ReadFileContents;
         }
         //Pass in the Custom Tag to exclude it from the read.
@@ -122,27 +139,80 @@ namespace SevenDaysToDieModCreator.Models
             using System.IO.StreamWriter file = new System.IO.StreamWriter(@path + fileName, true);
             file.WriteLine(stringToWrite);
         }
-
-        public static void CopyAllOutputFiles()
+        internal static bool CheckLoadedModFolderForXmlFiles(string fullSelectedPath)
         {
-            string gameModDirectory = Properties.Settings.Default.GameFolderModDirectory + _ModPath;
-            if (!Directory.Exists(gameModDirectory)) Directory.CreateDirectory(gameModDirectory);
-            if(!Directory.Exists(_ModOutputPath)) Directory.CreateDirectory(_ModOutputPath);
-            if (!String.IsNullOrEmpty(gameModDirectory)) 
+            string modConfigPath = fullSelectedPath + Path.DirectorySeparatorChar + "config";
+            string[] filesInConfig = Directory.GetFiles(modConfigPath);
+            string[] directoriesInConfig = Directory.GetDirectories(modConfigPath);
+            return CheckDirectoryForXmlFiles(filesInConfig, directoriesInConfig);
+        }
+        internal static void CopyAllFilesToPath(string inputPath, string outputPath, bool doOverwriteFiles = false)
+        {
+            string[] filesInInputPath = Directory.GetFiles(inputPath);
+            string[] directoriesInInputPath = Directory.GetDirectories(inputPath);
+
+            CopyFilesRecursive(inputPath, outputPath, filesInInputPath, directoriesInInputPath, doOverwriteFiles);
+        }
+        private static void CopyFilesRecursive(string inputPath, string outputPath, string[] filesInDirectory, string[] directoriesInConfig, bool doOverwriteFiles = false)
+        {
+            Directory.CreateDirectory(outputPath);
+            foreach (string fileName in filesInDirectory)
             {
-                foreach (string nextFile in Directory.GetFiles(_ModOutputPath, "*.xml"))
+                string newFilePath = Path.Combine(outputPath, Path.GetFileName(fileName));
+                if (Path.GetFileName(fileName).Contains(".xml"))
                 {
-                    string gameModDirectoryNextFile = gameModDirectory + Path.GetFileName(nextFile);
-                    if (File.Exists(gameModDirectoryNextFile)) File.Delete(gameModDirectoryNextFile);
-                    File.Copy(nextFile, gameModDirectoryNextFile);
+                    if (doOverwriteFiles) 
+                    {
+                        if (File.Exists(newFilePath)) File.Delete(newFilePath);
+                        File.Copy(fileName, newFilePath);
+                    }
+                    else if (!File.Exists(newFilePath)) File.Copy(fileName, newFilePath);
+                }
+            }
+            if (directoriesInConfig.Length > 0)
+            {
+                foreach (string directory in directoriesInConfig)
+                {
+                    string[] filesInSubDir = Directory.GetFiles(directory);
+                    string[] directoriesInSubDir = Directory.GetDirectories(directory);
+                    if (filesInSubDir.Length > 0 || directoriesInSubDir.Length > 0)
+                    {
+                        string newDirectoryOutputPath = Path.Combine(outputPath, Path.GetFileName(directory));
+                        string newDirectoryInputPath = Path.Combine(inputPath, Path.GetFileName(directory));
+                        CopyFilesRecursive(newDirectoryInputPath, newDirectoryOutputPath, filesInSubDir, directoriesInSubDir, doOverwriteFiles);
+                    }
                 }
             }
         }
-        public static bool IsDirectory(string path)
+        private static bool CheckDirectoryForXmlFiles(string[] filesInDirectory, string[] directoriesInConfig = null)
         {
-            bool isDirectory = false;
-            if (Directory.Exists(path)) isDirectory = true; // is a directory 
-            return isDirectory;
+            bool hasXmlFiles = false;
+            if (directoriesInConfig != null) 
+            {
+                foreach (string directory in directoriesInConfig)
+                {
+                    string[] filesInSubDir = Directory.GetFiles(directory);
+                    if (filesInSubDir.Length > 0) hasXmlFiles = CheckDirectoryForXmlFiles(filesInSubDir);
+                    if (hasXmlFiles) break;
+                }
+            }
+            foreach (string fileName in filesInDirectory) 
+            {
+                if (hasXmlFiles) break;
+                if (Path.GetFileName(fileName).Contains(".xml")) 
+                {
+                    hasXmlFiles = true;
+                    break;
+                }
+            }
+            return hasXmlFiles;
+        }
+        public static void CopyAllOutputFiles()
+        {
+            string gameModDirectory = Properties.Settings.Default.GameFolderModDirectory + _ModPath;
+            Directory.CreateDirectory(gameModDirectory);
+            Directory.CreateDirectory(_ModOutputPath);
+            if (!String.IsNullOrEmpty(gameModDirectory)) CopyAllFilesToPath(_ModOutputPath, gameModDirectory, true);
         }
     }
 }

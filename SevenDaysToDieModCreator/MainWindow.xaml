@@ -17,13 +17,14 @@
                 <Menu DockPanel.Dock="Top" FontSize="20" Height="39">
                     <MenuItem Header="_File">
                         <MenuItem Header="Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
+                        <MenuItem Header="Load Mod" Name="LoadModDirectoryMenuItem" Click="LoadModDirectoryMenuItem_Click"/>
                         <MenuItem Header="Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
                         <MenuItem Header="Stage All" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
                     </MenuItem>
                     <MenuItem Header="_Settings">
                         <MenuItem Header="Auto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
-                        <MenuItem Header="Mod Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
-                        <MenuItem Header="Custom Tag" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click" />
+                        <MenuItem Header="Game Mods Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
+                        <MenuItem Header="Create New Tag/Mod" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click" />
                         <MenuItem Header="Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
                     </MenuItem>
                     <MenuItem Header="_Help">
@@ -72,7 +73,7 @@
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Margin="0,-24,0,233">
-                    <ComboBox Name="ChangeLoadedCustomModFilesComboBox" FontSize="20"/>
+                    <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center"/>
                 </Grid>
                 <Grid Margin="0,35,0,106" Grid.RowSpan="3">
                     <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
@@ -80,7 +81,7 @@
                 </Grid>
                 <Grid Grid.Row="2" VerticalAlignment="Bottom">
                     <StackPanel VerticalAlignment="Bottom">
-                        <ComboBox Name="OpenDirectEditLoadedFilesComboBox" FontSize="20" />
+                        <ComboBox Name="CurrentModLoadedFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
                         <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
                         <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>
@@ -98,7 +99,7 @@
                         <ComboBox Name="SearchTreeLoadedFilesComboBox" FontSize="20" Height="35" >
                         </ComboBox>
                         <Button x:Name="AddNewTreeViewButton" Click="AddNewSearchTreeView_Click" FontSize="18">Add Game Search Tree</Button>
-                        <ComboBox Name="LoadedModsComboBox" FontSize="20" >
+                        <ComboBox Name="LoadedModsSearchViewComboBox" FontSize="20" >
                         </ComboBox>
                     </StackPanel>
                 </Grid>
@@ -107,7 +108,7 @@
                     </ScrollViewer>
                 </Grid>
                 <Grid Grid.Row="2" VerticalAlignment="Bottom">
-                    <StackPanel VerticalAlignment="Bottom">
+                    <StackPanel Margin="0,-35,0,0">
                         <Button x:Name="ClearTreesViewButton" Click="ClearAllTreesView_Click" FontSize="18" Content="Clear View"/>
                     </StackPanel>
                 </Grid>

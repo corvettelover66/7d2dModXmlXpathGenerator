@@ -13,7 +13,22 @@ namespace SevenDaysToDieModCreator.Extensions
 {
     static class MyExtensions
     {
-        public static List<TreeViewItem> GetChildren(this TreeViewItem parent)
+        public static List<TreeViewItem> GetTreeViewChildren(this StackPanel parent)
+        {
+            List<TreeViewItem> children = new List<TreeViewItem>();
+
+            if (parent != null)
+            {
+                foreach (var item in parent.Children)
+                {
+                    TreeViewItem child = item as TreeViewItem;
+                    if (child != null) children.Add(child);
+                }
+            }
+
+            return children;
+        }
+        public static List<TreeViewItem> GetTreeViewChildren(this ItemsControl parent)
         {
             List<TreeViewItem> children = new List<TreeViewItem>();
 
@@ -189,12 +204,14 @@ namespace SevenDaysToDieModCreator.Extensions
             }
         }
         //Adds a hover message to a button
-        public static bool AddToolTip(this Control controlObject, string onHoverMessage)
+        public static bool AddToolTip(this Control controlObject, string onHoverMessage, int fontSize = 0, SolidColorBrush forgroundColor = null)
         {
             bool isHoverMessageAdded = true;
             if (onHoverMessage.Length < 1) isHoverMessageAdded = false;
             ToolTip newToolTip = new ToolTip();
-            TextBlock myTip = new TextBlock { Text = onHoverMessage };
+            TextBlock myTip = new TextBlock { Text = onHoverMessage};
+            if (forgroundColor != null) myTip.Foreground = forgroundColor;
+            if (fontSize > 0) myTip.FontSize = fontSize;
             newToolTip.Content = myTip;
             controlObject.ToolTip = newToolTip;
             return isHoverMessageAdded;
@@ -202,15 +219,10 @@ namespace SevenDaysToDieModCreator.Extensions
         public static void SetComboBox<T>(this ComboBox comboBox, IList<T> listToUse, string name = null)
         {
             if (name != null) comboBox.Name = name;
-            List<ComboBoxItem> allItems = new List<ComboBoxItem>();
-            allItems.Add(new ComboBoxItem());
+            ObservableCollection<string> allItems = new ObservableCollection<string>();
             foreach (T nextString in listToUse)
             {
-                ComboBoxItem newItem = new ComboBoxItem
-                {
-                    Content = nextString.ToString()
-                };
-                allItems.Add(newItem);
+                allItems.Add(nextString.ToString());
             }
             comboBox.ItemsSource = allItems;
         }
@@ -228,15 +240,10 @@ namespace SevenDaysToDieModCreator.Extensions
             MyComboBox newBox = new MyComboBox(objectViewController, doAddContextMenu);
             newBox.IsEditable = true;
             if (name != null) newBox.Name = name;
-            List<ComboBoxItem> allItems = new List<ComboBoxItem>();
-            allItems.Add(new ComboBoxItem());
+            ObservableCollection<string> allItems = new ObservableCollection<string>();
             foreach (T nextString in listToUse)
             {
-                ComboBoxItem newItem = new ComboBoxItem
-                {
-                    Content = nextString.ToString()
-                };
-                allItems.Add(newItem);
+                allItems.Add(nextString.ToString());
             }
             newBox.ItemsSource = allItems;
             return newBox;
@@ -248,6 +255,7 @@ namespace SevenDaysToDieModCreator.Extensions
                 ObservableCollection<string> allItems = new ObservableCollection<string>();
                 allItems.Add(valueToAdd);
                 boxToAddTo.ItemsSource = allItems;
+                return;
             }
             else if (boxToAddTo.ItemsSource.GetType() == typeof(ObservableCollection<string>))
             {
@@ -257,8 +265,18 @@ namespace SevenDaysToDieModCreator.Extensions
                     allItems = new ObservableCollection<string>();
                 }
                 if (!allItems.Contains(valueToAdd)) allItems.Add(valueToAdd);
-                boxToAddTo.ItemsSource = allItems;     
+                boxToAddTo.ItemsSource = allItems;
             }
+        }
+        public static Dictionary<string, Queue<string>> GetDictionaryAsListQueue(this Dictionary<string, List<string>> dictionaryToUse) 
+        {
+            Dictionary<string, Queue<string>> dictionaryToReturn = new Dictionary<string, Queue<string>>();
+            foreach (string key in dictionaryToUse.Keys) 
+            {
+                Queue<string> returnQ = new Queue<string>(dictionaryToUse.GetValueOrDefault(key));
+                dictionaryToReturn.Add(key, returnQ);
+            }
+            return dictionaryToReturn;
         }
     }
 }

@@ -6,12 +6,15 @@ namespace SevenDaysToDieModCreator.Models
 {
     public class XmlFileObject
     {
+        public string ParentPath { get; private set; }
         public string FileName { get; private set; }
         public long FileSize { get; }
         public XmlDocument xmlDocument { get; private set; }
         public XmlFileObject(string directory)
         {
             FileSize = new System.IO.FileInfo(directory).Length;
+            DirectoryInfo directoryInfo = Directory.GetParent(directory);
+            if(!directoryInfo.Name.Equals("Config") && !directoryInfo.Name.Equals("Game_XMLS"))ParentPath = directoryInfo.Name;
             LoadFile(directory);
             FileName = ParseFileName(directory);
         }

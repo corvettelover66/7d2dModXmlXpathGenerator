@@ -3,6 +3,7 @@ using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
@@ -43,6 +44,7 @@ namespace SevenDaysToDieModCreator.Views
 
         private void DirectEditView_Closing(object sender, CancelEventArgs e)
         {
+            DialogResult = true;
             string fileContents = XmlFileManager.ReadExistingFile(Wrapper.xmlFile.FileName);
             if (!String.IsNullOrEmpty(fileContents) && !fileContents.Equals(XmlOutputBox.Text)) 
             {
@@ -67,7 +69,10 @@ namespace SevenDaysToDieModCreator.Views
 
         private void UpdateViewComponents()
         {
-            XmlOutputBox.Text = XmlFileManager.ReadExistingFile(Wrapper.xmlFile.FileName);
+            string parentString = Wrapper.xmlFile.ParentPath == null
+                ? ""
+                : Wrapper.xmlFile.ParentPath;
+            XmlOutputBox.Text = XmlFileManager.ReadExistingFile(Path.Combine( parentString, Wrapper.xmlFile.FileName));
         }
 
         private void SaveXmlButton_Click(object sender, RoutedEventArgs e)
