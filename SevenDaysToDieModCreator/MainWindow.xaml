@@ -20,11 +20,13 @@
                         <MenuItem Header="Load Mod" Name="LoadModDirectoryMenuItem" Click="LoadModDirectoryMenuItem_Click"/>
                         <MenuItem Header="Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
                         <MenuItem Header="Stage All" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
+                        <MenuItem Header="Validate Mod Files" Name="ValidateXmlMenuItem" Click="ValidateXmlMenuItem_Click"/>
                     </MenuItem>
                     <MenuItem Header="_Settings">
                         <MenuItem Header="Auto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
                         <MenuItem Header="Game Mods Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
                         <MenuItem Header="Create New Tag/Mod" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click" />
+                        <MenuItem Header="Edit Tag/Mod Name" Name="EditTagNameMenuItem" Click="EditTagNameMenuItem_Click" />
                         <MenuItem Header="Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
                     </MenuItem>
                     <MenuItem Header="_Help">

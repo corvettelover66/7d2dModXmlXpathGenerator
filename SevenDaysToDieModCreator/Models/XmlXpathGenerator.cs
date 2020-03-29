@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Media;
 using System.Xml;
 
 namespace SevenDaysToDieModCreator.Models
@@ -21,7 +19,7 @@ namespace SevenDaysToDieModCreator.Models
         public const string ATTRIBUTE_NAME = "Attribute";
         public const string ATTRIBUTE_VALUE = "AttributeValue";
 
-        public static string GenerateXmlForObjectView(StackPanel newObjectFormsPanel, Dictionary<string, XmlObjectsListWrapper> listWrappersInView)
+        public static string GenerateXmlForObjectView(MyStackPanel newObjectFormsPanel)
         {
             string topTag = "\n<" + Properties.Settings.Default.CustomTagName + ">\n";
             string topTagEnd = "</" + Properties.Settings.Default.CustomTagName + ">\n";
@@ -32,7 +30,7 @@ namespace SevenDaysToDieModCreator.Models
                 if (nextChild.GetType() == typeof(TreeViewItem))
                 {
                     TreeViewItem nextChildAsTree = (TreeViewItem)nextChild;
-                    XmlObjectsListWrapper xmlObjectsListWrapper = listWrappersInView.GetValueOrDefault(nextChildAsTree.Name);
+                    XmlObjectsListWrapper xmlObjectsListWrapper = newObjectFormsPanel.LoadedListWrappers.GetValueOrDefault(nextChildAsTree.Uid);
                     xmlOut += xmlObjectsListWrapper == null ? "" : GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper);
                 }
             }
@@ -49,7 +47,7 @@ namespace SevenDaysToDieModCreator.Models
                 if (nextChild.GetType() == typeof(TreeViewItem))
                 {
                     TreeViewItem nextChildAsTree = (TreeViewItem)nextChild;
-                    XmlObjectsListWrapper xmlObjectsListWrapper = listWrappersInView.GetValueOrDefault(nextChildAsTree.Name);
+                    XmlObjectsListWrapper xmlObjectsListWrapper = listWrappersInView.GetValueOrDefault(nextChildAsTree.Uid);
                     string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
                     string xmlOut = xmlObjectsListWrapper == null ? "" : GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper, true);
                     if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut + topTagEnd, true);
@@ -87,19 +85,29 @@ namespace SevenDaysToDieModCreator.Models
         }
         private static string GenerateAppendXmlForTargetObject(XmlObjectsListWrapper xmlObjectsListWrapper, TreeViewItem topTree, XmlNode currentXmlNode, string nodeName)
         {
-            string[] actionSplit = topTree.Uid.Split(":");
+            string[] actionSplit = topTree.Name.Split("_");
             string xPathAction = actionSplit[0];
-            string attributeInAction = actionSplit.Length > 1 ? actionSplit[1].Trim() : "";
-            string attributeName = "";
+            string attributeInAction = "";
+            if (actionSplit.Length > 1) 
+            {
+                foreach (string nextString in actionSplit) 
+                {
+                    if (!nextString.Equals(xPathAction)) attributeInAction += nextString + "_";
+                }
+                //Trim trailing _
+                attributeInAction = attributeInAction.Substring(0, attributeInAction.Length - 1);
+            }
 
-            string generatedXml = GenerateXmlForObject(xmlObjectsListWrapper, topTree, "", nodeName, xPathAction, nodeName, 1);
+            string attributeName = "";
+            string nodeToSkip = nodeName;
+
+            string generatedXml = GenerateXmlForObject(xmlObjectsListWrapper, topTree, "", nodeToSkip, xPathAction, nodeName, 1);
 
             if (actionSplit[0].Equals(XPATH_ACTION_SET_ATTRIBUTE)) attributeName = ((topTree.Items.GetItemAt(0) as TreeViewItem).Header as TextBox).Text;
 
             string xmlOut = GenerateXpathTagetPath(xmlObjectsListWrapper.TopTagName, generatedXml, xPathAction, attributeInAction, attributeName, currentXmlNode);
             return xmlOut;
         }
-
         private static string GenerateXpathTagetPath(string topTagName, string generatedXml, string xpathAction, string attributeInAction, string attributeName, XmlNode currentXmlNode)
         {
             if (String.IsNullOrEmpty(generatedXml) && !xpathAction.Equals(XPATH_ACTION_REMOVE)) return "";
@@ -129,24 +137,23 @@ namespace SevenDaysToDieModCreator.Models
 
             return startingXml + pathToParent + endingXml;
         }
-
         private static string GenerateAppendXmlForObject(XmlObjectsListWrapper xmlObjectsListWrapper, TreeViewItem nextChildAsTree, string nodeName)
         {
-            string generatedXml = GenerateXmlForObject(xmlObjectsListWrapper, nextChildAsTree, "", "", "");
+            string generatedXml = GenerateXmlForObject(xmlObjectsListWrapper, nextChildAsTree, targetNode:nodeName, level:1);
             string xmlOut = "";
             if (generatedXml.Length > 0)
             {
-                xmlOut = "<append xpath=\"/" + xmlObjectsListWrapper.TopTagName + "\">\n" + generatedXml + "</append>\n";
+                xmlOut = "\t<append xpath=\"/" + xmlObjectsListWrapper.TopTagName + "\">\n" + generatedXml + "\t</append>\n";
             }
             if (xmlObjectsListWrapper.TopTagName == StringConstants.PROGRESSION_TAG_NAME)
             {
-                generatedXml = GenerateXmlForObject(xmlObjectsListWrapper, nextChildAsTree, "", nodeName, "");
-                if (generatedXml.Length > 0) xmlOut = "<append xpath=\"/" + xmlObjectsListWrapper.TopTagName + "/" + nodeName + "\">\n" + generatedXml + "</append>\n";
+                generatedXml = GenerateXmlForObject(xmlObjectsListWrapper, nextChildAsTree, nodeToSkip: nodeName, level: 1);
+                if (generatedXml.Length > 0) xmlOut = "\t<append xpath=\"/" + xmlObjectsListWrapper.TopTagName + "/" + nodeName + "\">\n" + generatedXml + "\t</append>\n";
             }
             return xmlOut;
         }
         //This has to return an empty string if the xml is invalid
-        private static string GenerateXmlForObject(XmlObjectsListWrapper xmlObjectsListWrapper, TreeViewItem nextTreeItem, string xmlOut, string nodeToSkip, string xPathAction, string targetNode = null, int level = 0)
+        private static string GenerateXmlForObject(XmlObjectsListWrapper xmlObjectsListWrapper, TreeViewItem nextTreeItem, string xmlOut ="", string nodeToSkip = "", string xPathAction = "", string targetNode = null, int level = 0)
         {
             if (nextTreeItem == null) return "";
             level++;
@@ -174,14 +181,14 @@ namespace SevenDaysToDieModCreator.Models
                 string childXml = "";
                 foreach (TreeViewItem childTreeView in tVChildren)
                 {
-                    childXml += GenerateXmlForObject(xmlObjectsListWrapper, childTreeView, "", nodeToSkip, xPathAction, null, level);
+                    childXml += GenerateXmlForObject(xmlObjectsListWrapper, childTreeView, "", "", xPathAction, null, level);
                 }
                 //There is child xml
                 if (!String.IsNullOrEmpty(childXml))
                 {
                     //if there aren't attributes print top tag
-                    if (!didAddAttributes && targetNodeContent + "" != nodeToSkip) xmlOut += tabs + "<" + targetNodeContent + ">\n";
-                    if (targetNodeContent + "" != nodeToSkip) xmlOut += childXml+ tabs + "</" + targetNodeContent + ">\n";
+                    if (!didAddAttributes && targetNodeContent != nodeToSkip) xmlOut += tabs + "<" + targetNodeContent + ">\n";
+                    if (targetNodeContent != nodeToSkip) xmlOut += childXml+ tabs + "</" + targetNodeContent + ">\n";
                     else xmlOut += childXml;
                 }
                 //there are child trees and attributes for the tag but no children xml 
@@ -192,13 +199,12 @@ namespace SevenDaysToDieModCreator.Models
                 }
             }
             //There were attributes but no children trees, add closing tag.
-            else if ((didAddAttributes && targetNodeContent + "" != nodeToSkip))
+            else if ((didAddAttributes && targetNodeContent != nodeToSkip))
             {
                 xmlOut += "/>\n";
             }
             return xmlOut;
         }
-
         private static bool AddTagWithAttributes(TreeViewItem nextTreeItem,ref string xmlOut, string headerContent)
         {
             bool hasFoundItem = false, didWriteStart = false;
@@ -221,7 +227,7 @@ namespace SevenDaysToDieModCreator.Models
             if (tVChildren != null && tVChildren.Count > 0 && hasFoundItem) xmlOut += ">\n";
             return hasFoundItem;
         }
-        public static string GenerateXmlViewOutput(StackPanel newObjectFormsPanel, Dictionary<string, XmlObjectsListWrapper> listWrappersInObjectView)
+        public static string GenerateXmlViewOutput(MyStackPanel newObjectFormsPanel)
         {
             string addedViewTextStart = "WARNING: Direct text edits made here will NOT be saved.\n\n" +
              "To make direct file edits you can select a file below and open the direct editor window for the file.\n\n" +
@@ -231,12 +237,12 @@ namespace SevenDaysToDieModCreator.Models
             string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
             string existingWrapperFileData = "<!-- SAVED XML  -->\n\n";
 
-            foreach (XmlObjectsListWrapper xmlObjectsListWrapper in listWrappersInObjectView.Values)
+            foreach (XmlObjectsListWrapper xmlObjectsListWrapper in newObjectFormsPanel.LoadedListWrappers.Values)
             {
                 existingWrapperFileData += XmlFileManager.ReadExistingFile(xmlObjectsListWrapper.xmlFile.FileName, Properties.Settings.Default.CustomTagName);
             }
 
-            string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel, listWrappersInObjectView);
+            string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel);
             return addedViewTextStart + unsavedGeneratedXmlStart + allGeneratedXml + unsavedGeneratedXmlEnd + existingWrapperFileData;
         }
     }

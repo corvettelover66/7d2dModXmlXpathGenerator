@@ -15,7 +15,7 @@ namespace SevenDaysToDieModCreator.Views
     public partial class DirectEditView : Window
     {
         private XmlObjectsListWrapper Wrapper { get; set; }
-        public DirectEditView(XmlObjectsListWrapper wrapperToUse, string contentsForXmlOutputBox = null)
+        public DirectEditView(XmlObjectsListWrapper wrapperToUse, string title, string contentsForXmlOutputBox = null)
         {
             InitializeComponent();
             this.Wrapper = wrapperToUse;
@@ -24,6 +24,7 @@ namespace SevenDaysToDieModCreator.Views
             else XmlOutputBox.Text = contentsForXmlOutputBox;
             SearchPanel.Install(XmlOutputBox);
             XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
+            ModNameLabel.Content = title;
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
 
@@ -60,7 +61,7 @@ namespace SevenDaysToDieModCreator.Views
                         if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(XmlFileManager._ModOutputPath, Wrapper.xmlFile.FileName, xmlOut, true);
                         break;
                     case MessageBoxResult.Cancel:
-                        DirectEditView directEditView =  new DirectEditView(this.Wrapper, XmlOutputBox.Text);
+                        DirectEditView directEditView =  new DirectEditView(this.Wrapper, ModNameLabel.Content.ToString(), XmlOutputBox.Text);
                         directEditView.Show();
                         break;
                 }

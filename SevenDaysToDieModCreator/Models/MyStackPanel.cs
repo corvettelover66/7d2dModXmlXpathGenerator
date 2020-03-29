@@ -35,31 +35,23 @@ namespace SevenDaysToDieModCreator.Models
         }
         private void HandleVisualChangedAdded(System.Windows.DependencyObject visualAdded) 
         {
-            if (visualAdded.GetType() == typeof(Button))
-            {
-                Button senderAsButton = (Button)visualAdded;
-                XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsButton.Name);
-                if (!this.LoadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
-                {
-                    this.LoadedListWrappers.Add(senderAsButton.Name, wrapperToUse);
-                }
-            }
-            else if (visualAdded.GetType() == typeof(TreeViewItem))
+            if (visualAdded.GetType() == typeof(TreeViewItem))
             {
                 TreeViewItem senderAsTreeView = (TreeViewItem)visualAdded;
-                XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(senderAsTreeView.Name);
-                string wrapperKey = senderAsTreeView.Name;
+                XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsTreeView.Uid);
+                string wrapperKey = senderAsTreeView.Uid;
                 if (wrapperToUse == null)
                 {
                     wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(senderAsTreeView.Header.ToString());
                     wrapperKey = senderAsTreeView.Header.ToString();
                 }
-                if (!this.LoadedListWrappers.ContainsValue(wrapperToUse) && wrapperToUse != null)
+                if (!this.LoadedListWrappers.ContainsKey(wrapperKey) && wrapperToUse != null)
                 {
                     this.LoadedListWrappers.Add(wrapperKey, wrapperToUse);
                 }
             }
-            this.MainWindowViewController.LeftNewObjectViewController.xmlOutBlock.Text = XmlXpathGenerator.GenerateXmlViewOutput(this.MainWindowViewController.LeftNewObjectViewController.NewObjectFormViewPanel, this.MainWindowViewController.LeftNewObjectViewController.NewObjectFormViewPanel.LoadedListWrappers);
+            this.MainWindowViewController.LeftNewObjectViewController.xmlOutBlock.Text = 
+                XmlXpathGenerator.GenerateXmlViewOutput(this.MainWindowViewController.LeftNewObjectViewController.NewObjectFormViewPanel);
         }
     }
 }

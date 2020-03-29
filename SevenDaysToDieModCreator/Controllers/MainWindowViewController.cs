@@ -2,11 +2,13 @@
 using Microsoft.WindowsAPICodePack.Dialogs;
 using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
+using SevenDaysToDieModCreator.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace SevenDaysToDieModCreator.Controllers
 {
@@ -34,7 +36,8 @@ namespace SevenDaysToDieModCreator.Controllers
                 if (selectedWrapper == null)
                 {
                     MessageBox.Show(
-                        "The was an error in the file for " + selectedObject + ". Please check the xml file as it is probably malformed xml. For a detailed error check the log.",
+                        "The was an error in the file for " + selectedObject + ".\n\n" +
+                        "It is probably malformed xml, to check this, switch to the mod, open the \"File\" menu and click \"Validate Mod files\".",
                         "File Loading Error!",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
@@ -45,7 +48,7 @@ namespace SevenDaysToDieModCreator.Controllers
             if (leftObjectWrapper == null || leftObjectWrapper.xmlFile.FileSize < this.FILE_SIZE_THRESHOLD)
             {
                 TreeViewItem nextTreeView = this.LeftNewObjectViewController.GetSearchTreeViewRecursive(selectedWrapper, selectedObject, doAddContextMenu);
-                nextTreeView.Header =  selectedObject;
+                nextTreeView.Header = selectedObject;
                 searchTreeFormsPanel.Children.Add(nextTreeView);
             }
             else
@@ -281,6 +284,26 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
             return wrapper;
+        }
+        internal void SetNewCustomTag(Views.CustomDialogBox dialog, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox)
+        {
+            string name = XmlConvert.VerifyName(dialog.ResponseText);
+            Properties.Settings.Default.CustomTagName = name;
+            Properties.Settings.Default.Save();
+            currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(name));
+            loadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
+            loadedModsCenterViewComboBox.Text = name;
+        }
+        internal void ChangeCustomTagName(CustomDialogBox dialog, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox)
+        {
+            string newModName = XmlConvert.VerifyName(dialog.ResponseText);
+            string oldModName = Properties.Settings.Default.CustomTagName;
+            XmlFileManager.RenameModDirectory(oldModName, newModName);
+            Properties.Settings.Default.CustomTagName = newModName;
+            Properties.Settings.Default.Save();
+            currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(newModName));
+            loadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
+            loadedModsCenterViewComboBox.Text = newModName;
         }
     }
 }

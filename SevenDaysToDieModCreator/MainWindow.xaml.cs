@@ -14,6 +14,8 @@ using System.Windows.Input;
 using ICSharpCode.AvalonEdit.Search;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Runtime.InteropServices;
 
 namespace SevenDaysToDieModCreator
 {
@@ -22,6 +24,12 @@ namespace SevenDaysToDieModCreator
     /// </summary>
     public partial class MainWindow : Window
     {
+        [DllImport("KERNEL32.DLL", EntryPoint = "SetProcessWorkingSetSize", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
+        internal static extern bool SetProcessWorkingSetSize(IntPtr pProcess, int dwMinimumWorkingSetSize, int dwMaximumWorkingSetSize);
+
+        [DllImport("KERNEL32.DLL", EntryPoint = "GetCurrentProcess", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
+        internal static extern IntPtr GetCurrentProcess();
+
         private MainWindowViewController MainWindowViewController { get; set; }
         private MyStackPanel NewObjectFormsPanel { get; set; }
         private MyStackPanel SearchTreeFormsPanel { get; set; }
@@ -38,17 +46,29 @@ namespace SevenDaysToDieModCreator
             Closing += new CancelEventHandler(MainWindow_Closing);
             SetupExceptionHandling();
         }
+        private void MyWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.MainWindowViewController = new MainWindowViewController(XmlOutputBox, RemoveChildContextMenu_Click);
+            SearchPanel.Install(XmlOutputBox);
+            SetPanels();
+            SetCustomModViewElements();
+            SetEvents();
+            MainWindowViewController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModLoadedFilesCenterViewComboBox, LoadedModsSearchViewComboBox);
+            if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("", "Input a new tag or select a tag from the list of existing tags");
+            LoadedModsCenterViewComboBox.Text = Properties.Settings.Default.CustomTagName;
+            
+            SetMainWindowToolTips();
+        }
         private void SetupExceptionHandling()
         {
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += CurrentDomain_UnhandledException;
         }
-
         //Global Error Processing happens in the APP view 
         //but here I want to catch it as well to save any possible generated xml to the log
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs exception)
         {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers);
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel);
             if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
         }
         private void SetMainWindowToolTips() 
@@ -63,6 +83,8 @@ namespace SevenDaysToDieModCreator
             SaveFileMenuItem.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
             LoadFileMenuItem.AddToolTip("Click to load an xml file or multiple xml files\nThis would typically be a game xml file such as recipes.xml");
             LoadModDirectoryMenuItem.AddToolTip("Click here to load a mod directory\nThis would typically be the main mod folder with the Config directory within");
+            ValidateXmlMenuItem.AddToolTip("");
+            EditTagNameMenuItem.AddToolTip("");
             //Buttons
             SaveXmlViewButton.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
             OpenDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected file from the combo box above");
@@ -92,20 +114,6 @@ namespace SevenDaysToDieModCreator
             this.MainWindowViewController.LeftNewObjectViewController.SearchTreeFormViewPanel = SearchTreeFormsPanel;
             SearchObjectScrollViewer.Content = SearchTreeFormsPanel;
         }
-        private void MyWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            this.MainWindowViewController = new MainWindowViewController(XmlOutputBox, RemoveChildContextMenu_Click);
-            SearchPanel.Install(XmlOutputBox);
-            SetPanels();
-            SetCustomModViewElements();
-            SetEvents();
-            MainWindowViewController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModLoadedFilesCenterViewComboBox, LoadedModsSearchViewComboBox);
-            
-            if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("");
-            LoadedModsCenterViewComboBox.Text = Properties.Settings.Default.CustomTagName;
-            
-            SetMainWindowToolTips();
-        }
         private void SetEvents()
         {
             XmlOutputBox.GotKeyboardFocus += GotKeyboardFocus_Handler;
@@ -115,6 +123,71 @@ namespace SevenDaysToDieModCreator
             LoadedModFilesButton.Click += LoadedModFilesButton_Click;
             CurrentModLoadedFilesCenterViewComboBox.DropDownClosed += OpenDirectEditLoadedFilesComboBox_DropDownClosed;
             LoadedModsCenterViewComboBox.DropDownClosed += ChangeLoadedCustomModFilesComboBox_DropDownClosed;
+        }
+        private void SetCustomModViewElements()
+        {
+            this.LoadedModFilesComboBox = new ComboBox
+            {
+                Name = "LoadedModFilesComboBox",
+                FontSize = 20,
+                HorizontalContentAlignment = HorizontalAlignment.Left
+            };
+            this.LoadedModFilesButton = new Button
+            {
+                Name = "LoadedModFilesComboBox",
+                FontSize = 18,
+                Content = "Add Mod Search Tree",
+                HorizontalContentAlignment = HorizontalAlignment.Left
+            };
+            this.LoadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
+        }
+        private void HandleMissingGameModDirectory()
+        {
+            MessageBoxResult result = MessageBox.Show(
+             "For the Auto Move function to work you must set the Game Folder Directory.\n\n" +
+             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation.\n\n" +
+             "Example: PathToGame \"7 Days To Die\\Mods\\\" \n\n" +
+             "If that folder does not exist please create it first. ",
+             "Set Game Mod Folder Location",
+             MessageBoxButton.OK,
+             MessageBoxImage.Warning);
+            switch (result) 
+            {
+                case MessageBoxResult.OK:
+                    OpenGameFolderSelectDialog();
+                    break;
+            }
+
+        }
+        private void OpenGameFolderSelectDialog() 
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = Directory.GetCurrentDirectory();
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                if (!String.IsNullOrEmpty(dialog.FileName))
+                {
+                    MessageBox.Show("Success!");
+                    Properties.Settings.Default.GameFolderModDirectory = dialog.FileName +"/";
+                    Properties.Settings.Default.AutoMoveDecisionMade = true;
+                    Properties.Settings.Default.Save();
+                }
+            }
+        }
+        private void ResetNewObjectView() 
+        {
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel);
+            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
+            NewObjectFormsPanel.Children.Clear();
+            NewObjectFormsPanel.LoadedListWrappers.Clear();
+            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel);
+        }
+        private void RefreshUsedMemory() 
+        {
+            //Code to refresh the used memory
+            IntPtr pHandle = GetCurrentProcess();
+            SetProcessWorkingSetSize(pHandle, -1, -1);
         }
         private void SearchObjectScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -174,26 +247,10 @@ namespace SevenDaysToDieModCreator
                 if(XmlOutputBox.FontSize != 10) XmlOutputBox.FontSize -= 1;
             }
         }
-        private void SetCustomModViewElements()
-        {
-            this.LoadedModFilesComboBox = new ComboBox
-            {
-                Name = "LoadedModFilesComboBox",
-                FontSize = 20,
-                HorizontalContentAlignment = HorizontalAlignment.Left
-            };
-            this.LoadedModFilesButton = new Button
-            {
-                Name = "LoadedModFilesComboBox",
-                FontSize = 18,
-                Content = "Add Mod Search Tree",
-                HorizontalContentAlignment = HorizontalAlignment.Left
-            };
-            this.LoadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
-        }
         private void LoadedModFilesButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindowViewController.AddSearchTree(SearchTreeFormsPanel,LoadedModFilesComboBox, false);
+            this.RefreshUsedMemory();
         }
         private void LoadedModsComboBox_DropDownClosed(object sender, EventArgs e)
         {
@@ -224,11 +281,11 @@ namespace SevenDaysToDieModCreator
         }
         private void GotKeyboardFocus_Handler(object sender, KeyboardFocusChangedEventArgs e)
         {
-            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers);
+            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel);
         }
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers);
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel);
             if(!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
             //SaveExternalXaml();
         }
@@ -288,50 +345,18 @@ namespace SevenDaysToDieModCreator
             if (!Properties.Settings.Default.AutoMoveDecisionMade) Properties.Settings.Default.AutoMoveDecisionMade = true;
             Properties.Settings.Default.Save();
         }
-        private void HandleMissingGameModDirectory()
-        {
-            MessageBoxResult result = MessageBox.Show(
-             "For the Auto Move function to work you must set the Game Folder Directory.\n\n" +
-             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation.\n\n" +
-             "Example: PathToGame \"7 Days To Die\\Mods\\\" \n\n" +
-             "If that folder does not exist please create it first. ",
-             "Set Game Mod Folder Location",
-             MessageBoxButton.OK,
-             MessageBoxImage.Warning);
-            switch (result) 
-            {
-                case MessageBoxResult.OK:
-                    OpenGameFolderSelectDialog();
-                    break;
-            }
-
-        }
-        private void OpenGameFolderSelectDialog() 
-        {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = Directory.GetCurrentDirectory();
-            dialog.IsFolderPicker = true;
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                if (!String.IsNullOrEmpty(dialog.FileName))
-                {
-                    MessageBox.Show("Success!");
-                    Properties.Settings.Default.GameFolderModDirectory = dialog.FileName +"/";
-                    Properties.Settings.Default.AutoMoveDecisionMade = true;
-                    Properties.Settings.Default.Save();
-                }
-            }
-        }
         private void AddObjectView_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = NewObjectViewLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
             MainWindowViewController.LeftNewObjectViewController.CreateNewObjectFormTree(selectedWrapper, selectedObject);
+            this.RefreshUsedMemory();
         }
         private void AddNewSearchTreeView_Click(object sender, RoutedEventArgs e)
         {
             MainWindowViewController.AddSearchTree(SearchTreeFormsPanel, SearchTreeLoadedFilesComboBox);
+            this.RefreshUsedMemory();
         }
         private void RemoveChildContextMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -349,16 +374,9 @@ namespace SevenDaysToDieModCreator
             {
                 case MessageBoxResult.OK:
                     this.ResetNewObjectView();
+                    this.RefreshUsedMemory();
                     break;
             }
-        }
-        private void ResetNewObjectView() 
-        {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers);
-            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
-            NewObjectFormsPanel.Children.Clear();
-            NewObjectFormsPanel.LoadedListWrappers.Clear();
-            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers);
         }
         private void ClearAllTreesView_Click(object sender, RoutedEventArgs e)
         {
@@ -366,32 +384,27 @@ namespace SevenDaysToDieModCreator
             switch (result)
             {
                 case MessageBoxResult.OK:
+                    SearchTreeFormsPanel.LoadedListWrappers.Clear();
                     SearchTreeFormsPanel.Children.Clear();
+                    RefreshUsedMemory();
                     break;
             }
         }
-        private void CustomTagDialogPopUp(string dialogText)
+        private void CustomTagDialogPopUp(string dialogText, string toolTipMessage, bool isModNameEdit = false)
         {
-            var dialog = new CustomDialogBox(true, dialogText);
+            var dialog = new CustomDialogBox(true, dialogText, toolTipMessage);
 
             if (dialog.ShowDialog() == true)
             {
                 try
                 {
-                    string name = XmlConvert.VerifyName(dialog.ResponseText);
-                    Properties.Settings.Default.CustomTagName = name;
-                    Properties.Settings.Default.Save();
-                    this.CurrentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(name));
-                    this.LoadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
-                    this.LoadedModsCenterViewComboBox.Text = name;
+                    if (isModNameEdit) MainWindowViewController.ChangeCustomTagName(dialog, CurrentModLoadedFilesCenterViewComboBox, LoadedModsCenterViewComboBox);
+                    else MainWindowViewController.SetNewCustomTag(dialog, CurrentModLoadedFilesCenterViewComboBox, LoadedModsCenterViewComboBox);
                 }
                 catch (XmlException)
                 {
-                    MessageBox.Show("The format was incorrect, the name must follow xml naming rules!\n" +
-                        "Typical errors are spaces in the name, or unusable special characters.\n" +
-                        "If you do not care about the custom tag and are having problems switching to a mod read below:\n\n" +
-                        "The tag names in the combo box use the folders in the application Output/Mods/ directory.\n" +
-                        "Changing the folder name to a valid CustomTag name in that location will fix this issue.",
+                    MessageBox.Show("The format was incorrect, the name must follow xml tag naming rules!\n" +
+                        "Typical errors are spaces in the name, or unusable special characters.",
                         "Format Error",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
@@ -409,8 +422,9 @@ namespace SevenDaysToDieModCreator
         {
             string selectedObject = CurrentModLoadedFilesCenterViewComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
-            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(Properties.Settings.Default.CustomTagName + "_" + selectedObject);
-            DirectEditView directEdit = new DirectEditView(selectedWrapper);
+            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.CustomTagName + "_" + selectedObject);
+            string topLabel = "Mod: " + Properties.Settings.Default.CustomTagName + "\nFile: " + selectedWrapper.xmlFile.FileName;
+            DirectEditView directEdit = new DirectEditView(selectedWrapper, topLabel);
             if (directEdit.ShowDialog() == true)
             { 
                 this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.CustomTagName, this.CurrentModLoadedFilesCenterViewComboBox);
@@ -463,9 +477,10 @@ namespace SevenDaysToDieModCreator
             CustomTagDialogPopUp("Please input/select your custom tag.\n\n" +
                 "This will also be used in the File Generation Folder and the Game Output folder with the Auto Move feature.\n\n" +
                 "It is worth noting that the current tag will generate a tag specific folder in the output location.\n" +
-                "This can be used to effectively \"Switch\" between mods you are working on." +
+                "You can change this folder directly or use the \"Edit Tag/Mod Name\" menu item to change the name.\n" +
                 " If you want to start a new mod create a new tag, or select an existing tag to continue work on those mod files.\n\n"+
-                "Your current tag is: " + Properties.Settings.Default.CustomTagName);
+                "Your current tag is: " + Properties.Settings.Default.CustomTagName,
+                "Input a new tag or select a tag from the list of existing tags");
         }
         private void ChangeAutoMoveMenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -486,6 +501,35 @@ namespace SevenDaysToDieModCreator
         private void LoadModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
         {
             MainWindowViewController.LoadDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.CurrentModLoadedFilesCenterViewComboBox);
+        }
+        private void ValidateXmlMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            string modOutputPath = XmlFileManager.Get_ModOutputPath(Properties.Settings.Default.CustomTagName);
+            string[] modOutputFiles = Directory.GetFiles(modOutputPath);
+            StringBuilder builder = new StringBuilder();
+            foreach (string modFile in modOutputFiles) 
+            {
+                try
+                {
+                    new XmlFileObject(modFile);
+                    builder.AppendLine("File: " + Path.GetFileName(modFile));
+                    builder.AppendLine("Valid");
+                    builder.AppendLine("");
+                }
+                catch (Exception exception) 
+                {
+                    builder.Insert(0, "Invalid: " + exception.Message + "\n\n");
+                    builder.Insert(0, "File: " + Path.GetFileName(modFile) + "\n");
+                }
+            }
+            builder.Insert(0, "All files: \n\n");
+            builder.Insert(0, "Xml Validation for mod " + Properties.Settings.Default.CustomTagName + "\n\n");
+            MessageBox.Show(builder.ToString(), "Xml Validation", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        private void EditTagNameMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            CustomTagDialogPopUp("Please input a new name for the tag.\n\n" +
+                "Your current tag to change is: " + Properties.Settings.Default.CustomTagName, "Add your new tag name here", true);
         }
     }
 }

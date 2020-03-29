@@ -14,13 +14,13 @@ namespace SevenDaysToDieModCreator.Views
     public partial class CustomDialogBox : Window
     {
         private ComboBox AllTagsComboBox = new ComboBox();
-        public CustomDialogBox(bool doLoadModPath, string textBoxBody = "")
+        public CustomDialogBox(bool doLoadModPath, string textBoxBody = "", string toolTipMessage = "")
         {
             InitializeComponent();
             string defaultText = "Thank you for downloading the 7 days to die Mod Creator! " +
-                "Please input your custom tag now! You can think of this as the Mod Name. " +
-                "This will be the top tag used in the xml output files. " +
-                "It is also the name used in the Output folder when saving and moving the mod files.\n\n" +
+                "Please input your custom tag now! You can think of this as the Mod Name.\n\n" +
+                "It is worth noting that the current tag will generate a tag specific folder in the output location.\n" +
+                "You can change this folder directly or use the \"Edit Tag/Mod Name\" menu item to change the name.\n" +
                 "IMPORTANT: If you lose work check the log.txt in the Output folder. " +
                 "Any time you close the app or reset the object view, the xml that could be generated is output in that log. " +
                 "If you like the mod don't forget to drop an endorsment and tell your friends!\n\n\n\n\n\n";
@@ -29,7 +29,7 @@ namespace SevenDaysToDieModCreator.Views
             {
                 List<string> allCustomModsInPath =  XmlFileManager.GetCustomModFoldersInOutput();
                 AllTagsComboBox = allCustomModsInPath.CreateComboBoxList();
-                AllTagsComboBox.AddToolTip("Input a new tag or select a tag from the list of existing tags");
+                if(!String.IsNullOrEmpty(toolTipMessage))AllTagsComboBox.AddToolTip(toolTipMessage);
                 AllTagsComboBox.IsEditable = true;
                 CustomDialogPanel.Children.Add(AllTagsComboBox);
             }

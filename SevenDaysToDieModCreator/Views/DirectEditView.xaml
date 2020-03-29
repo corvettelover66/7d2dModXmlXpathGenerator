@@ -7,19 +7,23 @@
 
         xmlns:local="clr-namespace:SevenDaysToDieModCreator.Views"
         mc:Ignorable="d"
-        Title="Direct File Edit" Height="564" Width="1020" >
+        Title="Direct File Editor" Height="564" Width="1020" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="0,0,0,46" Grid.RowSpan="2">
+        <Grid Grid.Row="0" Margin="0,0,0,128">
+            <Label Name="ModNameLabel" FontSize="20"></Label>
+        </Grid>
+        <Grid Margin="0,60,0,46" Grid.RowSpan="3">
             <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
             </avalonedit:TextEditor>
         </Grid>
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="2">
             <StackPanel VerticalAlignment="Bottom">
-                <Button Name="SaveXmlButton" Click="SaveXmlButton_Click" Content="Save Changes" FontSize="30"/>
+                <Button Name="SaveXmlButton" Click="SaveXmlButton_Click" Content="Save Changes" FontSize="25"/>
             </StackPanel>
         </Grid>
     </Grid>

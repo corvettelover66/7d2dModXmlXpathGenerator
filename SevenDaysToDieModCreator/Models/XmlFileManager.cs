@@ -214,5 +214,12 @@ namespace SevenDaysToDieModCreator.Models
             Directory.CreateDirectory(_ModOutputPath);
             if (!String.IsNullOrEmpty(gameModDirectory)) CopyAllFilesToPath(_ModOutputPath, gameModDirectory, true);
         }
+
+        internal static void RenameModDirectory(string oldModName, string newModName)
+        {
+            string oldModDirectory = Path.Combine(_fileOutputPath, "Mods", oldModName);
+            string newModDirectory = Path.Combine(_fileOutputPath, "Mods", newModName);
+            Directory.Move(oldModDirectory, newModDirectory);
+        }
     }
 }

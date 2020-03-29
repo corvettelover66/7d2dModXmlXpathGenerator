@@ -195,19 +195,11 @@ namespace SevenDaysToDieModCreator.Extensions
             }
             return nextList;
         }
-        public static void AddValueIfNotInDictionary(this Dictionary<string, Control> dictionaryToCheck, string key, Control value)
-        {
-            Control nextControl = dictionaryToCheck.GetValueOrDefault(key);
-            if (nextControl == null) 
-            {
-                dictionaryToCheck.Add(key, value);
-            }
-        }
         //Adds a hover message to a button
         public static bool AddToolTip(this Control controlObject, string onHoverMessage, int fontSize = 0, SolidColorBrush forgroundColor = null)
         {
             bool isHoverMessageAdded = true;
-            if (onHoverMessage.Length < 1) isHoverMessageAdded = false;
+            if (String.IsNullOrEmpty(onHoverMessage)) isHoverMessageAdded = false;
             ToolTip newToolTip = new ToolTip();
             TextBlock myTip = new TextBlock { Text = onHoverMessage};
             if (forgroundColor != null) myTip.Foreground = forgroundColor;
