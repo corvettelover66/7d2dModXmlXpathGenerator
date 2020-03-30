@@ -99,7 +99,9 @@ namespace SevenDaysToDieModCreator.Models
             }
 
             string attributeName = "";
-            string nodeToSkip = nodeName;
+            string nodeToSkip = xPathAction.Equals(XPATH_ACTION_INSERT_BEFORE) || xPathAction.Equals(XPATH_ACTION_INSERT_AFTER) 
+                ? "" 
+                : nodeName;
 
             string generatedXml = GenerateXmlForObject(xmlObjectsListWrapper, topTree, "", nodeToSkip, xPathAction, nodeName, 1);
 

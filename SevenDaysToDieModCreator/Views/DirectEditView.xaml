@@ -14,10 +14,10 @@
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="0,0,0,128">
+        <Grid Grid.Row="0" Margin="0,0,0,92">
             <Label Name="ModNameLabel" FontSize="20"></Label>
         </Grid>
-        <Grid Margin="0,60,0,46" Grid.RowSpan="3">
+        <Grid Margin="0,91,0,46" Grid.RowSpan="3">
             <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
             </avalonedit:TextEditor>
         </Grid>

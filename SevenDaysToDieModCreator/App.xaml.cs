@@ -1,7 +1,6 @@
 ﻿using SevenDaysToDieModCreator.Models;
 using System;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace SevenDaysToDieModCreator
 {
@@ -18,7 +17,7 @@ namespace SevenDaysToDieModCreator
 
 			MainWindow mwd = new MainWindow
 			{
-				Title = "7 Days To Die Mod Editor"
+				Title = "7 Days to Die Xml Edit"
 			};
 			mwd.Show();
 		}
@@ -27,7 +26,6 @@ namespace SevenDaysToDieModCreator
 			AppDomain currentDomain = AppDomain.CurrentDomain;
 			currentDomain.UnhandledException += CurrentDomain_UnhandledException;
 		}
-
 		//Global Error Processing. Catch any errors and send them to the log, let application shutdown
 		private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs exception)
 		{

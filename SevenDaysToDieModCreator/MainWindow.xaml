@@ -83,7 +83,7 @@
                 </Grid>
                 <Grid Grid.Row="2" VerticalAlignment="Bottom">
                     <StackPanel VerticalAlignment="Bottom">
-                        <ComboBox Name="CurrentModLoadedFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
+                        <ComboBox Name="CurrentModFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
                         <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
                         <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>

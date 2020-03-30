@@ -294,7 +294,7 @@ namespace SevenDaysToDieModCreator.Controllers
             loadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             loadedModsCenterViewComboBox.Text = name;
         }
-        internal void ChangeCustomTagName(CustomDialogBox dialog, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox)
+        internal void ChangeCustomTagName(CustomDialogBox dialog, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox, ComboBox loadedModsSearchViewComboBox)
         {
             string newModName = XmlConvert.VerifyName(dialog.ResponseText);
             string oldModName = Properties.Settings.Default.CustomTagName;
@@ -303,6 +303,7 @@ namespace SevenDaysToDieModCreator.Controllers
             Properties.Settings.Default.Save();
             currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(newModName));
             loadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
+            loadedModsSearchViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             loadedModsCenterViewComboBox.Text = newModName;
         }
     }

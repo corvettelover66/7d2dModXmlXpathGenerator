@@ -43,10 +43,8 @@ namespace SevenDaysToDieModCreator.Controllers
             newObjectFormTreeView.Name = senderAsButton.Tag.ToString();
             if (sendersParent.Parent.GetType() == typeof(MyStackPanel))
             {
-                Label topTreeLabel = new Label { Content = xmlObjectsListWrapper.TopTagName, FontSize = OBJECT_VIEW_FONT_SIZE , Foreground = Brushes.Purple};
                 int indexToInsert = ((MyStackPanel)sendersParent.Parent).Children.IndexOf(sendersParent) + 1;
                 ((MyStackPanel)sendersParent.Parent).Children.Insert(indexToInsert, newObjectFormTreeView);
-                ((MyStackPanel)sendersParent.Parent).Children.Insert(indexToInsert, topTreeLabel);
             }
             else if (sendersParent.Parent.GetType() == typeof(TreeViewItem))
             {
@@ -112,8 +110,10 @@ namespace SevenDaysToDieModCreator.Controllers
         public TreeViewItem GetNewObjectFormTreeAddButton(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, string startingXmlTagName, bool doSkipFirstAttributes = false)
         {
             if (startingXmlTagName.Length < 1) startingXmlTagName = xmlObjectListWrapper.FirstChildTagName;
-            TreeViewItem newTopTree = new TreeViewItem();
-            newTopTree.Header = startingXmlTagName;
+            TreeViewItem newTopTree = new TreeViewItem
+            {
+                Header = startingXmlTagName
+            };
             return SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newTopTree, startingXmlTagName, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue(), doSkipFirstAttributes);
         }
         private void SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, string tagName, Dictionary<string, Queue<string>> allChildrenDictionary)
@@ -186,20 +186,25 @@ namespace SevenDaysToDieModCreator.Controllers
             {
                 TreeViewItem nextTreeView = SetNextSearchTreeObject(nextObjectNode, wrapperName, xmlObjectListWrapper, addContextMenu);
 
-                if (nextTreeView != null) topObjectsTreeView.Items.Add(nextTreeView);
+                if (nextTreeView != null)
+                {
+                    nextTreeView.AddContextMenu(CollapseParentContextMenu_ClickFunction,
+                        "Collapse Parent",
+                        "Click here to collapse the parent tree");
+                    topObjectsTreeView.Items.Add(nextTreeView);
+                }
             }
             return topObjectsTreeView;
         }
         public void AddTargetContextMenuToControl(Control nextTreeView, bool isAttributeControl = false)
         {
             XmlNode xmlNode = nextTreeView.Tag as XmlNode;
-            TreeViewItem comboParent = nextTreeView.Tag as TreeViewItem;
-            if (comboParent != null) xmlNode = comboParent.Tag as XmlNode;
+            if (nextTreeView.Tag is TreeViewItem comboParent) xmlNode = comboParent.Tag as XmlNode;
             if (xmlNode.HasChildNodes || isAttributeControl) 
                 nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction, 
-                "Append", 
-                "The append command is used to add either more nodes or more attribute values", 
-                XmlXpathGenerator.XPATH_ACTION_APPEND);
+                    "Append", 
+                    "The append command is used to add either more nodes or more attribute values", 
+                    XmlXpathGenerator.XPATH_ACTION_APPEND);
             nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
                 "Remove",
                 "The remove command is used to remove nodes or attributes",
@@ -221,24 +226,28 @@ namespace SevenDaysToDieModCreator.Controllers
                 "The setattribute command is used to add a new attribute to an XML node",
                 xpathAction: XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE);
         }
+        private void CollapseParentContextMenu_ClickFunction(object sender, RoutedEventArgs e)
+        {
+            MenuItem sendersAsMenuItem = (sender as MenuItem);
+            if (sendersAsMenuItem != null && sendersAsMenuItem.Tag != null) 
+            {
+                TreeViewItem menuItemsTreeView = sendersAsMenuItem.Tag as TreeViewItem;
+                if (menuItemsTreeView.Parent != null && menuItemsTreeView.Parent.GetType() == typeof(TreeViewItem)) 
+                {
+                    (menuItemsTreeView.Parent as TreeViewItem).IsExpanded = false;
+                }
+            }
+        }
         private void AppendToContextMenu_ClickFunction(object sender, RoutedEventArgs e)
         {
             MenuItem senderAsMenuItem = (MenuItem)sender;
             TreeViewItem senderTreeView = senderAsMenuItem.Tag as TreeViewItem;
             if (senderTreeView != null)
             {
+                string xPathAction = senderAsMenuItem.Name;
                 XmlObjectsListWrapper wrapperToUse = this.SearchTreeFormViewPanel.LoadedListWrappers.GetValueOrDefault(senderTreeView.Uid.ToString());
-                //Literally a hack to force the stackpanel to add a loaded list wrapper if it is empty
-                // This relies on the StackPanel OnVisualChanged
-                if (wrapperToUse == null)
-                {
-                    Button tempLabel = new Button() { Uid = senderTreeView.Uid };
-                    NewObjectFormViewPanel.Children.Add(tempLabel);
-                    wrapperToUse = this.SearchTreeFormViewPanel.LoadedListWrappers.GetValueOrDefault(senderTreeView.Uid.ToString());
-                    NewObjectFormViewPanel.Children.Remove(tempLabel);
-                }
                 XmlNode xmlNode = senderTreeView.Tag as XmlNode;
-                string isAttributeAction = "";
+                string attributeNameForAction = "";
                 TreeViewItem newObjectFormTree;
                 //If there is an attribute Create a Special Object View with just the box for the attribute or a holder for the xml to generate.
                 if (senderTreeView.Name.Equals(XmlXpathGenerator.ATTRIBUTE_NAME))
@@ -246,22 +255,21 @@ namespace SevenDaysToDieModCreator.Controllers
                     string attributeName = senderTreeView.Header.ToString().Trim();
                     string attributeValue = (senderTreeView.Items.GetItemAt(0) as TreeViewItem).Header.ToString().Trim();
 
-                    isAttributeAction = "_" + attributeName;
+                    attributeNameForAction = "_" + attributeName;
                     newObjectFormTree = GenerateNewObjectAttributeTree(senderAsMenuItem, xmlNode, attributeName, attributeValue, wrapperToUse);
                 }
-                else if (senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE)) 
+                else if (xPathAction.Equals(XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE)) 
                 {
                     XmlAttribute avaliableAttribute = xmlNode.GetAvailableAttribute();
                     string attributeName = avaliableAttribute == null ? "" : avaliableAttribute.Name;
                     string attributeValue = avaliableAttribute == null ? "" : avaliableAttribute.Value;
                     newObjectFormTree = GenerateNewObjectAttributeTree(senderAsMenuItem, xmlNode, attributeName, attributeValue, wrapperToUse);
                 }
-                //Add remove here to block the tree generation
-                else if (!senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_REMOVE))
+                else if (!xPathAction.Equals(XmlXpathGenerator.XPATH_ACTION_REMOVE))
                 {
                     string nodeName = xmlNode.Name;
                     bool doSkipAttributes = true;
-                    if (senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_INSERT_BEFORE) || senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_INSERT_AFTER)) 
+                    if (xPathAction.Equals(XmlXpathGenerator.XPATH_ACTION_INSERT_BEFORE) || xPathAction.Equals(XmlXpathGenerator.XPATH_ACTION_INSERT_AFTER)) 
                     {
                         if (!wrapperToUse.allTopLevelTags.Contains(xmlNode.Name))nodeName = xmlNode.ParentNode.Name;
                         else doSkipAttributes = false;
@@ -269,21 +277,21 @@ namespace SevenDaysToDieModCreator.Controllers
                     newObjectFormTree = this.GetNewObjectFormTreeAddButton(wrapperToUse, senderTreeView.Uid.ToString(), nodeName, doSkipAttributes);
                     XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
                     string attributeValue = avalailableAttribute == null ? "" : ": " + avalailableAttribute.Name + "=" + avalailableAttribute.Value;
-                    newObjectFormTree.Header = xmlNode.Name + attributeValue + " (" + senderAsMenuItem.Name + ") ";
+                    newObjectFormTree.Header = xmlNode.Name + attributeValue + " (" + xPathAction + ") ";
                 }
                 else
                 {
                     newObjectFormTree = new TreeViewItem { FontSize = OBJECT_VIEW_FONT_SIZE };
                     XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
                     string attributeValue = avalailableAttribute == null ? "" : ": " + avalailableAttribute.Name + "=" + avalailableAttribute.Value;
-                    newObjectFormTree.Header = xmlNode.Name + attributeValue + " (" + senderAsMenuItem.Name + ") ";
+                    newObjectFormTree.Header = xmlNode.Name + attributeValue + " (" + xPathAction + ") ";
                 }
                 //Set the uid to the wrapper so we can find the wrapper later
                 newObjectFormTree.Uid = senderTreeView.Uid.ToString();
                 //Set the xmlNode that was included with the object into the top tree view
                 newObjectFormTree.Tag = xmlNode;
-                //Set the newObjectFormTree uuid to the XmlXpath action that is set on the menu item name
-                newObjectFormTree.Name = senderAsMenuItem.Name + isAttributeAction;
+                //Set the newObjectFormTree uuid to the XmlXpathAction_AttributeName that is set on the menu item name
+                newObjectFormTree.Name = xPathAction + attributeNameForAction;
                 newObjectFormTree.Foreground = Brushes.Purple;
                 newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
                 newObjectFormTree.AddContextMenu(RemoveChildContextMenu_Click, "Remove Object From View");
@@ -445,6 +453,7 @@ namespace SevenDaysToDieModCreator.Controllers
             string searchText = senderAsBox.Text;
             List<TreeViewItem> children = topTreeView.GetTreeViewChildren();
             List<TreeViewItem> treesToAdd = new List<TreeViewItem>();
+            //Go through all children and filter 
             foreach (TreeViewItem nextTreeViewItem in children)
             {
                 string treeIdentifier = nextTreeViewItem.Header.ToString().ToLower();

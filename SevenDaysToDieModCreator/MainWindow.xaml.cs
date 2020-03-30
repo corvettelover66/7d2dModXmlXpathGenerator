@@ -7,13 +7,11 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Markup;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows.Input;
 using ICSharpCode.AvalonEdit.Search;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
@@ -35,7 +33,7 @@ namespace SevenDaysToDieModCreator
         private MyStackPanel SearchTreeFormsPanel { get; set; }
         private SearchViewCache SearchTreeFormsPanelCache { get; set; }
         static BackgroundWorker myBackgroundWorker { get; } = new BackgroundWorker();
-        public ComboBox LoadedModFilesComboBox { get; private set; }
+        public ComboBox LoadedModFilesSearchViewComboBox { get; private set; }
         public Button LoadedModFilesButton { get; private set; }
 
         public MainWindow()
@@ -53,7 +51,7 @@ namespace SevenDaysToDieModCreator
             SetPanels();
             SetCustomModViewElements();
             SetEvents();
-            MainWindowViewController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModLoadedFilesCenterViewComboBox, LoadedModsSearchViewComboBox);
+            MainWindowViewController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModFilesCenterViewComboBox, LoadedModsSearchViewComboBox);
             if (Properties.Settings.Default.CustomTagName.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("", "Input a new tag or select a tag from the list of existing tags");
             LoadedModsCenterViewComboBox.Text = Properties.Settings.Default.CustomTagName;
             
@@ -77,29 +75,29 @@ namespace SevenDaysToDieModCreator
             HelpMenuItem.AddToolTip("Click to see more information about the app");
             CheckAllSettingsMenuItem.AddToolTip("Click here to see all the User Settings above");
             AutoMoveMenuItem.AddToolTip("Click here to change the Auto Move setting");
-            ChangeCustomTagMenuItem.AddToolTip("Click here to add/switch a new custom tag/mod");
+            ChangeCustomTagMenuItem.AddToolTip("Click here to add a new custom tag/mod");
             ChangeModGameDirectoryMenu.AddToolTip("Click here to change the output directory for the Auto Move Function");
-            MoveFileMenuItem.AddToolTip("Click here to move all generated mod files directly to the User Set Game Directory");
+            MoveFileMenuItem.AddToolTip("Click here to move all mod files from the current selected mod directly to the User Set Game Directory");
             SaveFileMenuItem.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
             LoadFileMenuItem.AddToolTip("Click to load an xml file or multiple xml files\nThis would typically be a game xml file such as recipes.xml");
             LoadModDirectoryMenuItem.AddToolTip("Click here to load a mod directory\nThis would typically be the main mod folder with the Config directory within");
-            ValidateXmlMenuItem.AddToolTip("");
-            EditTagNameMenuItem.AddToolTip("");
+            ValidateXmlMenuItem.AddToolTip("Click here to validate all xml files for the selected tag/mod\nAny xml violations will be displayed.");
+            EditTagNameMenuItem.AddToolTip("Click here to change the name of the current tag/mod\nThis will also change the folder name in the Output/Mods/ dir");
             //Buttons
             SaveXmlViewButton.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
             OpenDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected file from the combo box above");
-            AddObjectViewButton.AddToolTip("Click to add a new object creation view using the object above\nWARNING: This could take awhile");
-            AddNewTreeViewButton.AddToolTip("Click to add a new searchable tree view using the object above" +
+            AddObjectViewButton.AddToolTip("Click to add a new object creation view using the game file from above\nWARNING: This could take awhile");
+            AddNewTreeViewButton.AddToolTip("Click to add a new searchable tree view using the game file from above" +
                 "\nWith this tree you can perform any xpath command on any in game object" +
                 " \nWARNING: This could take awhile");
-            ClearAllObjectsViewButton.AddToolTip("Click to remove all objects from the view above");
-            ClearTreesViewButton.AddToolTip("Click to remove all trees from the view above");
+            ClearAllObjectsViewButton.AddToolTip("Click to remove all objects from the view above\nThis action will also free up the used memory instantly.");
+            ClearTreesViewButton.AddToolTip("Click to remove all trees from the view above\nThis action will also free up the used memory instantly.");
             LoadedModFilesButton.AddToolTip("Click to add a search tree for the mod file selected above");
             //Combo Boxes
-            LoadedModFilesComboBox.AddToolTip("Mod file used to generate a search tree when clicking the button below");
+            LoadedModFilesSearchViewComboBox.AddToolTip("Mod file used to generate a search tree when clicking the button below");
             LoadedModsSearchViewComboBox.AddToolTip("Select a mod here to generate search trees for its files");
             LoadedModsCenterViewComboBox.AddToolTip("Using this combo box you can switch between loaded/created mods");
-            CurrentModLoadedFilesCenterViewComboBox.AddToolTip("The combo box to select any file from the current mod to make direct edits");
+            CurrentModFilesCenterViewComboBox.AddToolTip("The combo box to select any file from the current mod to make direct edits");
             SearchTreeLoadedFilesComboBox.AddToolTip("The selected object here is used to create the tree view below\nAdd objects to the list by loading an xml file from the game folder");
             NewObjectViewLoadedFilesComboBox.AddToolTip("The selected object here is used to create the new object view below\nAdd objects to the list by loading an xml file from the game folder.");
         }
@@ -121,12 +119,12 @@ namespace SevenDaysToDieModCreator
             SearchTreeFormsPanel.PreviewMouseWheel += SearchObjectScrollViewer_PreviewMouseWheel;
             LoadedModsSearchViewComboBox.DropDownClosed += LoadedModsComboBox_DropDownClosed;
             LoadedModFilesButton.Click += LoadedModFilesButton_Click;
-            CurrentModLoadedFilesCenterViewComboBox.DropDownClosed += OpenDirectEditLoadedFilesComboBox_DropDownClosed;
+            CurrentModFilesCenterViewComboBox.DropDownClosed += OpenDirectEditLoadedFilesComboBox_DropDownClosed;
             LoadedModsCenterViewComboBox.DropDownClosed += ChangeLoadedCustomModFilesComboBox_DropDownClosed;
         }
         private void SetCustomModViewElements()
         {
-            this.LoadedModFilesComboBox = new ComboBox
+            this.LoadedModFilesSearchViewComboBox = new ComboBox
             {
                 Name = "LoadedModFilesComboBox",
                 FontSize = 20,
@@ -134,7 +132,7 @@ namespace SevenDaysToDieModCreator
             };
             this.LoadedModFilesButton = new Button
             {
-                Name = "LoadedModFilesComboBox",
+                Name = "LoadedModFilesButton",
                 FontSize = 18,
                 Content = "Add Mod Search Tree",
                 HorizontalContentAlignment = HorizontalAlignment.Left
@@ -230,7 +228,8 @@ namespace SevenDaysToDieModCreator
             {
                 Properties.Settings.Default.CustomTagName = customModFile;
                 Properties.Settings.Default.Save();
-                this.CurrentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(customModFile));
+                
+                this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(customModFile));
             }
         }
         private void XmlOutputBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
@@ -249,7 +248,7 @@ namespace SevenDaysToDieModCreator
         }
         private void LoadedModFilesButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindowViewController.AddSearchTree(SearchTreeFormsPanel,LoadedModFilesComboBox, false);
+            MainWindowViewController.AddSearchTree(SearchTreeFormsPanel,LoadedModFilesSearchViewComboBox, false);
             this.RefreshUsedMemory();
         }
         private void LoadedModsComboBox_DropDownClosed(object sender, EventArgs e)
@@ -258,17 +257,17 @@ namespace SevenDaysToDieModCreator
             string modToLoad = senderAsBox.Text;
             if (!String.IsNullOrEmpty(modToLoad))
             {
-                if (!this.SearchTreeFormsPanel.Children.Contains(this.LoadedModFilesComboBox)
+                if (!this.SearchTreeFormsPanel.Children.Contains(this.LoadedModFilesSearchViewComboBox)
                     && !this.SearchTreeFormsPanel.Children.Contains(this.LoadedModFilesButton))
                 {
-                    this.SearchTreeFormsPanel.Children.Insert(0, this.LoadedModFilesComboBox);
+                    this.SearchTreeFormsPanel.Children.Insert(0, this.LoadedModFilesSearchViewComboBox);
                     this.SearchTreeFormsPanel.Children.Insert(1, this.LoadedModFilesButton);
                 }
-                this.LoadedModFilesComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(modToLoad, modToLoad +"_"));
+                this.LoadedModFilesSearchViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(modToLoad, modToLoad +"_"));
             }
             else
             {
-                this.SearchTreeFormsPanel.Children.Remove(this.LoadedModFilesComboBox);
+                this.SearchTreeFormsPanel.Children.Remove(this.LoadedModFilesSearchViewComboBox);
                 this.SearchTreeFormsPanel.Children.Remove(this.LoadedModFilesButton);
             }
         }
@@ -311,7 +310,7 @@ namespace SevenDaysToDieModCreator
                 case MessageBoxResult.OK:
                     XmlXpathGenerator.SaveAllGeneratedXmlToPath(NewObjectFormsPanel, NewObjectFormsPanel.LoadedListWrappers, XmlFileManager._ModOutputPath, true);
                     if(Properties.Settings.Default.AutoMoveMod) XmlFileManager.CopyAllOutputFiles();
-                    this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.CustomTagName, this.CurrentModLoadedFilesCenterViewComboBox);
+                    this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.CustomTagName, this.CurrentModFilesCenterViewComboBox);
                     break;
             }
         }
@@ -398,8 +397,8 @@ namespace SevenDaysToDieModCreator
             {
                 try
                 {
-                    if (isModNameEdit) MainWindowViewController.ChangeCustomTagName(dialog, CurrentModLoadedFilesCenterViewComboBox, LoadedModsCenterViewComboBox);
-                    else MainWindowViewController.SetNewCustomTag(dialog, CurrentModLoadedFilesCenterViewComboBox, LoadedModsCenterViewComboBox);
+                    if (isModNameEdit) MainWindowViewController.ChangeCustomTagName(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
+                    else MainWindowViewController.SetNewCustomTag(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox);
                 }
                 catch (XmlException)
                 {
@@ -420,14 +419,14 @@ namespace SevenDaysToDieModCreator
         }
         private void OpenDirectEditViewButton_Click(object sender, RoutedEventArgs e)
         {
-            string selectedObject = CurrentModLoadedFilesCenterViewComboBox.Text;
+            string selectedObject = CurrentModFilesCenterViewComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.CustomTagName + "_" + selectedObject);
             string topLabel = "Mod: " + Properties.Settings.Default.CustomTagName + "\nFile: " + selectedWrapper.xmlFile.FileName;
             DirectEditView directEdit = new DirectEditView(selectedWrapper, topLabel);
             if (directEdit.ShowDialog() == true)
             { 
-                this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.CustomTagName, this.CurrentModLoadedFilesCenterViewComboBox);
+                this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.CustomTagName, this.CurrentModFilesCenterViewComboBox);
             }
         }
         private void HelpMenu_Click(object sender, RoutedEventArgs e)
@@ -500,7 +499,7 @@ namespace SevenDaysToDieModCreator
         }
         private void LoadModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            MainWindowViewController.LoadDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.CurrentModLoadedFilesCenterViewComboBox);
+            MainWindowViewController.LoadDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.CurrentModFilesCenterViewComboBox);
         }
         private void ValidateXmlMenuItem_Click(object sender, RoutedEventArgs e)
         {
