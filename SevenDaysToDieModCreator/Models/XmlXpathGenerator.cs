@@ -100,9 +100,13 @@ namespace SevenDaysToDieModCreator.Models
             }
 
             string attributeName = "";
-            string nodeToSkip = xPathAction.Equals(XPATH_ACTION_INSERT_BEFORE) || xPathAction.Equals(XPATH_ACTION_INSERT_AFTER)
-                ? ""
-                : nodeName;
+            string nodeToSkip = "";
+            if (xPathAction.Equals(XPATH_ACTION_INSERT_BEFORE) || xPathAction.Equals(XPATH_ACTION_INSERT_AFTER))
+            {
+                if(!String.IsNullOrEmpty(attributeInAction) && xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = nodeName;
+                if (!String.IsNullOrEmpty(attributeInAction) && !xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = nodeName;
+                if (String.IsNullOrEmpty(attributeInAction) && !xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = nodeName;
+            }
 
             string generatedXml = GenerateXmlForObject(topTree, "", nodeToSkip, xPathAction, nodeName, 1);
 
@@ -135,10 +139,17 @@ namespace SevenDaysToDieModCreator.Models
             if (!String.IsNullOrEmpty(attributeInAction)) attributeInAction = "/@" + attributeInAction;
             if (!String.IsNullOrEmpty(attributeName)) attributeInAction = "\" name=\"" + attributeName + "\"";
             pathToParent = "/" + topTagName + pathToParent + attributeInAction;
-            //                  if the action is not a one line type action
-            string endingXml = !xpathAction.Equals(XPATH_ACTION_APPEND) && !xpathAction.Equals(XPATH_ACTION_INSERT_AFTER) && !xpathAction.Equals(XPATH_ACTION_INSERT_BEFORE)
-                ? "\">" + generatedXml.Trim() + "</" + xpathAction + ">\n"
-                : "\">\n" + generatedXml + "\t</" + xpathAction + ">\n";
+            //                  if the action is not a one line type action and attribute in action is null
+            string endingXml;
+            if (!xpathAction.Equals(XPATH_ACTION_APPEND) && !xpathAction.Equals(XPATH_ACTION_INSERT_AFTER) && !xpathAction.Equals(XPATH_ACTION_INSERT_BEFORE))
+            {
+                endingXml = "\">" + generatedXml.Trim() + "</" + xpathAction + ">\n"; 
+            }
+            else if(!String.IsNullOrEmpty(attributeInAction))
+            {
+                endingXml = "\">" + generatedXml.Trim() + "</" + xpathAction + ">\n";
+            }
+            else endingXml = "\">\n" + generatedXml + "\t</" + xpathAction + ">\n";
             if (xpathAction.Equals(XPATH_ACTION_SET_ATTRIBUTE)) endingXml = ">" + generatedXml.Trim() + "</" + xpathAction + ">\n";
             if (xpathAction.Equals(XPATH_ACTION_REMOVE)) endingXml = "\"/>\n";
 
