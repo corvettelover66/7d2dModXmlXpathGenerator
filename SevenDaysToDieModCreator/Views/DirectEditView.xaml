@@ -8,23 +8,34 @@
         xmlns:local="clr-namespace:SevenDaysToDieModCreator.Views"
         mc:Ignorable="d"
         Title="Direct File Editor" Height="564" Width="1020" >
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="0,0,0,92">
-            <Label Name="ModNameLabel" FontSize="20"></Label>
+        <Grid Grid.Row="0" Margin="0,0,0,99">
+            <DockPanel>
+                <Menu DockPanel.Dock="Top" FontSize="20" Height="31">
+                    <MenuItem Name="SaveXmlButton" Click="SaveXmlButton_Click" Header="_Save" FontSize="15"/>
+                    <MenuItem Name="ReloadFileXmlButton" Click="ReloadFileXmlButton_Click" Header="_Reload File" FontSize="15"/>
+                    <MenuItem Name="CloseButton" Click="CloseButton_Click" Header="_Close" FontSize="15"/>
+                    <MenuItem Name="ValidateXmlButton" Click="ValidateXmlButton_Click" Header="_Validate" FontSize="15"/>
+                </Menu>
+            </DockPanel>
         </Grid>
-        <Grid Margin="0,91,0,46" Grid.RowSpan="3">
+        <Grid Margin="0,43,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Label Name="ModNameLabel" FontSize="20" Grid.ColumnSpan="2"></Label>
+        </Grid>
+        <Grid Margin="0,110,0,10" Grid.RowSpan="4">
             <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
             </avalonedit:TextEditor>
-        </Grid>
-        <Grid Grid.Row="2">
-            <StackPanel VerticalAlignment="Bottom">
-                <Button Name="SaveXmlButton" Click="SaveXmlButton_Click" Content="Save Changes" FontSize="25"/>
-            </StackPanel>
         </Grid>
     </Grid>
 </Window>

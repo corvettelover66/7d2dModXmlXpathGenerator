@@ -16,22 +16,21 @@
             <DockPanel>
                 <Menu DockPanel.Dock="Top" FontSize="20" Height="39">
                     <MenuItem Header="_File">
-                        <MenuItem Header="Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
-                        <MenuItem Header="Load Mod" Name="LoadModDirectoryMenuItem" Click="LoadModDirectoryMenuItem_Click"/>
-                        <MenuItem Header="Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
-                        <MenuItem Header="Stage All" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
-                        <MenuItem Header="Validate Mod Files" Name="ValidateXmlMenuItem" Click="ValidateXmlMenuItem_Click"/>
+                        <MenuItem Header="_Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
+                        <MenuItem Header="Load _Mod" Name="LoadModDirectoryMenuItem" Click="LoadModDirectoryMenuItem_Click"/>
+                        <!--<MenuItem Header="Load Mods _Directory" Name="LoadGameModDirectoryMenuItem" Click="LoadGameModDirectoryMenuItem_Click"/>-->
+                        <MenuItem Header="_Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
+                        <MenuItem Header="Stage _All" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
+                        <MenuItem Header="_Validate Mod Files" Name="ValidateXmlMenuItem" Click="ValidateXmlMenuItem_Click"/>
                     </MenuItem>
                     <MenuItem Header="_Settings">
-                        <MenuItem Header="Auto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
-                        <MenuItem Header="Game Mods Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
-                        <MenuItem Header="Create New Tag/Mod" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click" />
-                        <MenuItem Header="Edit Tag/Mod Name" Name="EditTagNameMenuItem" Click="EditTagNameMenuItem_Click" />
-                        <MenuItem Header="Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
+                        <MenuItem Header="_Auto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
+                        <MenuItem Header="_Game Mods Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
+                        <MenuItem Header="Create _New Tag/Mod" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click" />
+                        <MenuItem Header="_Edit Tag/Mod Name" Name="EditTagNameMenuItem" Click="EditTagNameMenuItem_Click" />
+                        <MenuItem Header="_Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
                     </MenuItem>
-                    <MenuItem Header="_Help">
-                        <MenuItem Header="Help" Name="HelpMenuItem"  Click="HelpMenu_Click"/>
-                    </MenuItem>
+                    <MenuItem Header="_Help" Name="HelpMenuItem"  Click="HelpMenu_Click"/>
                 </Menu>
             </DockPanel>
         </Grid>
@@ -56,11 +55,11 @@
                             <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
                         </StackPanel >
                     </Grid>
-                    <Grid Margin="0,43,0,56" Grid.RowSpan="3">
+                    <Grid Margin="0,43,0,50" Grid.RowSpan="3">
                         <ScrollViewer Name="CreateLabelScroller" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
                         </ScrollViewer>
                     </Grid>
-                    <Grid Grid.Column="0" Grid.Row="2" Margin="0,203,0,0">
+                    <Grid Grid.Column="0" Grid.Row="2" Margin="0,199,0,0" VerticalAlignment="Top" Height="35">
                         <StackPanel>
                             <Button x:Name="ClearAllObjectsViewButton" Click="ClearAllObjectView_Click" FontSize="18">Clear View</Button>
                         </StackPanel>
@@ -74,10 +73,10 @@
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Margin="0,-24,0,233">
+                <Grid Grid.Row="0" Margin="0,-15,0,220">
                     <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center"/>
                 </Grid>
-                <Grid Margin="0,35,0,106" Grid.RowSpan="3">
+                <Grid Margin="0,33,0,106" Grid.RowSpan="3">
                     <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
                     </avalonedit:TextEditor>
                 </Grid>

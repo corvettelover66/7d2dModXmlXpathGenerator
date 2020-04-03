@@ -26,7 +26,7 @@ namespace SevenDaysToDieModCreator.Models
         //A dictionary of any Tag name to all children tag names
         //Key = "Tag Name" E.G. "recipe or ingredient"
         //Value = "List of all child tag names"
-        public Dictionary<string,  List<string>> objectNameToChildrenMap { get; private set; }
+        public Dictionary<string, List<string>> objectNameToChildrenMap { get; private set; }
         //A List of string with all topLevelNodes in the XML file, for most that is only one for progressions that is four
         public List<string> allTopLevelTags { get; private set; }
 
@@ -52,7 +52,7 @@ namespace SevenDaysToDieModCreator.Models
         {
             string firstChildName = this.xmlFile.xmlDocument.DocumentElement.FirstChild.Name;
             int count = 0;
-            while (firstChildName.Contains("#"))
+            while (firstChildName.Contains("#") && count != this.xmlFile.xmlDocument.DocumentElement.ChildNodes.Count)
             {
                 firstChildName = this.xmlFile.xmlDocument.DocumentElement.ChildNodes.Item(count).Name;
                 count++;
@@ -63,7 +63,7 @@ namespace SevenDaysToDieModCreator.Models
             XmlNodeList allObjects = this.xmlFile.xmlDocument.DocumentElement.ChildNodes;
             TraverseXmlNodeList(allObjects, "");
         }
-        private void SetTopLevelNodes() 
+        private void SetTopLevelNodes()
         {
             XmlNodeList allObjects = this.xmlFile.xmlDocument.DocumentElement.ChildNodes;
             foreach (XmlNode nextObjectNode in allObjects)
@@ -81,7 +81,7 @@ namespace SevenDaysToDieModCreator.Models
         public void TraverseXmlNode(XmlNode nextObjectNode, string lastParentName)
         {
             if (nextObjectNode == null || nextObjectNode.Name.Contains("#")) return;
-            else if(lastParentName.Length > 0)
+            else if (lastParentName.Length > 0)
             {
                 List<string> childrenList = this.objectNameToChildrenMap.GetValueOrDefault(lastParentName);
                 childrenList.AddUnique(nextObjectNode.Name.ToLower());
@@ -90,7 +90,7 @@ namespace SevenDaysToDieModCreator.Models
             if (nextObjectNode.HasChildNodes)
             {
                 List<string> currentMap = this.objectNameToChildrenMap.GetValueOrDefault(nextObjectNode.Name);
-                if (currentMap == null) 
+                if (currentMap == null)
                 {
                     this.objectNameToChildrenMap.Add(nextObjectNode.Name, new List<string>());
                 }

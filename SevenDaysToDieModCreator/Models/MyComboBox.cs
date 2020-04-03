@@ -22,7 +22,7 @@ namespace SevenDaysToDieModCreator.Models
             var textBox = Template.FindName("PART_EditableTextBox", this) as TextBox;
             MyTextBox = textBox;
             MyTextBox.Tag = this.Parent;
-            if(DoAddContextMenu)this.ObjectViewController.AddTargetContextMenuToControl(MyTextBox);
+            if (DoAddContextMenu) this.ObjectViewController.AddTargetContextMenuToControl(MyTextBox);
         }
     }
 }

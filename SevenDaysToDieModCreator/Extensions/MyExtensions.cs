@@ -3,7 +3,6 @@ using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -48,16 +47,16 @@ namespace SevenDaysToDieModCreator.Extensions
 
             return children;
         }
-        public static int GetValidChildrenCount(this XmlNode xmlNode) 
+        public static int GetValidChildrenCount(this XmlNode xmlNode)
         {
             int count = 0;
-            foreach (XmlNode child in xmlNode.ChildNodes) 
+            foreach (XmlNode child in xmlNode.ChildNodes)
             {
                 if (!child.Name.Contains("#")) count++;
             }
             return count;
         }
-        public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText, string onHoverMessageText = "",  string xpathAction = "")
+        public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText, string onHoverMessageText = "", string xpathAction = "")
         {
 
             ContextMenu newButtonRightClickMenu = objectControl.ContextMenu == null ? new ContextMenu() : objectControl.ContextMenu;
@@ -113,7 +112,7 @@ namespace SevenDaysToDieModCreator.Extensions
                 {
                     TreeViewItem treeViewToReturn = (TreeViewItem)nextControl;
                     Button nextTreeItemHeader = (Button)treeViewToReturn.Header;
-                    if(nextTreeItemHeader != null && nextTreeItemHeader.Content + "" == childName) allTreeViews.Enqueue(treeViewToReturn);
+                    if (nextTreeItemHeader != null && nextTreeItemHeader.Content + "" == childName) allTreeViews.Enqueue(treeViewToReturn);
                 }
             }
             return allTreeViews;
@@ -167,7 +166,7 @@ namespace SevenDaysToDieModCreator.Extensions
         public static XmlObjectsListWrapper GetWrapperFromDictionary(this Dictionary<string, XmlObjectsListWrapper> dictionaryToCheck, string value)
         {
             XmlObjectsListWrapper wrapperToReturn = null;
-            foreach (string key in dictionaryToCheck.Keys) 
+            foreach (string key in dictionaryToCheck.Keys)
             {
                 if (value.Contains(key)) wrapperToReturn = dictionaryToCheck.GetValueOrDefault(key);
             }
@@ -201,7 +200,7 @@ namespace SevenDaysToDieModCreator.Extensions
             bool isHoverMessageAdded = true;
             if (String.IsNullOrEmpty(onHoverMessage)) isHoverMessageAdded = false;
             ToolTip newToolTip = new ToolTip();
-            TextBlock myTip = new TextBlock { Text = onHoverMessage};
+            TextBlock myTip = new TextBlock { Text = onHoverMessage };
             if (forgroundColor != null) myTip.Foreground = forgroundColor;
             if (fontSize > 0) myTip.FontSize = fontSize;
             newToolTip.Content = myTip;
@@ -242,7 +241,7 @@ namespace SevenDaysToDieModCreator.Extensions
         }
         public static void AddUniqueValueTo(this ComboBox boxToAddTo, string valueToAdd)
         {
-            if (boxToAddTo.ItemsSource == null) 
+            if (boxToAddTo.ItemsSource == null)
             {
                 ObservableCollection<string> allItems = new ObservableCollection<string>();
                 allItems.Add(valueToAdd);
@@ -260,10 +259,10 @@ namespace SevenDaysToDieModCreator.Extensions
                 boxToAddTo.ItemsSource = allItems;
             }
         }
-        public static Dictionary<string, Queue<string>> GetDictionaryAsListQueue(this Dictionary<string, List<string>> dictionaryToUse) 
+        public static Dictionary<string, Queue<string>> GetDictionaryAsListQueue(this Dictionary<string, List<string>> dictionaryToUse)
         {
             Dictionary<string, Queue<string>> dictionaryToReturn = new Dictionary<string, Queue<string>>();
-            foreach (string key in dictionaryToUse.Keys) 
+            foreach (string key in dictionaryToUse.Keys)
             {
                 Queue<string> returnQ = new Queue<string>(dictionaryToUse.GetValueOrDefault(key));
                 dictionaryToReturn.Add(key, returnQ);

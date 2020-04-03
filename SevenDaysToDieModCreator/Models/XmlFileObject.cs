@@ -14,11 +14,11 @@ namespace SevenDaysToDieModCreator.Models
         {
             FileSize = new System.IO.FileInfo(directory).Length;
             DirectoryInfo directoryInfo = Directory.GetParent(directory);
-            if(!directoryInfo.Name.Equals("Config") && !directoryInfo.Name.Equals("Game_XMLS"))ParentPath = directoryInfo.Name;
+            if (!directoryInfo.Name.Equals("Config") && !directoryInfo.Name.Equals("Game_XMLS")) ParentPath = directoryInfo.Name;
             LoadFile(directory);
             FileName = ParseFileName(directory);
         }
-        public string GetFileNameWithoutExtension() 
+        public string GetFileNameWithoutExtension()
         {
             //Expected fileName Before: "recipes.xml" After: "recipes"
             return FileName.Substring(0, FileName.Length - 4);

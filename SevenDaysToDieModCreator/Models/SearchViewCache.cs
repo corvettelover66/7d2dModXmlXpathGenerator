@@ -1,7 +1,5 @@
 ﻿using SevenDaysToDieModCreator.Controllers;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Windows.Controls;
 
 namespace SevenDaysToDieModCreator.Models
@@ -31,15 +29,15 @@ namespace SevenDaysToDieModCreator.Models
             //}
         }
 
-        public void AddToCache(string treeID, TreeViewItem topTree) 
+        public void AddToCache(string treeID, TreeViewItem topTree)
         {
             this.ViewCacheMap.Add(treeID, topTree);
         }
-        public TreeViewItem GetTreeViewByKey(string treeID) 
+        public TreeViewItem GetTreeViewByKey(string treeID)
         {
             return this.ViewCacheMap.GetValueOrDefault(treeID);
         }
-        public bool HasTreeView(string treeID) 
+        public bool HasTreeView(string treeID)
         {
             return this.ViewCacheMap.GetValueOrDefault(treeID) != null;
         }

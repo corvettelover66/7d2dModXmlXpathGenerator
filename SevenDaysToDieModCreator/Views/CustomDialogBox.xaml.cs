@@ -2,7 +2,6 @@
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -27,9 +26,9 @@ namespace SevenDaysToDieModCreator.Views
             if (!String.IsNullOrEmpty(textBoxBody)) defaultText = textBoxBody + "\n\n\n\n\n\n";
             if (doLoadModPath)
             {
-                List<string> allCustomModsInPath =  XmlFileManager.GetCustomModFoldersInOutput();
+                List<string> allCustomModsInPath = XmlFileManager.GetCustomModFoldersInOutput();
                 AllTagsComboBox = allCustomModsInPath.CreateComboBoxList();
-                if(!String.IsNullOrEmpty(toolTipMessage))AllTagsComboBox.AddToolTip(toolTipMessage);
+                if (!String.IsNullOrEmpty(toolTipMessage)) AllTagsComboBox.AddToolTip(toolTipMessage);
                 AllTagsComboBox.IsEditable = true;
                 CustomDialogPanel.Children.Add(AllTagsComboBox);
             }

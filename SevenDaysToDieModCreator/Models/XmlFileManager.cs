@@ -10,33 +10,33 @@ namespace SevenDaysToDieModCreator.Models
         public static string _fileOutputPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
         public static string _ModPath
         {
-            get => Properties.Settings.Default.CustomTagName + "/Config/";
+            get => Properties.Settings.Default.ModTagSetting + "/Config/";
             set => _ModPath = value;
         }
         public static string _ModOutputPath
         {
-            get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + Properties.Settings.Default.CustomTagName + "/Config/");
+            get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + Properties.Settings.Default.ModTagSetting + "/Config/");
             set => _ModOutputPath = value;
         }
         public static string _LoadedFilesPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
         public static string Xui_Folder_Name = "XUi";
         public static string Xui_Menu_Folder_Name = "XUi_Menu";
-        private static readonly string logFileName =  "log.txt";
-        public static string Get_ModOutputPath(string customTagName) 
+        private static readonly string logFileName = "log.txt";
+        public static string Get_ModOutputPath(string customTagName)
         {
             return Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + customTagName + "/Config/");
         }
         public static void WriteStringToFile(string filePath, string fileName, string stringToWrite, bool addTimeStamp = false)
         {
             if (!Directory.Exists(filePath)) Directory.CreateDirectory(filePath);
-            if (addTimeStamp && !String.IsNullOrEmpty(stringToWrite)) stringToWrite ="<!-- Xml Written " + DateTime.Now.ToString("MMMM dd, yyyy") + " at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + stringToWrite ;
+            if (addTimeStamp && !String.IsNullOrEmpty(stringToWrite)) stringToWrite = "<!-- Xml Written " + DateTime.Now.ToString("MMMM dd, yyyy") + " at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + stringToWrite;
             try
             {
-                System.IO.File.WriteAllText(Path.Combine(@filePath, fileName), stringToWrite);
+                System.IO.File.WriteAllText(Path.Combine(filePath, fileName), stringToWrite);
             }
-            catch (IOException) 
+            catch (IOException)
             {
-                WriteStringToLog("ERROR Writing to file @" + @filePath + fileName);
+                WriteStringToLog("ERROR Writing to file @" + filePath + fileName);
             }
         }
         public static List<string> GetCustomModFoldersInOutput()
@@ -55,25 +55,25 @@ namespace SevenDaysToDieModCreator.Models
             List<string> allModFiles = new List<string>();
             string customModFilesInOutputDirectory = Get_ModOutputPath(customTag);
             Directory.CreateDirectory(customModFilesInOutputDirectory);
-            string[] allXmlsInOutputPath =  Directory.GetFiles(customModFilesInOutputDirectory, "*.xml");
+            string[] allXmlsInOutputPath = Directory.GetFiles(customModFilesInOutputDirectory, "*.xml");
             AddFilesToList(allModFiles, allXmlsInOutputPath, prefix);
             if (Directory.Exists(Path.Combine(customModFilesInOutputDirectory, Xui_Folder_Name)))
             {
                 string[] xuiFiles = Directory.GetFiles(Path.Combine(customModFilesInOutputDirectory, Xui_Folder_Name));
-                if (xuiFiles.Length > 0) AddFilesToList(allModFiles, xuiFiles, prefix + Xui_Folder_Name + "_"); 
+                if (xuiFiles.Length > 0) AddFilesToList(allModFiles, xuiFiles, prefix + Xui_Folder_Name + "_");
 
             }
             if (Directory.Exists(Path.Combine(customModFilesInOutputDirectory, Xui_Menu_Folder_Name)))
             {
                 string[] xuiMenuFiles = Directory.GetFiles(Path.Combine(customModFilesInOutputDirectory, Xui_Menu_Folder_Name));
-                if (xuiMenuFiles.Length > 0) AddFilesToList(allModFiles, xuiMenuFiles, prefix + Xui_Menu_Folder_Name + "_"); 
+                if (xuiMenuFiles.Length > 0) AddFilesToList(allModFiles, xuiMenuFiles, prefix + Xui_Menu_Folder_Name + "_");
             }
             //Check for Xui menu files
             return allModFiles;
         }
         private static void AddFilesToList(List<string> allModFiles, string[] allXmlsInOutputPath, string filePrefix = "")
         {
-            foreach (string nextFile in allXmlsInOutputPath )
+            foreach (string nextFile in allXmlsInOutputPath)
             {
                 allModFiles.Add(filePrefix + Path.GetFileName(nextFile.Substring(0, nextFile.Length - 4)));
             }
@@ -84,7 +84,7 @@ namespace SevenDaysToDieModCreator.Models
             string filePath = _fileOutputPath + logFileName;
             if (!File.Exists(filePath)) CreateFilePath(_fileOutputPath, logFileName);
 
-            if (addTimeStamp) xml = "<!-- Written " + DateTime.Now.ToString("MMMM dd, yyyy") +" at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + xml;
+            if (addTimeStamp) xml = "<!-- Written " + DateTime.Now.ToString("MMMM dd, yyyy") + " at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + xml;
 
             AppendToFile(_fileOutputPath, logFileName, xml);
         }
@@ -118,7 +118,7 @@ namespace SevenDaysToDieModCreator.Models
             }
             catch (FileNotFoundException)
             {
-                WriteStringToLog("ERROR Reading file @"+ @path + fileName);
+                WriteStringToLog("ERROR Reading file @" + @path + fileName);
             }
             ReadFileContents = line;
         }
@@ -141,7 +141,7 @@ namespace SevenDaysToDieModCreator.Models
         }
         internal static bool CheckLoadedModFolderForXmlFiles(string fullSelectedPath)
         {
-            string modConfigPath = fullSelectedPath + Path.DirectorySeparatorChar + "config";
+            string modConfigPath = Path.Combine(fullSelectedPath, "config");
             string[] filesInConfig = Directory.GetFiles(modConfigPath);
             string[] directoriesInConfig = Directory.GetDirectories(modConfigPath);
             return CheckDirectoryForXmlFiles(filesInConfig, directoriesInConfig);
@@ -161,7 +161,7 @@ namespace SevenDaysToDieModCreator.Models
                 string newFilePath = Path.Combine(outputPath, Path.GetFileName(fileName));
                 if (Path.GetFileName(fileName).Contains(".xml"))
                 {
-                    if (doOverwriteFiles) 
+                    if (doOverwriteFiles)
                     {
                         if (File.Exists(newFilePath)) File.Delete(newFilePath);
                         File.Copy(fileName, newFilePath);
@@ -187,7 +187,7 @@ namespace SevenDaysToDieModCreator.Models
         private static bool CheckDirectoryForXmlFiles(string[] filesInDirectory, string[] directoriesInConfig = null)
         {
             bool hasXmlFiles = false;
-            if (directoriesInConfig != null) 
+            if (directoriesInConfig != null)
             {
                 foreach (string directory in directoriesInConfig)
                 {
@@ -196,10 +196,10 @@ namespace SevenDaysToDieModCreator.Models
                     if (hasXmlFiles) break;
                 }
             }
-            foreach (string fileName in filesInDirectory) 
+            foreach (string fileName in filesInDirectory)
             {
                 if (hasXmlFiles) break;
-                if (Path.GetFileName(fileName).Contains(".xml")) 
+                if (Path.GetFileName(fileName).Contains(".xml"))
                 {
                     hasXmlFiles = true;
                     break;
@@ -214,7 +214,6 @@ namespace SevenDaysToDieModCreator.Models
             Directory.CreateDirectory(_ModOutputPath);
             if (!String.IsNullOrEmpty(gameModDirectory)) CopyAllFilesToPath(_ModOutputPath, gameModDirectory, true);
         }
-
         internal static void RenameModDirectory(string oldModName, string newModName)
         {
             string oldModDirectory = Path.Combine(_fileOutputPath, "Mods", oldModName);

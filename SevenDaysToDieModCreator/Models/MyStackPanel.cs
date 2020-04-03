@@ -1,8 +1,6 @@
 ﻿using SevenDaysToDieModCreator.Controllers;
 using SevenDaysToDieModCreator.Extensions;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Windows.Controls;
 
 namespace SevenDaysToDieModCreator.Models
@@ -16,11 +14,14 @@ namespace SevenDaysToDieModCreator.Models
         //Key top tag name i.e. recipe, progression, item
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
+        private Dictionary<string, int[]> LoadedListWrappersCount { get; set; }
+
         public MyStackPanel(MainWindowViewController mainWindowViewController, SearchViewCache searchViewCache)
         {
             this.MainWindowViewController = mainWindowViewController;
             this.SearchViewCache = searchViewCache;
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
+            this.LoadedListWrappersCount = new Dictionary<string, int[]>();
         }
         public MyStackPanel()
         {
@@ -32,8 +33,29 @@ namespace SevenDaysToDieModCreator.Models
             {
                 if (MainWindowViewController != null) HandleVisualChangedAdded(visualAdded);
             }
+            if (visualRemoved != null)
+            {
+                if (MainWindowViewController != null)
+                {
+                    if (visualRemoved.GetType() == typeof(TreeViewItem))
+                    {
+                        TreeViewItem senderAsTreeView = (TreeViewItem)visualRemoved;
+                        string wrapperKey = senderAsTreeView.Uid;
+                        int[] count = this.LoadedListWrappersCount.GetValueOrDefault(wrapperKey);
+                        if (this.LoadedListWrappers.ContainsKey(wrapperKey) && count[0] == 1)
+                        {
+                            this.LoadedListWrappersCount.Remove(wrapperKey);
+                            this.LoadedListWrappers.Remove(wrapperKey);
+                        }
+                        else 
+                        {
+                            count[0]--;
+                        }
+                    }
+                }
+            }
         }
-        private void HandleVisualChangedAdded(System.Windows.DependencyObject visualAdded) 
+        private void HandleVisualChangedAdded(System.Windows.DependencyObject visualAdded)
         {
             if (visualAdded.GetType() == typeof(TreeViewItem))
             {
@@ -48,9 +70,15 @@ namespace SevenDaysToDieModCreator.Models
                 if (!this.LoadedListWrappers.ContainsKey(wrapperKey) && wrapperToUse != null)
                 {
                     this.LoadedListWrappers.Add(wrapperKey, wrapperToUse);
+                    this.LoadedListWrappersCount.Add(wrapperKey, new int[1] { 1 });
+                }
+                else 
+                {
+                    int[] count = this.LoadedListWrappersCount.GetValueOrDefault(wrapperKey);
+                    if(count != null)count[0]++;
                 }
             }
-            this.MainWindowViewController.LeftNewObjectViewController.xmlOutBlock.Text = 
+            this.MainWindowViewController.LeftNewObjectViewController.xmlOutBlock.Text =
                 XmlXpathGenerator.GenerateXmlViewOutput(this.MainWindowViewController.LeftNewObjectViewController.NewObjectFormViewPanel);
         }
     }
