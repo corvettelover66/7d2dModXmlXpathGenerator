@@ -100,13 +100,10 @@ namespace SevenDaysToDieModCreator.Models
             }
 
             string attributeName = "";
-            string nodeToSkip = "";
-            if (xPathAction.Equals(XPATH_ACTION_INSERT_BEFORE) || xPathAction.Equals(XPATH_ACTION_INSERT_AFTER))
-            {
-                if(!String.IsNullOrEmpty(attributeInAction) && xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = nodeName;
-                if (!String.IsNullOrEmpty(attributeInAction) && !xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = nodeName;
-                if (String.IsNullOrEmpty(attributeInAction) && !xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = nodeName;
-            }
+            string nodeToSkip;
+            //If it is insert before or insert after and a top tag we don't want to skip the first tag.
+            if ((xPathAction.Equals(XPATH_ACTION_INSERT_AFTER) || xPathAction.Equals(XPATH_ACTION_INSERT_BEFORE)) && xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = "";
+            else nodeToSkip = nodeName;
 
             string generatedXml = GenerateXmlForObject(topTree, "", nodeToSkip, xPathAction, nodeName, 1);
 

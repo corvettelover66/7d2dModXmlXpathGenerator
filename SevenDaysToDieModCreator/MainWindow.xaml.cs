@@ -441,7 +441,7 @@ namespace SevenDaysToDieModCreator
         }
         private void HelpMenu_Click(object sender, RoutedEventArgs e)
         {
-            string readmeFileContents = XmlFileManager.GetFileContents(Directory.GetCurrentDirectory() + "/", "README.txt");
+            string readmeFileContents = XmlFileManager.GetFileContents(Directory.GetCurrentDirectory(), "README.txt");
             if (String.IsNullOrEmpty(readmeFileContents))
             {
                 readmeFileContents = "For more information please read the README.txt.\n" +

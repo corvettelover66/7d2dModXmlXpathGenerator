@@ -91,8 +91,9 @@ namespace SevenDaysToDieModCreator.Models
         public static string GetFileContents(string path, string fileName)
         {
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-            string filePath = @path + fileName;
-            if (File.Exists(filePath)) ReadFile(path, fileName);
+            string filePath = Path.Combine(path, fileName);
+            if (File.Exists(filePath)) ReadFile(filePath);
+            else ReadFileContents = "";
             return ReadFileContents;
         }
         //Pass in the Custom Tag to exclude it from the read.
@@ -107,18 +108,18 @@ namespace SevenDaysToDieModCreator.Models
 
             return fileContents;
         }
-        private static void ReadFile(string path, string fileName)
+        private static void ReadFile(string path)
         {
             string line = null;
             try
             {
-                using StreamReader sr = new StreamReader(@path + fileName);
+                using StreamReader sr = new StreamReader(@path);
                 line = sr.ReadToEnd();
                 if (line.Length < 1) line = null;
             }
             catch (FileNotFoundException)
             {
-                WriteStringToLog("ERROR Reading file @" + @path + fileName);
+                WriteStringToLog("ERROR Reading file @" + @path);
             }
             ReadFileContents = line;
         }
