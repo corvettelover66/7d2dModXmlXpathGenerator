@@ -169,8 +169,25 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         private void RemoveTreeNewObjectsContextMenu_Click(object sender, RoutedEventArgs e)
         {
-            Control myObjectControl = (Control)((MenuItem)sender).Tag;
-            this.NewObjectFormViewPanel.Children.Remove(myObjectControl);
+            ContextMenu contextMenu = (ContextMenu)((MenuItem)sender).Parent;
+            if (contextMenu.Tag is TreeViewItem myObjectControl)
+            {
+                if (myObjectControl.Parent is TreeViewItem parent) parent.Items.Remove(myObjectControl);
+                else 
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                        "This will remove the entire object. Are you sure?",
+                        "Remove Top Level",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+                    switch (result)
+                    {
+                        case MessageBoxResult.Yes:
+                            this.NewObjectFormViewPanel.Children.Remove(myObjectControl);
+                            break;
+                    }
+                }
+            }
         }
         public TreeViewItem GetSearchTreeViewRecursive(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, bool addContextMenu = true)
         {
@@ -180,7 +197,8 @@ namespace SevenDaysToDieModCreator.Controllers
                 Header = xmlObjectListWrapper.TopTagName,
                 IsExpanded = true,
                 FontSize = SEARCH_VIEW_FONT_SIZE + SearchTreeFontChange + 3,
-                Foreground = Brushes.Purple
+                Foreground = Brushes.Purple, 
+                Uid = wrapperKey
             };
             topObjectsTreeView = SetSearchTreeViewNextObject(topObjectsTreeView, allObjects, wrapperKey, xmlObjectListWrapper, addContextMenu);
             topObjectsTreeView.AddContextMenu(RemoveTreeSearchViewContextMenu_Click,
@@ -190,10 +208,14 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         private void RemoveTreeSearchViewContextMenu_Click(object sender, RoutedEventArgs e)
         {
-            Control myObjectControl = (Control)((MenuItem)sender).Tag;
-            this.SearchTreeFormViewPanel.Children.Remove(myObjectControl);
-            GC.Collect();
+            ContextMenu contextMenu = ((MenuItem)sender).Parent as ContextMenu;
+            if(contextMenu.Tag is TreeViewItem myObjectControl)
+            {
+                this.SearchTreeFormViewPanel.Children.Remove(myObjectControl);
+                GC.Collect();
+            }
         }
+        private ContextMenu xmlNodeContextMenu;
         private TreeViewItem SetSearchTreeViewNextObject(TreeViewItem topObjectsTreeView, XmlNodeList allObjects, string wrapperName, XmlObjectsListWrapper xmlObjectListWrapper, bool addContextMenu = true)
         {
             foreach (XmlNode nextObjectNode in allObjects)
@@ -202,50 +224,56 @@ namespace SevenDaysToDieModCreator.Controllers
 
                 if (nextTreeView != null)
                 {
-                    nextTreeView.AddContextMenu(CollapseParentContextMenu_ClickFunction,
-                        "Collapse Parent",
-                        "Click here to collapse the parent tree");
+                    if (addContextMenu)
+                    {
+                        if (xmlNodeContextMenu == null) xmlNodeContextMenu = AddTargetContextMenuToControl(nextTreeView);
+                        else nextTreeView.ContextMenu = xmlNodeContextMenu;
+                    }
                     topObjectsTreeView.Items.Add(nextTreeView);
                 }
             }
+
             return topObjectsTreeView;
         }
-        public void AddTargetContextMenuToControl(Control nextTreeView, bool isAttributeControl = false)
+        public ContextMenu AddTargetContextMenuToControl(Control controlToAddMenu, bool isAttributeControl = false)
         {
-            XmlNode xmlNode = nextTreeView.Tag as XmlNode;
-            if (nextTreeView.Tag is TreeViewItem comboParent) xmlNode = comboParent.Tag as XmlNode;
-            if (xmlNode.HasChildNodes || isAttributeControl)
-                nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+            TreeViewItem controlAsTreeView = controlToAddMenu as TreeViewItem;
+            if ((controlAsTreeView != null && controlAsTreeView.HasItems) || isAttributeControl)
+                controlToAddMenu.AddContextMenu(AppendToContextMenu_ClickFunction,
                     "Append",
                     "The append command is used to add either more nodes or more attribute values",
                     XmlXpathGenerator.XPATH_ACTION_APPEND);
-            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+            ContextMenu menuToReturn = controlToAddMenu.AddContextMenu(AppendToContextMenu_ClickFunction,
                 "Remove",
                 "The remove command is used to remove nodes or attributes",
                 XmlXpathGenerator.XPATH_ACTION_REMOVE);
-            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+            controlToAddMenu.AddContextMenu(AppendToContextMenu_ClickFunction,
                 "Insert After",
                 "Much like append, insertAfter will add nodes and attributes after the selected xpath",
                 xpathAction: XmlXpathGenerator.XPATH_ACTION_INSERT_AFTER);
-            nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+            controlToAddMenu.AddContextMenu(AppendToContextMenu_ClickFunction,
                 "Insert Before",
                 "Much like insertAfter, insertBefore will add nodes and attributes before the selected xpath",
                 xpathAction: XmlXpathGenerator.XPATH_ACTION_INSERT_BEFORE);
-            if (isAttributeControl) nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+            if (isAttributeControl) controlToAddMenu.AddContextMenu(AppendToContextMenu_ClickFunction,
                 "Set",
                 "The set command is used to change individual attributes",
                 xpathAction: XmlXpathGenerator.XPATH_ACTION_SET);
-            else nextTreeView.AddContextMenu(AppendToContextMenu_ClickFunction,
+            else controlToAddMenu.AddContextMenu(AppendToContextMenu_ClickFunction,
                "Set Attribute",
                "The setattribute command is used to add a new attribute to an XML node",
                xpathAction: XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE);
+            controlToAddMenu.AddContextMenu(CollapseParentContextMenu_ClickFunction,
+                "Collapse Parent",
+                "Click here to collapse the parent tree");
+            return menuToReturn;
         }
         private void CollapseParentContextMenu_ClickFunction(object sender, RoutedEventArgs e)
         {
             MenuItem sendersAsMenuItem = (sender as MenuItem);
-            if (sendersAsMenuItem != null && sendersAsMenuItem.Tag != null)
+            if (sendersAsMenuItem.Parent is ContextMenu sendersParent && sendersParent.Tag != null)
             {
-                TreeViewItem menuItemsTreeView = sendersAsMenuItem.Tag as TreeViewItem;
+                TreeViewItem menuItemsTreeView = sendersParent.Tag as TreeViewItem;
                 if (menuItemsTreeView.Parent != null && menuItemsTreeView.Parent.GetType() == typeof(TreeViewItem))
                 {
                     (menuItemsTreeView.Parent as TreeViewItem).IsExpanded = false;
@@ -255,7 +283,9 @@ namespace SevenDaysToDieModCreator.Controllers
         private void AppendToContextMenu_ClickFunction(object sender, RoutedEventArgs e)
         {
             MenuItem senderAsMenuItem = (MenuItem)sender;
-            TreeViewItem senderTreeView = senderAsMenuItem.Tag as TreeViewItem;
+            ContextMenu parentMenu = senderAsMenuItem.Parent as ContextMenu;
+            TreeViewItem senderTreeView = parentMenu.PlacementTarget as TreeViewItem;
+
             if (senderTreeView != null)
             {
                 string xPathAction = senderAsMenuItem.Name;
@@ -415,7 +445,6 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
                 nextObjectTreeViewItem = SetSearchTreeViewNextObject(nextObjectTreeViewItem, nextObjectNode.ChildNodes, wrapperKey, xmlObjectListWrapper, addContextMenu);
             }
-            if (nextObjectTreeViewItem.Header.GetType() != typeof(MyComboBox) && addContextMenu) AddTargetContextMenuToControl(nextObjectTreeViewItem);
             return nextObjectTreeViewItem;
         }
         private void MakeSearchTreeView(TreeViewItem nextObjectTreeViewItem, XmlNode nextObjectNode, bool doAddContextMenu = true)
@@ -492,6 +521,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 topTreeView.Items.Add(treeViewItem);
             }
         }
+        private ContextMenu attributeContextMenu;
         private void SetNextObjectSearchTreeViewAtrributes(TreeViewItem nextObjectTreeViewItem, XmlAttributeCollection attributes, string wrapperKey, XmlNode currentNode, bool addContextMenu = true)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -519,7 +549,11 @@ namespace SevenDaysToDieModCreator.Controllers
                     stringBuilder.AppendLine(nextAttribute.Name + " : " + nextAttribute.Value);
                     attributeValueTree.AddToolTip("You can click me to copy the value");
                     attributeValueTree.PreviewMouseDown += NewObjectTreeAttributeCombo_MouseDown;
-                    if (addContextMenu) AddTargetContextMenuToControl(attributeNameTree, true);
+                    if (addContextMenu)
+                    {
+                        if (attributeContextMenu == null) attributeContextMenu = AddTargetContextMenuToControl(attributeNameTree, true);
+                        else attributeNameTree.ContextMenu = attributeContextMenu;
+                    }
                     attributeNameTree.Items.Add(attributeValueTree);
                     nextObjectTreeViewItem.Items.Add(attributeNameTree);
                 }

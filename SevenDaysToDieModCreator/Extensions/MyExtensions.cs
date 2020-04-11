@@ -58,14 +58,15 @@ namespace SevenDaysToDieModCreator.Extensions
         }
         public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText, string onHoverMessageText = "", string xpathAction = "")
         {
-
             ContextMenu newButtonRightClickMenu = objectControl.ContextMenu == null ? new ContextMenu() : objectControl.ContextMenu;
-            MenuItem newContextMenuItem = new MenuItem();
+            if (newButtonRightClickMenu.Tag == null) newButtonRightClickMenu.Tag = objectControl.GetType() == typeof(TextBox) ? objectControl.Tag : objectControl;
+            MenuItem newContextMenuItem = new MenuItem
+            {
+                Name = xpathAction,
+                Header = headerText
+            };
             if (!String.IsNullOrEmpty(onHoverMessageText)) newContextMenuItem.AddToolTip(onHoverMessageText);
-            newContextMenuItem.Name = xpathAction;
-            newContextMenuItem.Header = headerText;
             newContextMenuItem.Click += myOnClickFunction;
-            newContextMenuItem.Tag = objectControl.GetType() == typeof(TextBox) ? objectControl.Tag : objectControl;
             newButtonRightClickMenu.Items.Add(newContextMenuItem);
             objectControl.ContextMenu = newButtonRightClickMenu;
             return newButtonRightClickMenu;
@@ -194,16 +195,23 @@ namespace SevenDaysToDieModCreator.Extensions
             }
             return nextList;
         }
+        private static Dictionary<string, ToolTip> addedToolTips = new Dictionary<string, ToolTip>();
         //Adds a hover message to a button
         public static bool AddToolTip(this Control controlObject, string onHoverMessage, int fontSize = 0, SolidColorBrush forgroundColor = null)
         {
             bool isHoverMessageAdded = true;
             if (String.IsNullOrEmpty(onHoverMessage)) isHoverMessageAdded = false;
-            ToolTip newToolTip = new ToolTip();
-            TextBlock myTip = new TextBlock { Text = onHoverMessage };
-            if (forgroundColor != null) myTip.Foreground = forgroundColor;
-            if (fontSize > 0) myTip.FontSize = fontSize;
-            newToolTip.Content = myTip;
+
+            ToolTip newToolTip = addedToolTips.GetValueOrDefault(onHoverMessage);
+            if (newToolTip == null) 
+            {
+                newToolTip = new ToolTip();
+                TextBlock myTip = new TextBlock { Text = onHoverMessage };
+                if (forgroundColor != null) myTip.Foreground = forgroundColor;
+                if (fontSize > 0) myTip.FontSize = fontSize;
+                newToolTip.Content = myTip;
+                addedToolTips.Add(onHoverMessage, newToolTip);
+            }
             controlObject.ToolTip = newToolTip;
             return isHoverMessageAdded;
         }

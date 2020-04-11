@@ -63,6 +63,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     case MessageBoxResult.Yes:
                         TreeViewItem nextTreeView = LeftNewObjectViewController.GetSearchTreeViewRecursive(selectedWrapper, selectedObject, doAddContextMenu);
+                        nextTreeView.Header = selectedObject;
                         searchTreeFormsPanel.Children.Add(nextTreeView);
                         break;
                 }
