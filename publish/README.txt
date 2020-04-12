@@ -76,20 +76,19 @@ TODO
 Add a setting to change the search box threshold
 Change the way settings are displayed potentially so adding settings becomes easier.
 Finish load Mods Directory Menu Item for loading all mods in the game directory. 
-Finish tweaking center view UI to handle Multiple resolutions better
 Add the ability to target specfic xml in a mod tree view.
 Change property tags to use common attributes for the name and not the tag name.
 Add the ability to open game files in direct edit.
 Add a view to add the mod info.xml file.
-
+Fix resolution when windowed. Finish tweaking center view UI to handle Multiple resolutions better
 
 Version History
 1.5.6
  - Made removing an item in the object view more usable. Now users can remove specific tags, rather than the whole object. 
-	- Clicking remove on an object that is the last one in the tree will try to remove the top tree. A warning is displayed and users choose.
+	- Clicking remove on an object that is the last one in the tree will try to remove the top tree. A warning is displayed and users chooses.
  - Memory optimization done right.
 	- Added optimization by reducing new ToolTips. Now the app reuses tooltips when they are the same.
-	- Added optimazation on the CotextMenu used in the search view. This reduces used memory and load times by 60%!
+	- Added optimazation on the ContextMenu used in the search view. This reduces used memory and load times by 60%!
 		After profiling the app I determined the MenuItems in ContextMenus were using a considerable amount of memory.
 		The search trees used two seperate ContextMenus that were generated and recreated for every treeview.
 		This was terribly inefficent on memory, after making some small edits to reuse a ContextMenu when possible, a search views memory was reduced by 60%, which in turn reduces loading times considerably.
