@@ -47,7 +47,7 @@ namespace SevenDaysToDieModCreator.Models
                             this.LoadedListWrappersCount.Remove(wrapperKey);
                             this.LoadedListWrappers.Remove(wrapperKey);
                         }
-                        else 
+                        else
                         {
                             count[0]--;
                         }
@@ -72,10 +72,10 @@ namespace SevenDaysToDieModCreator.Models
                     this.LoadedListWrappers.Add(wrapperKey, wrapperToUse);
                     this.LoadedListWrappersCount.Add(wrapperKey, new int[1] { 1 });
                 }
-                else 
+                else
                 {
                     int[] count = this.LoadedListWrappersCount.GetValueOrDefault(wrapperKey);
-                    if(count != null)count[0]++;
+                    if (count != null) count[0]++;
                 }
             }
             this.MainWindowViewController.LeftNewObjectViewController.xmlOutBlock.Text =

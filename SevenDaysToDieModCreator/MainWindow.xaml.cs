@@ -199,10 +199,10 @@ namespace SevenDaysToDieModCreator
             if (!String.IsNullOrEmpty(wrapperKey))
             {
                 XmlObjectsListWrapper xmlObjectsListWrapper = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(wrapperKey);
-                xmlObjectsListWrapper = xmlObjectsListWrapper == null 
-                    ? this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(this.LoadedModsCenterViewComboBox.Text+"_"+wrapperKey)
+                xmlObjectsListWrapper = xmlObjectsListWrapper == null
+                    ? this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(this.LoadedModsCenterViewComboBox.Text + "_" + wrapperKey)
                     : xmlObjectsListWrapper;
-                if (xmlObjectsListWrapper == null) 
+                if (xmlObjectsListWrapper == null)
                 {
                     MessageBox.Show(
                         "The was an error in the file for " + this.LoadedModsCenterViewComboBox.Text + "_" + wrapperKey + ".\n\n" +
@@ -413,20 +413,20 @@ namespace SevenDaysToDieModCreator
             //Try to grab the default wrapper
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
             //if the file hasn't been loaded try to grab the wrapper for the file
-            selectedWrapper = selectedWrapper == null 
+            selectedWrapper = selectedWrapper == null
                 ? MainWindowViewController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + selectedObject)
                 : selectedWrapper;
             //If it is still null there is an issue with the file and the file has not been loaded.
-            if (selectedWrapper == null) 
+            if (selectedWrapper == null)
             {
                 selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + selectedObject);
                 //If it is still null then they have not fixed it
-                if (selectedWrapper == null) 
+                if (selectedWrapper == null)
                 {
                     MessageBox.Show(
                         "The was an error opening the selected file.\n\n" +
                         "There are a couple of ways to fix this:\n" +
-                        "You can load the game file " + selectedObject +".xml\n" +
+                        "You can load the game file " + selectedObject + ".xml\n" +
                         "Alternatively, you can validate the xml using the \"File Menu Option and fix any errors in an external editor." +
                         "After, fixing any errors be sure to run the xml validation in the file menu before retrying.",
                         "File Loading Error!",

@@ -140,9 +140,9 @@ namespace SevenDaysToDieModCreator.Models
             string endingXml;
             if (!xpathAction.Equals(XPATH_ACTION_APPEND) && !xpathAction.Equals(XPATH_ACTION_INSERT_AFTER) && !xpathAction.Equals(XPATH_ACTION_INSERT_BEFORE))
             {
-                endingXml = "\">" + generatedXml.Trim() + "</" + xpathAction + ">\n"; 
+                endingXml = "\">" + generatedXml.Trim() + "</" + xpathAction + ">\n";
             }
-            else if(!String.IsNullOrEmpty(attributeInAction))
+            else if (!String.IsNullOrEmpty(attributeInAction))
             {
                 endingXml = "\">" + generatedXml.Trim() + "</" + xpathAction + ">\n";
             }
@@ -255,7 +255,7 @@ namespace SevenDaysToDieModCreator.Models
             foreach (XmlObjectsListWrapper xmlObjectsListWrapper in newObjectFormsPanel.LoadedListWrappers.Values)
             {
                 string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
-                existingWrapperFileData += XmlFileManager.ReadExistingFile(Path.Combine(parentPath,xmlObjectsListWrapper.xmlFile.FileName), Properties.Settings.Default.ModTagSetting);
+                existingWrapperFileData += XmlFileManager.ReadExistingFile(Path.Combine(parentPath, xmlObjectsListWrapper.xmlFile.FileName), Properties.Settings.Default.ModTagSetting);
             }
 
             string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel);

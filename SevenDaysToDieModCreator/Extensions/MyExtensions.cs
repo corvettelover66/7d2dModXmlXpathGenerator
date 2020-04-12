@@ -3,6 +3,7 @@ using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -195,7 +196,7 @@ namespace SevenDaysToDieModCreator.Extensions
             if (String.IsNullOrEmpty(onHoverMessage)) isHoverMessageAdded = false;
 
             ToolTip newToolTip = addedToolTips.GetValueOrDefault(onHoverMessage);
-            if (newToolTip == null) 
+            if (newToolTip == null)
             {
                 newToolTip = new ToolTip();
                 TextBlock myTip = new TextBlock { Text = onHoverMessage };
@@ -211,7 +212,7 @@ namespace SevenDaysToDieModCreator.Extensions
         {
             if (name != null) comboBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
-            foreach (T nextString in listToUse)
+            foreach (var nextString in listToUse.OrderBy(i => i)) 
             {
                 allItems.Add(nextString.ToString());
             }
@@ -232,7 +233,7 @@ namespace SevenDaysToDieModCreator.Extensions
             newBox.IsEditable = true;
             if (name != null) newBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
-            foreach (T nextString in listToUse)
+            foreach (var nextString in listToUse.OrderBy(i => i))
             {
                 allItems.Add(nextString.ToString());
             }
