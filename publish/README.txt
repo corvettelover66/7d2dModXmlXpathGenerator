@@ -80,11 +80,14 @@ Add the ability to target specfic xml in a mod tree view.
 Change property tags to use common attributes for the name and not the tag name.
 Add the ability to open game files in direct edit.
 Add a view to add the mod info.xml file.
-Fix resolution when windowed. Finish tweaking center view UI to handle Multiple resolutions better
+Fix resolution when windowed. Finish tweaking center view UI to handle Multiple resolutions better.
 
 Version History
 1.5.6
- - Made removing an item in the object view more usable. Now users can remove specific tags, rather than the whole object. 
+ - Collapsing parent was only collapsing the top most tree. Now it collapses just the immediate parent.
+ - Reduced search box threshold to 15, now any treeview with 15 or more children will have a search box.
+ - Made all combo boxes sorted in abc order. Now it should be much easier to find things.
+ - Made removing an item in the new object view more usable. Now users can remove specific tags, rather than the whole object. 
 	- Clicking remove on an object that is the last one in the tree will try to remove the top tree. A warning is displayed and users chooses.
  - Memory optimization done right.
 	- Added optimization by reducing new ToolTips. Now the app reuses tooltips when they are the same.
