@@ -26,7 +26,6 @@ namespace SevenDaysToDieModCreator.Models
         private void LoadFile(string path)
         {
             xmlDocument = new XmlDocument();
-            xmlDocument.PreserveWhitespace = true;
             try
             {
                 xmlDocument.Load(path);
