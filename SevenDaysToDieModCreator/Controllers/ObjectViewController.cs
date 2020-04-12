@@ -212,7 +212,6 @@ namespace SevenDaysToDieModCreator.Controllers
             if(contextMenu.Tag is TreeViewItem myObjectControl)
             {
                 this.SearchTreeFormViewPanel.Children.Remove(myObjectControl);
-                GC.Collect();
             }
         }
         private ContextMenu xmlNodeContextMenu;

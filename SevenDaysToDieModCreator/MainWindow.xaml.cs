@@ -365,7 +365,6 @@ namespace SevenDaysToDieModCreator
             {
                 case MessageBoxResult.OK:
                     this.ResetNewObjectView();
-                    GC.Collect();
                     break;
             }
         }
@@ -376,7 +375,6 @@ namespace SevenDaysToDieModCreator
             {
                 case MessageBoxResult.OK:
                     SearchTreeFormsPanel.Children.Clear();
-                    GC.Collect();
                     break;
             }
         }

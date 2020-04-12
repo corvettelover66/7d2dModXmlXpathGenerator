@@ -184,19 +184,11 @@ namespace SevenDaysToDieModCreator.Extensions
             }
             return didAdd;
         }
-        public static List<string> GetValueAndAddIfNotExist(this Dictionary<string, List<string>> dictionaryToCheck, string value)
-        {
-            List<string> nextList = dictionaryToCheck.GetValueOrDefault(value);
-            if (nextList == null)
-            {
-                nextList = new List<string>();
-                nextList.Add("");
-                dictionaryToCheck.Add(value, nextList);
-            }
-            return nextList;
-        }
+        //Dictionary used to store any tooltips that have been created to reuse objects to save used memory.
+        //Key the tooltip message
+        //Value the existing tooltip for the message.
         private static Dictionary<string, ToolTip> addedToolTips = new Dictionary<string, ToolTip>();
-        //Adds a hover message to a button
+        //Adds a hover message to an object control
         public static bool AddToolTip(this Control controlObject, string onHoverMessage, int fontSize = 0, SolidColorBrush forgroundColor = null)
         {
             bool isHoverMessageAdded = true;

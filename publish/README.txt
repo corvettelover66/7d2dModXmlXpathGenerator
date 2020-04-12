@@ -1,4 +1,4 @@
-Project Title
+PrProject Title
 7 Days To Die Mod Creator
 
 About Me
@@ -8,6 +8,12 @@ please don't hesitate to drop us a donation. And know, we really appreciate it!
 
 Good Luck with you mods and please don't forget to leave an endorsement if you like the app!
 Also, if you use this to create other mods Leave a link to my mod so other people can find it too.
+
+Useful Tips
+The app provides many useful tips to aid the user. 
+
+It is useful to know all menu commands can be executed by following the alt command. To see what is available press and hold alt, then press the key of the letter underlined.
+For example to easily save all files press alt-f, alt-s.
 
 Description
 An xml object creation app that allows full xml Xpath capabilities. Designed as a mod editor for 7 days to die, however any
@@ -36,7 +42,7 @@ and/or
 - When the generated xml looks good click "Save ALL XMLs"
 - If Auto Move is on the files will be instantly copied to the chosen directory.
 - If this is the correct Game Folder "Mods" then the mod should be ready to use in game.
-- You may need to add a "ModInfo.xml" file to GameDirectory/7 Days To Die/Mods/{ModName or CustomTagName}/ with your mod information
+- You need to add a "ModInfo.xml" file to GameDirectory/7 Days To Die/Mods/{ModName or CustomTagName}/ with your mod information
 contained within that looks something like:
 <xml>
 	<ModInfo>
@@ -65,18 +71,57 @@ The more descriptive and informative you can be the better.
 
 Authors
 @Wrathmaniac or @ThatJonesyGuy
+
 TODO
+Add a setting to change the search box threshold
+Change the way settings are displayed potentially so adding settings becomes easier.
+Finish load Mods Directory Menu Item for loading all mods in the game directory. 
+Finish tweaking center view UI to handle Multiple resolutions better
+Add the ability to target specfic xml in a mod tree view.
+Change property tags to use common attributes for the name and not the tag name.
+Add the ability to open game files in direct edit.
+Add a view to add the mod info.xml file.
 
 
 Version History
 1.5.6
  - Made removing an item in the object view more usable. Now users can remove specific tags, rather than the whole object. 
-	- Clicking remove on an object that is the last one in the tree will try to reove the top tree. A warning is displayed and users choose.
- - Working on memory optimization.
+	- Clicking remove on an object that is the last one in the tree will try to remove the top tree. A warning is displayed and users choose.
+ - Memory optimization done right.
 	- Added optimization by reducing new ToolTips. Now the app reuses tooltips when they are the same.
+	- Added optimazation on the CotextMenu used in the search view. This reduces used memory and load times by 60%!
+		After profiling the app I determined the MenuItems in ContextMenus were using a considerable amount of memory.
+		The search trees used two seperate ContextMenus that were generated and recreated for every treeview.
+		This was terribly inefficent on memory, after making some small edits to reuse a ContextMenu when possible, a search views memory was reduced by 60%, which in turn reduces loading times considerably.
+		En example is the items.xml file, version 1.5.5 memory usage was 2.8 gb (Yes, Giga bytes). Version 1.5.6 is 900mb. 
+		As my old proffessor use to say don't worry about memory until it is a problem. I did not anticipate a Context menu to use so much.
+ - Removed calls to Garbage collector. After significant research the calls were unnecessary. 
+	These calls were cleaning up memory faster without a noticable performance impact, however, all of the documentation
+	recommends against this. The memory should be cleaned up automatically by c#.
+1.5.5
+ - Fixed issues in generated XML for Xpath commands. I have tested every xpath command and the generated XML is very accurate, I'm hoping perfect!
+ - Fixed a bug with the Help menu item, it was returning invalid file contents when the file didn't exist.
+ - Fixed quick commands for Menu items, the File menu was not working with quick commands.
+ - Fixed direct edit view Menu. It was off when side by side.
+ - Fixed Direct Edit windows close when main app closes.
+1.5.4 
+ - Fixed bug in ui where the mod files combo box in the center view would not show correcty on startup.
+ - Fixed bug with saving the xml, a newline was continually added at the last tag to the xml pushing the last tag further away.
+ - Fixed bug where empty files were being generated.
+ - Fixed bug where saving files would add content from other files to a Xui file due to the folder nesting. 
+ - Fixed bug with any one liner xpath actions, before the inner text and contents where generated with new lines. Now the app generates the xml like the game expects.
+ - Fixed issue with the setattribute command. Before it would generate the xml incorrectly and put a closing quote(") in the wrong place.
+ - Fixed default Help message
+ - Fixed issues in the generated xml, with appends and inserts before and after on attributes were not one liners.
+ - Added shortcuts for every Menu in the app. Just press alt and the letter that is underlined is the next key to press. For example alt-f,alt-s will save all files. 
+ - Changed the way DirectEditing works. Now direct edit windows can be open without locking the app.
+ - This comes with many new features to handle direct edits. 
+ - In the direct edit view users can reload the file from disk.
+ - The file can also be validated directly in the view for Xml issues.
+ - Added a context menu, remove tree, to the search trees.
+ - Added in line numbers to the Xml Views. This is a setting on the object.
 1.5.3
-Removed the Memory optimization as I was seeing crashes with large xml files. 
-
+- Removed the Memory optimization as I was seeing crashes with large xml files. 
 1.5.2
 - Fixed another bug in xml generation. AppendBefore and appendAfter were missing a closing tag.
 - Fixed a small bug after editing/changing a Mod name the search tree combo box was not updated.
