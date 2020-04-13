@@ -9,12 +9,12 @@
         Title="MainWindow" Height="{Binding SystemParameters.PrimaryScreenHeight}" Width="{Binding SystemParameters.PrimaryScreenHeight}">
     <Grid Name="MainGrid">
         <Grid.RowDefinitions>
-            <RowDefinition MaxHeight="45"></RowDefinition>
-            <RowDefinition ></RowDefinition>
+            <RowDefinition MaxHeight="26"></RowDefinition>
+            <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" VerticalAlignment="Top">
             <DockPanel>
-                <Menu DockPanel.Dock="Top" FontSize="20">
+                <Menu DockPanel.Dock="Top" FontSize="16">
                     <MenuItem Header="_File">
                         <MenuItem Header="_Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
                         <MenuItem Header="Load _Mod" Name="LoadModDirectoryMenuItem" Click="LoadModDirectoryMenuItem_Click"/>
@@ -34,7 +34,7 @@
                 </Menu>
             </DockPanel>
         </Grid>
-        <Grid Grid.Row="1"  VerticalAlignment="Top" >
+        <Grid Grid.Row="1" Height="Auto" VerticalAlignment="Top" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="350*" />
                 <ColumnDefinition Width="5" />
@@ -45,21 +45,21 @@
             <Grid Grid.Column="0">
                 <Grid >
                     <Grid.RowDefinitions>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" >
-                        <StackPanel Name="MainSP" VerticalAlignment="Top" >
+                    <Grid Grid.Row="0" VerticalAlignment="Top" >
+                        <StackPanel Name="MainSP">
                             <ComboBox Name="NewObjectViewLoadedFilesComboBox" FontSize="20" ></ComboBox>
                             <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
                         </StackPanel >
                     </Grid>
-                    <Grid Grid.Row="1">
+                    <Grid Grid.Row="1"  VerticalAlignment="Top">
                         <ScrollViewer Name="CreateLabelScroller" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
                         </ScrollViewer>
                     </Grid>
-                    <Grid Grid.Row="2" VerticalAlignment="Top" >
+                    <Grid Grid.Row="2" VerticalAlignment="Bottom" >
                         <StackPanel>
                             <Button x:Name="ClearAllObjectsViewButton" Click="ClearAllObjectView_Click" FontSize="18">Clear View</Button>
                         </StackPanel>
@@ -69,9 +69,9 @@
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
             <Grid Grid.Column="2" >
                 <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" >
                     <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center"/>
@@ -91,20 +91,20 @@
             <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
             <Grid Grid.Column="4">
                 <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <StackPanel >
-                        <ComboBox Name="SearchTreeLoadedFilesComboBox" FontSize="20" Height="35" >
+                        <ComboBox Name="SearchTreeLoadedFilesComboBox" FontSize="20" >
                         </ComboBox>
                         <Button x:Name="AddNewTreeViewButton" Click="AddNewSearchTreeView_Click" FontSize="18">Add Game Search Tree</Button>
                         <ComboBox Name="LoadedModsSearchViewComboBox" FontSize="20" >
                         </ComboBox>
                     </StackPanel>
                 </Grid>
-                <Grid Grid.Row="1">
+                <Grid Grid.Row="1" VerticalAlignment="Top">
                     <ScrollViewer Name="SearchObjectScrollViewer" HorizontalContentAlignment="Right" HorizontalScrollBarVisibility="Auto">
                     </ScrollViewer>
                 </Grid>

@@ -81,8 +81,11 @@ Change property tags to use common attributes for the name and not the tag name.
 Add the ability to open game files in direct edit.
 Add a view to add the mod info.xml file.
 Fix resolution when windowed. Finish tweaking center view UI to handle Multiple resolutions better.
+Add the zooming feature to the new object view as well.
 
 Version History
+1.5.6 - Res Hotfix
+ - Just a hot fix file for anyone with screen resolution issues. Changed xaml to use correct Auto and fill values, rather than hardcoded numbers. Tested with multiple resolutions.
 1.5.6
  - Collapsing parent was only collapsing the top most tree. Now it collapses just the immediate parent.
  - Reduced search box threshold to 15, now any treeview with 15 or more children will have a search box.
