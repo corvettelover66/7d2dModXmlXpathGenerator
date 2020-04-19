@@ -61,13 +61,13 @@ namespace SevenDaysToDieModCreator.Models
             string existingWrapperFileData = "";
             TreeViewItem nextChildAsTree = (TreeViewItem)parentControl;
             //We have a target type tree view
-            if (nextChildAsTree.Header.GetType() == typeof(string))
+            if (nextChildAsTree.Header.GetType() == typeof(string) && nextChildAsTree.Tag != null)
             {
                 //The header is in the form nodename:targetattributename
                 string[] treeTagSplit = nextChildAsTree.Header.ToString().Split(":");
                 xmlOut += GenerateAppendXmlForTargetObject(xmlObjectsListWrapper, nextChildAsTree, (XmlNode)nextChildAsTree.Tag, treeTagSplit[0]);
             }
-            //We have a normal object creation tree view
+            //We have a normal object creation tree view 
             else
             {
                 Button nextChildTreeButton = (Button)nextChildAsTree.Header;

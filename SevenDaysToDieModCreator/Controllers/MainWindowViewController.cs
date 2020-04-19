@@ -194,6 +194,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 MessageBox.Show(messageBoxText, caption, button, icon);
             }
         }
+
         public void LoadFilesViewControl(ComboBox SearchTreeLoadedFilesComboBox, ComboBox NewObjectViewLoadedFilesComboBox)
         {
             List<string> unloadedFiles = new List<string>();
@@ -241,15 +242,52 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             HandleFilesWithProblems(unloadedFiles);
         }
-        internal void ModifySearchViewFont(int fontChange, List<TreeViewItem> treesToSearch)
+        internal void ModifySearchViewFont(int fontChange, UIElementCollection allChildren)
         {
-            foreach (TreeViewItem nextTreeViewItem in treesToSearch)
+            foreach (Control nextControl in allChildren)
             {
-                if (fontChange < 0 && nextTreeViewItem.FontSize == 1) continue;
-                nextTreeViewItem.FontSize += fontChange;
-                if (nextTreeViewItem.Header.GetType() == typeof(MyComboBox)) (nextTreeViewItem.Header as MyComboBox).FontSize += fontChange;
-                List<TreeViewItem> children = nextTreeViewItem.GetTreeViewChildren();
-                if (children != null && children.Count > 0) ModifySearchViewFont(fontChange, children);
+                if (fontChange < 0 && nextControl.FontSize < 6) continue;
+                if (nextControl is TreeViewItem nextTreeViewItem)
+                {
+                    if (nextTreeViewItem.Header is MyComboBox myComboBox)
+                    {
+                        if (myComboBox.FontSize > 4 || fontChange > 0) myComboBox.FontSize += fontChange;
+                    }
+                    if (nextTreeViewItem.Header is Button button)
+                    {
+                        if (button.FontSize > 4 || fontChange > 0) button.FontSize += fontChange;
+                    }
+                    if (nextTreeViewItem.Header.GetType() == typeof(string))
+                    {
+                        if (nextTreeViewItem.FontSize > 4 || fontChange > 0) nextTreeViewItem.FontSize += fontChange;
+                    }
+                    if (nextTreeViewItem.HasItems) ModifySearchViewFontTreeView(fontChange, nextTreeViewItem.Items);
+                }
+                else nextControl.FontSize += fontChange;
+            }
+        }
+        private void ModifySearchViewFontTreeView(int fontChange, ItemCollection allChildren)
+        {
+            foreach (Control nextControl in allChildren)
+            {
+                if (fontChange < 0 && nextControl.FontSize < 6) continue;
+                if (nextControl is TreeViewItem nextTreeViewItem)
+                {
+                    if (nextTreeViewItem.Header is MyComboBox myComboBox) 
+                    {
+                        if(myComboBox.FontSize > 4 || fontChange > 0) myComboBox.FontSize += fontChange;
+                    }
+                    if (nextTreeViewItem.Header is Button button)
+                    {
+                        if(button.FontSize > 4 || fontChange > 0) button.FontSize += fontChange;
+                    }
+                    if (nextTreeViewItem.Header.GetType() == typeof(string))
+                    {
+                        if (nextTreeViewItem.FontSize > 4 || fontChange > 0) nextTreeViewItem.FontSize += fontChange;
+                    }
+                    if (nextTreeViewItem.HasItems) ModifySearchViewFontTreeView(fontChange, nextTreeViewItem.Items);
+                }
+                else nextControl.FontSize += fontChange;
             }
         }
         public void LoadCustomTagWrappers(string nextModTag, ComboBox currentModLoadedFilesCenterViewComboBox)

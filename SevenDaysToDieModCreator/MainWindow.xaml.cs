@@ -45,7 +45,7 @@ namespace SevenDaysToDieModCreator
             SetCustomModViewElements();
             SetEvents();
             MainWindowViewController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModFilesCenterViewComboBox, LoadedModsSearchViewComboBox);
-            if (Properties.Settings.Default.ModTagSetting.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("", "Input a new tag or select a tag from the list of existing tags");
+            if (Properties.Settings.Default.ModTagSetting.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("", "Input a new tag or select a tag from the list of existing tags", "Set Custom Tag!");
             this.LoadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting));
             this.LoadedModsCenterViewComboBox.Text = Properties.Settings.Default.ModTagSetting;
@@ -102,7 +102,7 @@ namespace SevenDaysToDieModCreator
             NewObjectFormsPanel = new MyStackPanel(this.MainWindowViewController, SearchTreeFormsPanelCache);
             this.MainWindowViewController.LeftNewObjectViewController.NewObjectFormViewPanel = NewObjectFormsPanel;
 
-            CreateLabelScroller.Content = NewObjectFormsPanel;
+            NewObjectScrollView.Content = NewObjectFormsPanel;
             SearchTreeFormsPanel = new MyStackPanel(this.MainWindowViewController, SearchTreeFormsPanelCache);
             this.MainWindowViewController.LeftNewObjectViewController.SearchTreeFormViewPanel = SearchTreeFormsPanel;
             SearchObjectScrollViewer.Content = SearchTreeFormsPanel;
@@ -112,6 +112,8 @@ namespace SevenDaysToDieModCreator
             XmlOutputBox.GotKeyboardFocus += XmlOutputBoxGotKeyboardFocus_Handler;
             XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
             SearchTreeFormsPanel.PreviewMouseWheel += SearchObjectScrollViewer_PreviewMouseWheel;
+            NewObjectFormsPanel.PreviewMouseWheel += NewObjectScrollViewer_PreviewMouseWheel;
+
             LoadedModsSearchViewComboBox.DropDownClosed += LoadedModsComboBox_DropDownClosed;
             LoadedModFilesButton.Click += LoadedModFilesButton_Click;
             CurrentModFilesCenterViewComboBox.DropDownClosed += CurrentModFilesCenterViewComboBox_DropDownClosed;
@@ -182,14 +184,31 @@ namespace SevenDaysToDieModCreator
             //User rotated forward
             if (e.Delta > 0)
             {
-                MainWindowViewController.LeftNewObjectViewController.SearchTreeFontChange += 1;
-                MainWindowViewController.ModifySearchViewFont(1, myStackPanel.GetTreeViewChildren());
+                MainWindowViewController.LeftNewObjectViewController.IncreaseSearchTreeFontChange();
+                MainWindowViewController.ModifySearchViewFont(1, myStackPanel.Children);
             }
             //User rotated backwards
             else if (e.Delta < 0)
             {
-                MainWindowViewController.LeftNewObjectViewController.SearchTreeFontChange -= 1;
-                MainWindowViewController.ModifySearchViewFont(-1, myStackPanel.GetTreeViewChildren());
+                MainWindowViewController.LeftNewObjectViewController.DecreaseSearchTreeFontChange() ;
+                MainWindowViewController.ModifySearchViewFont(-1, myStackPanel.Children);
+            }
+        }
+        private void NewObjectScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (Keyboard.Modifiers != ModifierKeys.Control) return;
+            MyStackPanel myStackPanel = sender as MyStackPanel;
+            //User rotated forward
+            if (e.Delta > 0)
+            {
+                MainWindowViewController.LeftNewObjectViewController.IncreaseObjectTreeFontChange();
+                MainWindowViewController.ModifySearchViewFont(1, myStackPanel.Children);
+            }
+            //User rotated backwards
+            else if (e.Delta < 0)
+            {
+                MainWindowViewController.LeftNewObjectViewController.DereasecObjectTreeFontChange();
+                MainWindowViewController.ModifySearchViewFont(-1, myStackPanel.Children);
             }
         }
         private void CurrentModFilesCenterViewComboBox_DropDownClosed(object sender, EventArgs e)
@@ -378,9 +397,9 @@ namespace SevenDaysToDieModCreator
                     break;
             }
         }
-        private void CustomTagDialogPopUp(string dialogText, string toolTipMessage, bool isModNameEdit = false)
+        private void CustomTagDialogPopUp(string dialogText, string toolTipMessage, string windowTitle, bool isModNameEdit = false)
         {
-            var dialog = new CustomDialogBox(true, dialogText, toolTipMessage);
+            var dialog = new CustomDialogBox(true, dialogText, toolTipMessage, windowTitle);
 
             if (dialog.ShowDialog() == true)
             {
@@ -487,7 +506,8 @@ namespace SevenDaysToDieModCreator
                 "You can change this folder directly or use the \"Edit Tag/Mod Name\" menu item to change the name.\n" +
                 " If you want to start a new mod create a new tag, or select an existing tag to continue work on those mod files.\n\n" +
                 "Your current tag is: " + Properties.Settings.Default.ModTagSetting,
-                "Input a new tag or select a tag from the list of existing tags");
+                "Input a new tag or select a tag from the list of existing tags", 
+                "Create/Switch Custom Tag");
         }
         private void ChangeAutoMoveMenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -537,7 +557,9 @@ namespace SevenDaysToDieModCreator
         private void EditTagNameMenuItem_Click(object sender, RoutedEventArgs e)
         {
             CustomTagDialogPopUp("Please input a new name for the tag.\n\n" +
-                "Your current tag to change is: " + Properties.Settings.Default.ModTagSetting, "Add your new tag name here", true);
+                "Your current tag to change is: " + Properties.Settings.Default.ModTagSetting, 
+                "Add your new tag name here", 
+                "Create New Tag",true);
         }
         //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
         //{

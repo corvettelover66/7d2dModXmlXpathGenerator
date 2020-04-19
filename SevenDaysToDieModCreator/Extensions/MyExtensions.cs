@@ -85,7 +85,7 @@ namespace SevenDaysToDieModCreator.Extensions
         public static XmlAttribute GetAvailableAttribute(this XmlNode nextObjectNode)
         {
             XmlAttribute valueToReturn = null;
-            if (nextObjectNode.Attributes != null)
+            if (nextObjectNode != null && nextObjectNode.Attributes != null)
             {
                 XmlAttribute attributeToUse = null;
                 foreach (XmlAttribute nextAttribute in nextObjectNode.Attributes)

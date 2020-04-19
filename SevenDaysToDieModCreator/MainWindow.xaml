@@ -56,7 +56,7 @@
                         </StackPanel >
                     </Grid>
                     <Grid Grid.Row="1"  VerticalAlignment="Top">
-                        <ScrollViewer Name="CreateLabelScroller" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
+                        <ScrollViewer Name="NewObjectScrollView" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
                         </ScrollViewer>
                     </Grid>
                     <Grid Grid.Row="2" VerticalAlignment="Bottom" >

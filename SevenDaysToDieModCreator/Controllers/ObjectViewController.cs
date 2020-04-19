@@ -16,7 +16,32 @@ namespace SevenDaysToDieModCreator.Controllers
         private const int OBJECT_VIEW_FONT_SIZE = 20;
         public const int SEARCH_VIEW_FONT_SIZE = 17;
 
-        public int SearchTreeFontChange { get; set; }
+        public int SearchTreeFontChange { get; private set; }
+        public void IncreaseSearchTreeFontChange() 
+        {
+            int newFontChange = SearchTreeFontChange + 1;
+            //If the change keeps the font above 0 it's fine otherwise just keep it the same.
+            this.SearchTreeFontChange = (SEARCH_VIEW_FONT_SIZE + newFontChange) > 0 ? newFontChange : this.SearchTreeFontChange;
+        }
+        public void DecreaseSearchTreeFontChange()
+        {
+            int newFontChange = SearchTreeFontChange - 1;
+            //If the change keeps the font above 0 it's fine otherwise just keep it the same.
+            this.SearchTreeFontChange = (SEARCH_VIEW_FONT_SIZE + newFontChange) > 0 ? newFontChange : this.SearchTreeFontChange;
+        }
+        public int ObjectTreeFontChange { get; private set; }
+        public void IncreaseObjectTreeFontChange()
+        {
+            int newFontChange = ObjectTreeFontChange + 1;
+            //If the change keeps the font above 0 it's fine otherwise just keep it the same.
+            this.ObjectTreeFontChange = (OBJECT_VIEW_FONT_SIZE + newFontChange) > 0 ? newFontChange : this.ObjectTreeFontChange;
+        }
+        public void DereasecObjectTreeFontChange()
+        {
+            int newFontChange = ObjectTreeFontChange - 1;
+            //If the change keeps the font above 0 it's fine otherwise just keep it the same.
+            this.ObjectTreeFontChange = (OBJECT_VIEW_FONT_SIZE + newFontChange) > 0 ? newFontChange : this.ObjectTreeFontChange;
+        }
         private ContextMenu XmlNodeContextMenu { get; set; }
         private ContextMenu XmlAttributeContextMenu { get; set; }
         public int SEARCH_VIEW_SEARCH_BOX_CREATION_THRESHOLD { get; private set; } = 15;
@@ -57,7 +82,7 @@ namespace SevenDaysToDieModCreator.Controllers
             Label topTreeLabel = new Label
             {
                 Content = xmlObjectListWrapper.TopTagName,
-                FontSize = OBJECT_VIEW_FONT_SIZE,
+                FontSize = OBJECT_VIEW_FONT_SIZE + 6 + ObjectTreeFontChange,
                 Uid = wrapperKey,
                 Foreground = Brushes.Purple
             };
@@ -76,7 +101,7 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             TreeViewItem newObjectFormTree = new TreeViewItem
             {
-                FontSize = OBJECT_VIEW_FONT_SIZE,
+                FontSize = OBJECT_VIEW_FONT_SIZE + 6 + ObjectTreeFontChange,
                 IsExpanded = true
             };
             newObjectFormTree.AddToolTip("Here you can create new " + tagName + " tags");
@@ -91,18 +116,17 @@ namespace SevenDaysToDieModCreator.Controllers
 
             if (topTreeView != null)
             {
-                topTreeView.FontSize = OBJECT_VIEW_FONT_SIZE;
                 topTreeView.AddToolTip("Edit form for the " + currentTagName + " object");
                 Button addNewObjectButton = new Button
                 {
                     Content = currentTagName,
                     Tag = wrapperKey,
+                    FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange,
                     Foreground = Brushes.Purple,
                     Background = Brushes.White
                 };
                 addNewObjectButton.AddToolTip("Click to add another " + currentTagName + " object");
                 addNewObjectButton.Click += AddNewObjectButton_Click;
-                addNewObjectButton.Width = 250;
                 topTreeView.Header = addNewObjectButton;
             }
             SetNextNewObjectFormChildren(xmlObjectListWrapper, wrapperKey, topTreeView, currentTagName, childrenDictionary);
@@ -142,13 +166,14 @@ namespace SevenDaysToDieModCreator.Controllers
                 Label newLabel = new Label()
                 {
                     Content = nextAttribute,
+                    FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange,
                     Foreground = Brushes.Red
                 };
                 newAttributesViewItem.Items.Add(newLabel);
 
                 List<string> attributeCommon = xmlObjectListWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(currentTagName).GetValueOrDefault(nextAttribute);
                 ComboBox newAttributesComboBox = attributeCommon != null ? attributeCommon.CreateComboBoxList(forgroundColor: Brushes.Blue) : null;
-                newAttributesComboBox.Width = 300;
+                newAttributesComboBox.FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange;
                 newAttributesComboBox.DropDownClosed += NewAttributesComboBox_DropDownClosed;
                 newAttributesComboBox.LostFocus += NewAttributesComboBox_LostFocus;
                 newAttributesComboBox.Tag = nextAttribute;
@@ -335,7 +360,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
                 else
                 {
-                    newObjectFormTree = new TreeViewItem { FontSize = OBJECT_VIEW_FONT_SIZE };
+                    newObjectFormTree = new TreeViewItem { FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange };
                     XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
                     string attributeValue = avalailableAttribute == null ? "" : ": " + avalailableAttribute.Name + "=" + avalailableAttribute.Value;
                     newObjectFormTree.Header = xmlNode.Name + attributeValue + " (" + xPathAction + ") ";
@@ -356,28 +381,28 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             TreeViewItem newObjectFormTree = new TreeViewItem
             {
-                FontSize = OBJECT_VIEW_FONT_SIZE,
+                FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange,
                 //          Node Name           Attribute targeted            Xpath action              
                 Header = xmlNode.Name + ": " + xmlAttributeName + "=" + xmlAttributeValue + " (" + senderAsMenuItem.Name + ") "
             };
             if (senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE))
             {
-                TextBox attributeNameBox = new TextBox { Text = "NewName", FontSize = OBJECT_VIEW_FONT_SIZE, Width = 250 };
+                TextBox attributeNameBox = new TextBox { Text = "NewName", FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange, Width = 250 };
                 attributeNameBox.LostFocus += NewAttributesComboBox_LostFocus;
                 attributeNameBox.AddToolTip("Type the new attribute name here.");
                 TreeViewItem newAttributeTreeView = new TreeViewItem
                 {
-                    FontSize = OBJECT_VIEW_FONT_SIZE,
+                    FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange,
                     Header = attributeNameBox,
                     Name = XmlXpathGenerator.ATTRIBUTE_NAME
                 };
                 newObjectFormTree.Items.Add(newAttributeTreeView);
-                TextBox attributeValueBox = new TextBox { Text = "NewValue", FontSize = OBJECT_VIEW_FONT_SIZE, Width = 250 };
+                TextBox attributeValueBox = new TextBox { Text = "NewValue", FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange, Width = 250 };
                 attributeValueBox.LostFocus += NewAttributesComboBox_LostFocus;
                 attributeValueBox.AddToolTip("Type the new attribute value here.");
                 TreeViewItem newAttributeValueTreeView = new TreeViewItem
                 {
-                    FontSize = OBJECT_VIEW_FONT_SIZE,
+                    FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange,
                     Header = attributeValueBox,
                     Name = XmlXpathGenerator.ATTRIBUTE_VALUE
 
@@ -397,7 +422,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     newAttributesComboBox.AddToolTip("Here you can set the value of the " + xmlAttributeName + " for the " + xmlNode.Name);
                     TreeViewItem headerTreeView = new TreeViewItem
                     {
-                        FontSize = OBJECT_VIEW_FONT_SIZE,
+                        FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange,
                         Header = newAttributesComboBox,
                         Name = XmlXpathGenerator.ATTRIBUTE_VALUE
                     };
@@ -427,7 +452,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 };
                 TreeViewItem innerTextTreeView = new TreeViewItem
                 {
-                    FontSize = SEARCH_VIEW_FONT_SIZE + SearchTreeFontChange - 2,
+                    FontSize = SEARCH_VIEW_FONT_SIZE + SearchTreeFontChange,
                     Header = nextObjectNode.InnerText.Trim()
                 };
                 outerTextTreeView.Items.Add(innerTextTreeView);
@@ -571,7 +596,7 @@ namespace SevenDaysToDieModCreator.Controllers
             {
                 //Remove the last newline
                 stringBuilder.Remove(stringBuilder.Length - 2, 2);
-                nextObjectTreeViewItem.AddToolTip(stringBuilder.ToString(), SEARCH_VIEW_FONT_SIZE + SearchTreeFontChange - 3, Brushes.Blue);
+                nextObjectTreeViewItem.AddToolTip(stringBuilder.ToString(), SEARCH_VIEW_FONT_SIZE + SearchTreeFontChange, Brushes.Blue);
             }
         }
         private void NewObjectTreeAttributeCombo_MouseDown(object sender, RoutedEventArgs e)
