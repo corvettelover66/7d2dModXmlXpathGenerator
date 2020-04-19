@@ -13,9 +13,10 @@ namespace SevenDaysToDieModCreator.Views
     public partial class CustomDialogBox : Window
     {
         private ComboBox AllTagsComboBox = new ComboBox();
-        public CustomDialogBox(bool doLoadModPath, string textBoxBody = "", string toolTipMessage = "")
+        public CustomDialogBox(bool doLoadModPath, string textBoxBody = "", string toolTipMessage = "", string windowTitle = "")
         {
             InitializeComponent();
+            this.Title = windowTitle ?? "";
             string defaultText = "Thank you for downloading the 7 days to die Mod Creator! " +
                 "Please input your custom tag now! You can think of this as the Mod Name.\n\n" +
                 "It is worth noting that the current tag will generate a tag specific folder in the output location.\n" +

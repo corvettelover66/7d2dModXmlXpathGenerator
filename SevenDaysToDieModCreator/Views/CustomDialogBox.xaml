@@ -3,14 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SevenDaysToDieModCreator.Views"
-        Height="399" Width="704" ResizeMode="NoResize">
-    <Grid>
-        <StackPanel Name="CustomDialogPanel" VerticalAlignment="Center" Height="333">
-            <ScrollViewer VerticalAlignment="Top">
-                <TextBlock FontFamily="Arial" FontSize="15" TextWrapping="Wrap" Name="LabelTextBlock"/>
-            </ScrollViewer>
-            <Button Name="OkButton" FontFamily="Arial" Content="OK" Click="OKButton_Click" />
-        </StackPanel>
-    </Grid>
+        xmlns:local="clr-namespace:SevenDaysToDieModCreator.Views">
+    <StackPanel Name="CustomDialogPanel" VerticalAlignment="Center">
+        <ScrollViewer VerticalAlignment="Top">
+            <TextBlock FontFamily="Arial" FontSize="15" TextWrapping="Wrap" Name="LabelTextBlock"/>
+        </ScrollViewer>
+        <Button Name="OkButton" FontFamily="Arial" Content="OK" Click="OKButton_Click" />
+    </StackPanel>
 </Window>
