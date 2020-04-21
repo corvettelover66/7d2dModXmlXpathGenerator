@@ -9,5 +9,6 @@
         public static string ITEM_TAG_NAME = "item";
         public static string PROGRESSION_TAG_NAME = "progression";
 
+        public static string DUPLICATE_CONTEXT_MENU = "duplicate";
     }
 }

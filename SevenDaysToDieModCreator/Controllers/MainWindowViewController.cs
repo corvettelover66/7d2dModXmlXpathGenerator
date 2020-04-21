@@ -23,7 +23,7 @@ namespace SevenDaysToDieModCreator.Controllers
         public MainWindowViewController(ICSharpCode.AvalonEdit.TextEditor xmlOutputBox)
         {
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
-            this.LeftNewObjectViewController = new ObjectViewController(xmlOutputBox);
+            this.LeftNewObjectViewController = new ObjectViewController(xmlOutputBox, this.LoadedListWrappers);
         }
         public void AddSearchTree(MyStackPanel searchTreeFormsPanel, ComboBox SearchTreeLoadedFilesComboBox, bool doAddContextMenu = true)
         {
@@ -121,7 +121,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 string currentModName = Path.GetFileName(openFileDialog.FileName);
                 bool hasXmlFiles = XmlFileManager.CheckLoadedModFolderForXmlFiles(fullSelectedPath);
 
-                if (hasXmlFiles)
+                if (hasXmlFiles && !fullSelectedPath.ToLower().Contains("config"))
                 {
                     Properties.Settings.Default.ModTagSetting = currentModName;
                     Properties.Settings.Default.Save();
@@ -132,7 +132,15 @@ namespace SevenDaysToDieModCreator.Controllers
                     loadedModsSearchViewComboBox.AddUniqueValueTo(currentModName);
                     LoadCustomTagWrappers(currentModName, currentModFilesCenterViewComboBox);
                 }
-                else
+                else if (fullSelectedPath.ToLower().Contains("config"))
+                {
+                    MessageBox.Show(
+                        "The was an error loading the mod at " + openFileDialog.FileName + ". If you selected the Config folder, please try again and select the ModFolder",
+                        "Error Loading Directory",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+                else 
                 {
                     MessageBox.Show(
                         "The was an error loading the mod at " + openFileDialog.FileName + ". There was no xml found in the Config folder of the mod. Please check the folder for xml files.",
@@ -194,7 +202,6 @@ namespace SevenDaysToDieModCreator.Controllers
                 MessageBox.Show(messageBoxText, caption, button, icon);
             }
         }
-
         public void LoadFilesViewControl(ComboBox SearchTreeLoadedFilesComboBox, ComboBox NewObjectViewLoadedFilesComboBox)
         {
             List<string> unloadedFiles = new List<string>();

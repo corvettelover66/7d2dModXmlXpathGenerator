@@ -73,7 +73,7 @@ namespace SevenDaysToDieModCreator.Models
                 Button nextChildTreeButton = (Button)nextChildAsTree.Header;
                 foreach (string nodeName in xmlObjectsListWrapper.allTopLevelTags)
                 {
-                    if (nextChildTreeButton.Content.ToString().Equals(nodeName))
+                    if (nextChildTreeButton.Content.ToString().Split(":")[0].Equals(nodeName))
                     {
                         xmlOut += GenerateAppendXmlForObject(xmlObjectsListWrapper, nextChildAsTree, nodeName);
                     }
@@ -184,7 +184,7 @@ namespace SevenDaysToDieModCreator.Models
             if (nextTreeItem.Name.Equals(ATTRIBUTE_NAME)) return "";
 
             //If the target node is null use the treeitem header 
-            string targetNodeContent = targetNode ?? ((Button)nextTreeItem.Header).Content.ToString();
+            string targetNodeContent = targetNode ?? ((Button)nextTreeItem.Header).Content.ToString().Split(":")[0];
 
             bool didAddAttributes = AddTagWithAttributes(nextTreeItem, ref xmlOut, targetNodeContent);
             if (didAddAttributes) xmlOut = tabs + xmlOut;
@@ -228,7 +228,7 @@ namespace SevenDaysToDieModCreator.Models
                 if (nextControl.GetType() == typeof(ComboBox))
                 {
                     ComboBox nextControlAsBox = (ComboBox)nextControl;
-                    if (nextControlAsBox.Text.Length > 0)
+                    if (nextControlAsBox.Text.Trim().Length > 0)
                     {
                         hasFoundItem = true;
                         if (!didWriteStart) xmlOut += "<" + headerContent;

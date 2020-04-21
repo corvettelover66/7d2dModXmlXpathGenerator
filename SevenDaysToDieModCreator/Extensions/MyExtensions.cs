@@ -13,21 +13,6 @@ namespace SevenDaysToDieModCreator.Extensions
 {
     static class MyExtensions
     {
-        public static List<TreeViewItem> GetTreeViewChildren(this StackPanel parent)
-        {
-            List<TreeViewItem> children = new List<TreeViewItem>();
-
-            if (parent != null)
-            {
-                foreach (var item in parent.Children)
-                {
-                    TreeViewItem child = item as TreeViewItem;
-                    if (child != null) children.Add(child);
-                }
-            }
-
-            return children;
-        }
         public static List<TreeViewItem> GetTreeViewChildren(this ItemsControl parent)
         {
             List<TreeViewItem> children = new List<TreeViewItem>();
@@ -48,6 +33,24 @@ namespace SevenDaysToDieModCreator.Extensions
 
             return children;
         }
+        public static void CopyComboBoxesTreeView(this TreeViewItem treeViewToCopy, TreeViewItem treeViewToCopyInto) 
+        {
+            if (treeViewToCopyInto == null) return;
+            int count = 0;
+            foreach (Control control in treeViewToCopy.Items) 
+            {
+                if (control is ComboBox treeViewToCopyBox) 
+                {
+                    if (treeViewToCopyInto.Items.Count  > 0 && treeViewToCopyInto.Items[count] is ComboBox treeViewToCopyIntoBox) 
+                        treeViewToCopyIntoBox.Text = treeViewToCopyBox.Text;
+                }
+                if (control is TreeViewItem innerView) 
+                {
+                    if (treeViewToCopyInto.Items.Count > 0) innerView.CopyComboBoxesTreeView(treeViewToCopyInto.Items[count] as TreeViewItem);
+                }
+                count++;
+            }
+        }
         public static int GetValidChildrenCount(this XmlNode xmlNode)
         {
             int count = 0;
@@ -56,6 +59,19 @@ namespace SevenDaysToDieModCreator.Extensions
                 if (!child.Name.Contains("#")) count++;
             }
             return count;
+        }
+        public static XmlAttribute GetAttributeByName(this XmlNode xmlNode, string attributeName)
+        {
+            XmlAttribute attributeToReturn = null;
+            foreach (XmlAttribute nextAttribute in xmlNode.Attributes)
+            {
+                if (nextAttribute.Name.Equals(attributeName)) 
+                {
+                    attributeToReturn = nextAttribute;
+                    break;
+                }
+            }
+            return attributeToReturn;
         }
         public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText, string onHoverMessageText = "", string xpathAction = "")
         {
@@ -82,6 +98,20 @@ namespace SevenDaysToDieModCreator.Extensions
             }
             return allCommonAttributes;
         }
+        public static XmlNode GetChildNodeByName(this XmlNode nextObjectNode, string name)
+        {
+            XmlNode nodeToReturn = null;
+            foreach (XmlNode nextNode in nextObjectNode.ChildNodes)
+            {
+                if (nextNode.Name.Equals(name)) 
+                {
+                    nodeToReturn = nextNode;
+                    break;
+                }
+            }
+            return nodeToReturn;
+        }
+        //GetChildNodeByName
         public static XmlAttribute GetAvailableAttribute(this XmlNode nextObjectNode)
         {
             XmlAttribute valueToReturn = null;
@@ -104,20 +134,6 @@ namespace SevenDaysToDieModCreator.Extensions
                 }
             }
             return valueToReturn;
-        }
-        public static Queue<TreeViewItem> getChildTreeViewQueue(this TreeViewItem nextTreeItem, string childName)
-        {
-            Queue<TreeViewItem> allTreeViews = new Queue<TreeViewItem>();
-            foreach (Control nextControl in nextTreeItem.Items)
-            {
-                if (nextControl.GetType() == typeof(TreeViewItem))
-                {
-                    TreeViewItem treeViewToReturn = (TreeViewItem)nextControl;
-                    Button nextTreeItemHeader = (Button)treeViewToReturn.Header;
-                    if (nextTreeItemHeader != null && nextTreeItemHeader.Content + "" == childName) allTreeViews.Enqueue(treeViewToReturn);
-                }
-            }
-            return allTreeViews;
         }
         //Adds the XMLAttribute value to the used dictionary, while ensuring uniquness of the key and value
         public static void AddUniqueAttributeValueToMap(this Dictionary<string, List<string>> objectAttributesMap, XmlAttribute nextAttribute)
@@ -212,6 +228,7 @@ namespace SevenDaysToDieModCreator.Extensions
         {
             if (name != null) comboBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
+            allItems.Add("              ");
             foreach (var nextString in listToUse.OrderBy(i => i)) 
             {
                 allItems.Add(nextString.ToString());
@@ -225,6 +242,7 @@ namespace SevenDaysToDieModCreator.Extensions
             if (forgroundColor != null) newBox.Foreground = forgroundColor;
             newBox.IsEditable = true;
             newBox.SetComboBox(listToUse, name);
+            newBox.SelectedIndex = 0;
             return newBox;
         }
         public static MyComboBox CreateMyComboBoxList<T>(this IList<T> listToUse, ObjectViewController objectViewController, bool doAddContextMenu = true, string name = null)

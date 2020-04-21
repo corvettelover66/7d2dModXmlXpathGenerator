@@ -23,6 +23,7 @@ namespace SevenDaysToDieModCreator.Models
         //Key = "Attribute name" E.G. "name or count"
         //Value = "All common values for that attribute, exclusive to the Object Tag"
         public Dictionary<string, Dictionary<string, List<string>>> objectNameToAttributeValuesMap { get; private set; }
+
         //A dictionary of any Tag name to all children tag names
         //Key = "Tag Name" E.G. "recipe or ingredient"
         //Value = "List of all child tag names"
