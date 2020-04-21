@@ -80,9 +80,9 @@ Add the ability to target specfic xml in a mod tree view.
 Change property tags to use common attributes for the name and not the tag name.
 Add the ability to open game files in direct edit.
 Add a view to add the mod info.xml file.
-Fix resolution when windowed. Finish tweaking center view UI to handle Multiple resolutions better.
-Make all popups windows use correct sizing.
-Add the zooming feature to the new object view as well.
+Finish the duplicate an object in the left new object panel feature.
+
+
 
 Version History
 1.5.8
@@ -93,7 +93,9 @@ Version History
  - Added zooming to the New Object view. Now all views can become bigger or smaller.
  - Removed width setting on New Objects Combo boxs. The width will adjust inself based on contents.
  - Cleaned up the zooming to ensure no issues with zooming to small.
- - 
+ - Added error handling if users select the config directory and not the main mod directory when adding new mods.
+ - Removed all width attributes. Now view objects' width is based on text within.
+ 
  
 1.5.7 
  - Changed xaml to use correct Auto and fill values, rather than hardcoded numbers. Tested with multiple resolutions.
