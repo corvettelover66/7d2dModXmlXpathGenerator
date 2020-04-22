@@ -68,20 +68,20 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
         }
-        public void LoadStartingDirectory(ComboBox searchTreeLoadedFilesComboBox, ComboBox newObjectViewLoadedFilesComboBox, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsSearchViewComboBox)
+        public void LoadStartingDirectory(ComboBox searchTreeLoadedFilesComboBox, ComboBox newObjectViewLoadedFilesComboBox, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsSearchViewComboBox, ComboBox CurrentGameFilesCenterViewComboBox)
         {
             Directory.CreateDirectory(XmlFileManager._LoadedFilesPath);
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Menu_Folder_Name));
             //Check normal files
             string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath);
-            LoadFilesPathWrappers(files, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox);
+            LoadFilesPathWrappers(files, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
             //Check for Xui files
             string[] xuiFiles = Directory.GetFiles(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));
-            if (xuiFiles.Length > 0) LoadFilesPathWrappers(xuiFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox);
+            if (xuiFiles.Length > 0) LoadFilesPathWrappers(xuiFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
             //Check for Xui menu files
             string[] xuiMenuFiles = Directory.GetFiles(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Menu_Folder_Name));
-            if (xuiMenuFiles.Length > 0) LoadFilesPathWrappers(xuiMenuFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox);
+            if (xuiMenuFiles.Length > 0) LoadFilesPathWrappers(xuiMenuFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
 
             List<string> allCustomTagDirectories = XmlFileManager.GetCustomModFoldersInOutput();
             loadedModsSearchViewComboBox.AddUniqueValueTo("");
@@ -91,7 +91,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 LoadCustomTagWrappers(nextModTag, currentModLoadedFilesCenterViewComboBox);
             }
         }
-        private void LoadFilesPathWrappers(string[] files, ComboBox searchTreeLoadedFilesComboBox, ComboBox newObjectViewLoadedFilesComboBox)
+        private void LoadFilesPathWrappers(string[] files, ComboBox searchTreeLoadedFilesComboBox, ComboBox newObjectViewLoadedFilesComboBox, ComboBox currentGameFilesCenterViewComboBox)
         {
             foreach (string file in files)
             {
@@ -101,13 +101,12 @@ namespace SevenDaysToDieModCreator.Controllers
                     File.Copy(file, Path.Combine(XmlFileManager._LoadedFilesPath, parentPath, wrapper.xmlFile.FileName));
                 if (wrapper != null)
                 {
-                    string wrapperDictionaryKey = wrapper.xmlFile.ParentPath == null
-                        ? wrapper.xmlFile.GetFileNameWithoutExtension()
-                        : wrapper.xmlFile.ParentPath + "_" + wrapper.xmlFile.GetFileNameWithoutExtension();
+                    string wrapperDictionaryKey = wrapper.GenerateDictionaryKey();;
 
                     UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
                     searchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
                     newObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                    currentGameFilesCenterViewComboBox.AddUniqueValueTo(wrapperDictionaryKey);
                 }
             }
         }
