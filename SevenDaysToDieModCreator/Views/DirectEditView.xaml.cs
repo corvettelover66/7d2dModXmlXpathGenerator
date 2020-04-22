@@ -17,22 +17,26 @@ namespace SevenDaysToDieModCreator.Views
     {
         private XmlObjectsListWrapper Wrapper { get; set; }
         private string StartingFileContents { get; set; }
+        private string FileLocationPath { get; set; }
+        private bool IsGameFile { get; set; }
 
-        public DirectEditView(XmlObjectsListWrapper wrapperToUse, string title = null, string contentsForXmlOutputBox = null)
+
+        public DirectEditView(XmlObjectsListWrapper wrapperToUse, bool isGameFile, string title = null, string contentsForXmlOutputBox = null, string fileLocationPath = "")
         {
             InitializeComponent();
             this.Wrapper = wrapperToUse;
+            this.IsGameFile = isGameFile;
             this.SaveXmlButton.AddToolTip("Click to save all changes");
             this.ReloadFileXmlButton.AddToolTip("Click here to reload the file from disk");
             this.CloseButton.AddToolTip("Click here to close the window");
             this.ValidateXmlButton.AddToolTip("Click here to validate the xml");
-
+            this.FileLocationPath = fileLocationPath;
             if (contentsForXmlOutputBox == null)
             {
                 string parentString = Wrapper.xmlFile.ParentPath == null
                     ? ""
                     : Wrapper.xmlFile.ParentPath;
-                XmlOutputBox.Text = XmlFileManager.ReadExistingFile(Path.Combine(parentString, Wrapper.xmlFile.FileName));
+                XmlOutputBox.Text = XmlFileManager.GetFileContents(Path.Combine(this.FileLocationPath, parentString), Wrapper.xmlFile.FileName);
             }
             else XmlOutputBox.Text = contentsForXmlOutputBox;
 
@@ -43,9 +47,11 @@ namespace SevenDaysToDieModCreator.Views
             this.XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
             this.XmlOutputBox.TextChanged += XmlOutputBox_TextChanged;
 
-            string labelContents = "Mod: " + Properties.Settings.Default.ModTagSetting + "\n" +
-                "File: " + wrapperToUse.xmlFile.FileName + "\n";
+            string labelContents = isGameFile
+                ? "Game File: " + wrapperToUse.xmlFile.FileName + "\n"
+                : "Mod: " + Properties.Settings.Default.ModTagSetting + "\n" + "File: " + wrapperToUse.xmlFile.FileName + "\n";
             this.Title = wrapperToUse.xmlFile.FileName;
+
             ModNameLabel.Content = String.IsNullOrEmpty(title) ? labelContents : title;
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
@@ -103,7 +109,7 @@ namespace SevenDaysToDieModCreator.Views
                         if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(XmlFileManager._ModOutputPath, parentString), Wrapper.xmlFile.FileName, xmlOut, true);
                         break;
                     case MessageBoxResult.Cancel:
-                        DirectEditView directEditView = new DirectEditView(this.Wrapper, ModNameLabel.Content.ToString(), XmlOutputBox.Text);
+                        DirectEditView directEditView = new DirectEditView(this.Wrapper, this.IsGameFile, ModNameLabel.Content.ToString(), XmlOutputBox.Text, FileLocationPath);
                         directEditView.Show();
                         break;
                 }
@@ -144,7 +150,7 @@ namespace SevenDaysToDieModCreator.Views
             string parentString = Wrapper.xmlFile.ParentPath == null
                 ? ""
                 : Wrapper.xmlFile.ParentPath;
-            string fileContents = XmlFileManager.ReadExistingFile(Path.Combine(parentString, Wrapper.xmlFile.FileName));
+            string fileContents = XmlFileManager.GetFileContents(Path.Combine(this.FileLocationPath, parentString), Wrapper.xmlFile.FileName);
             return fileContents;
         }
         private bool IsFileChanged()
@@ -168,7 +174,7 @@ namespace SevenDaysToDieModCreator.Views
                     string parentPath = Wrapper.xmlFile.ParentPath == null ? "" : Wrapper.xmlFile.ParentPath;
                     if (!String.IsNullOrEmpty(xmlOut))
                     {
-                        XmlFileManager.WriteStringToFile(Path.Combine(XmlFileManager._ModOutputPath, parentPath), Wrapper.xmlFile.FileName, xmlOut);
+                        XmlFileManager.WriteStringToFile(Path.Combine(this.FileLocationPath, parentPath), Wrapper.xmlFile.FileName, xmlOut);
                         StartingFileContents = xmlOut;
                         this.Title = Wrapper.xmlFile.FileName;
                     }

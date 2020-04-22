@@ -74,7 +74,11 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" >
-                    <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center"/>
+                    <StackPanel VerticalAlignment="Top">
+                        <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center"/>
+                        <ComboBox Name="CurrentModFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
+                        <Button x:Name="OpenModFileDirectEditViewButton" Click="OpenDirectEditModXmlViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
+                    </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1">
                     <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
@@ -82,8 +86,8 @@
                 </Grid>
                 <Grid Grid.Row="2" VerticalAlignment="Bottom">
                     <StackPanel VerticalAlignment="Bottom">
-                        <ComboBox Name="CurrentModFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
-                        <Button x:Name="OpenDirectEditViewButton" Click="OpenDirectEditViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
+                        <ComboBox Name="CurrentGameFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
+                        <Button x:Name="OpenGameFileDirectEditViewButton" Click="OpenDirectEditGameXmlViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
                         <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>
                 </Grid>

@@ -55,7 +55,6 @@ namespace SevenDaysToDieModCreator.Controllers
         //Key top tag name i.e. recipe, progression, item
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
-        public bool DidShowModErrorMessage { get; private set; } = false;
 
         public ObjectViewController(ICSharpCode.AvalonEdit.TextEditor xmlOutputBox, Dictionary<string, XmlObjectsListWrapper> loadedListWrappers)
         {
@@ -170,7 +169,8 @@ namespace SevenDaysToDieModCreator.Controllers
             if (startingXmlTagName.Length < 1) startingXmlTagName = xmlObjectListWrapper.FirstChildTagName;
             TreeViewItem newTopTree = new TreeViewItem
             {
-                Header = startingXmlTagName
+                Header = startingXmlTagName,
+                FontSize = OBJECT_VIEW_FONT_SIZE + 6 + ObjectTreeFontChange,
             };
             return SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newTopTree, startingXmlTagName, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue(), doSkipFirstAttributes);
         }
@@ -198,7 +198,10 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         private TreeViewItem SetNextObjectTreeViewAtrributes(List<string> attributes, XmlObjectsListWrapper xmlObjectListWrapper, string currentTagName, XmlNode currentNode = null)
         {
-            TreeViewItem newAttributesViewItem = new TreeViewItem();
+            TreeViewItem newAttributesViewItem = new TreeViewItem
+            {
+                FontSize = OBJECT_VIEW_FONT_SIZE + 6 + ObjectTreeFontChange,
+            };
             foreach (string nextAttribute in attributes)
             {
                 Label newLabel = new Label()
@@ -341,19 +344,31 @@ namespace SevenDaysToDieModCreator.Controllers
                 XmlObjectsListWrapper wrapperToUse = this.LoadedListWrappers.GetValueOrDefault(mainWrapperKey);
                 if (wrapperToUse == null)
                 {
-                    MessageBox.Show("Problem loading object.");
+                    MessageBox.Show("Problem loading object!\n\nTroubleshooting:\n\n Incorrect tag right clicked." +
+                        "\nIf you are sure you clicked the correct main object tag then the other possible issue is the game xml is missing. " +
+                        "Load the appropriate game XML file for the object you are trying to edit.", 
+                        "Error Creating Object!", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Error);
                     return;
                 }
-                TreeViewItem newObjectFormTree = this.GetNewObjectFormTree(wrapperToUse, xmlNode, mainWrapperKey);
-                XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
-                //Set the uid to the wrapper so we can find the wrapper later
-                newObjectFormTree.Uid = mainWrapperKey;
-                //Set the xmlNode that was included with the object into the top tree view
-                newObjectFormTree.Tag = xmlNode;
-                newObjectFormTree.Foreground = Brushes.Purple;
-                newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
-                newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
-                NewObjectFormViewPanel.Children.Add(newObjectFormTree);
+                if (wrapperToUse.allTopLevelTags.Contains(xmlNode.Name))
+                {
+                    TreeViewItem newObjectFormTree = this.GetNewObjectFormTree(wrapperToUse, xmlNode, mainWrapperKey);
+                    XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
+                    //Set the uid to the wrapper so we can find the wrapper later
+                    newObjectFormTree.Uid = mainWrapperKey;
+                    //Set the xmlNode that was included with the object into the top tree view
+                    newObjectFormTree.Tag = xmlNode;
+                    newObjectFormTree.Foreground = Brushes.Purple;
+                    newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
+                    newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
+                    NewObjectFormViewPanel.Children.Add(newObjectFormTree);
+                }
+                else 
+                {
+                    MessageBox.Show("This action can only be done on a top level object, for example if this object were in a recipes file you would need to right click a recipe object. ");
+                }
             }
         }
         public TreeViewItem GetSearchTreeViewRecursive(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, bool addContextMenu = true)
@@ -369,7 +384,6 @@ namespace SevenDaysToDieModCreator.Controllers
             };
             topObjectsTreeView = SetSearchTreeViewNextObject(topObjectsTreeView, allObjects, wrapperKey, xmlObjectListWrapper, addContextMenu);
             //Need to reset the boolean after running to make sure the next time it is displayed if there are issues.
-            DidShowModErrorMessage = false;
             topObjectsTreeView.AddContextMenu(RemoveTreeSearchViewContextMenu_Click,
                 "Remove Object From View",
                 "Click here to remove this tree from the view.");
@@ -399,30 +413,20 @@ namespace SevenDaysToDieModCreator.Controllers
                     }
                     else 
                     {
-                        //That means that this is a mod search tree
-                        if (ModXmlNodeContextMenu == null) 
+                        XmlObjectsListWrapper standardFileWrapper = this.LoadedListWrappers.GetValueOrDefault(xmlObjectListWrapper.GenerateDictionaryKey());
+                        if (standardFileWrapper != null && standardFileWrapper.allTopLevelTags.Contains(nextObjectNode.Name))
+                            ModXmlNodeContextMenu = nextTreeView.AddContextMenu(EditObject_ContextMenuClick,
+                                "Edit Object",
+                                "Click here to add object to left panel to make edits.");
+                        else if (standardFileWrapper == null)
                         {
-                            XmlObjectsListWrapper standardFileWrapper = this.LoadedListWrappers.GetValueOrDefault(xmlObjectListWrapper.GenerateDictionaryKey());
-                            if (standardFileWrapper != null && standardFileWrapper.allTopLevelTags.Contains(nextObjectNode.Name))
-                                ModXmlNodeContextMenu = nextTreeView.AddContextMenu(EditObject_ContextMenuClick,
-                                    "Edit Object",
-                                    "Click here to add object to left panel to make edits.");
-                            else if (standardFileWrapper == null && !DidShowModErrorMessage)
-                            {
-                                MessageBox.Show(
-                                  "The application could not load the game xml file. This is probably because the file is not loaded. " +
-                                  "For the edit function to work you must load the " + xmlObjectListWrapper.xmlFile.FileName + " game XML file.",
-                                  "Game File Missing",
-                                  MessageBoxButton.OK,
-                                  MessageBoxImage.Error);
-                                DidShowModErrorMessage = true;
-                            }
-                            else 
-                            {
-                                nextTreeView.ContextMenu = null;
-                            }
+                            MessageBox.Show(
+                                "The application could not load the game xml file. This is probably because the file is not loaded. " +
+                                "For the edit function to work you must load the " + xmlObjectListWrapper.xmlFile.FileName + " game XML file.",
+                                "Game File Missing",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
                         } 
-                        else nextTreeView.ContextMenu = ModXmlNodeContextMenu;
                     }
                     topObjectsTreeView.Items.Add(nextTreeView);
                 }

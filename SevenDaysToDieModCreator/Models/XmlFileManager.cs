@@ -90,7 +90,7 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static string GetFileContents(string path, string fileName)
         {
-            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            if (!Directory.Exists(path) && !String.IsNullOrEmpty(path)) Directory.CreateDirectory(path);
             string filePath = Path.Combine(path, fileName);
             if (File.Exists(filePath)) ReadFile(filePath);
             else ReadFileContents = "";

@@ -44,10 +44,10 @@ namespace SevenDaysToDieModCreator
             SetPanels();
             SetCustomModViewElements();
             SetEvents();
-            MainWindowViewController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModFilesCenterViewComboBox, LoadedModsSearchViewComboBox);
+            MainWindowViewController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModFilesCenterViewComboBox, LoadedModsSearchViewComboBox, CurrentGameFilesCenterViewComboBox);
             if (Properties.Settings.Default.ModTagSetting.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("", "Input a new tag or select a tag from the list of existing tags", "Set Custom Tag!");
             this.LoadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
-            this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting));
+            this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
             this.LoadedModsCenterViewComboBox.Text = Properties.Settings.Default.ModTagSetting;
             SetMainWindowToolTips();
         }
@@ -67,20 +67,20 @@ namespace SevenDaysToDieModCreator
         {
             //Menu Item
             HelpMenuItem.AddToolTip("Click to see more information about the app");
-            CheckAllSettingsMenuItem.AddToolTip("Click here to see all the User Settings above");
+            CheckAllSettingsMenuItem.AddToolTip("Click here to see all the User Settings");
             AutoMoveMenuItem.AddToolTip("Click here to change the Auto Move setting");
             ChangeCustomTagMenuItem.AddToolTip("Click here to add a new custom tag/mod");
-            ChangeModGameDirectoryMenu.AddToolTip("Click here to change the output directory for the Auto Move Function");
-            MoveFileMenuItem.AddToolTip("Click here to move all mod files from the current selected mod directly to the User Set Game Directory");
+            ChangeModGameDirectoryMenu.AddToolTip("Click here to change the directory for the Auto Move Function");
+            MoveFileMenuItem.AddToolTip("Click here to move all mod files from the current selected mod directly to the User Set \"Auto Move\" Directory");
             SaveFileMenuItem.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
             LoadFileMenuItem.AddToolTip("Click to load an xml file or multiple xml files\nThis would typically be a game xml file such as recipes.xml");
-            LoadModDirectoryMenuItem.AddToolTip("Click here to load a mod directory\nThis would typically be the main mod folder with the Config directory within");
+            LoadModDirectoryMenuItem.AddToolTip("Click here to load a mod directory\nThis would typically be the main mod folder with the mod name not the Config directory within");
             ValidateXmlMenuItem.AddToolTip("Click here to validate all xml files for the selected tag/mod\nAny xml violations will be displayed");
             EditTagNameMenuItem.AddToolTip("Click here to change the name of the current tag/mod\nThis will also change the folder name in the Output/Mods/ dir");
             //LoadGameModDirectoryMenuItem.AddToolTip("Click here to load the 7 days to die \"Mods\" directory, to load all mods");
             //Buttons
             SaveXmlViewButton.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
-            OpenDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected file from the combo box above");
+            OpenModFileDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected file from the combo box above");
             AddObjectViewButton.AddToolTip("Click to add a new object creation view using the game file from above\nWARNING: This could take awhile");
             AddNewTreeViewButton.AddToolTip("Click to add a new searchable tree view using the game file from above" +
                 "\nWith this tree you can perform any xpath command on any in game object" +
@@ -92,9 +92,11 @@ namespace SevenDaysToDieModCreator
             LoadedModFilesSearchViewComboBox.AddToolTip("Mod file used to generate a search tree when clicking the button below");
             LoadedModsSearchViewComboBox.AddToolTip("Select a mod here to generate search trees for its files");
             LoadedModsCenterViewComboBox.AddToolTip("Using this combo box you can switch between loaded/created mods");
-            CurrentModFilesCenterViewComboBox.AddToolTip("The combo box to select any file from the current mod to make direct edits");
-            SearchTreeLoadedFilesComboBox.AddToolTip("The selected object here is used to create the tree view below\nAdd objects to the list by loading an xml file from the game folder");
-            NewObjectViewLoadedFilesComboBox.AddToolTip("The selected object here is used to create the new object view below\nAdd objects to the list by loading an xml file from the game folder.");
+            CurrentModFilesCenterViewComboBox.AddToolTip("Select a file here to make direct edits\nThese are the currently selected mod's files");
+            SearchTreeLoadedFilesComboBox.AddToolTip("The selected file here is used to create a search tree below\nAdd files to the list by loading an xml file from the game folder");
+            NewObjectViewLoadedFilesComboBox.AddToolTip("The selected file here is used to create the new object view below\nAdd files to the list by loading an xml file from the game folder");
+            CurrentGameFilesCenterViewComboBox.AddToolTip("");
+            OpenGameFileDirectEditViewButton.AddToolTip("");
         }
         private void SetPanels()
         {
@@ -219,17 +221,17 @@ namespace SevenDaysToDieModCreator
             {
                 XmlObjectsListWrapper xmlObjectsListWrapper = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(wrapperKey);
                 xmlObjectsListWrapper = xmlObjectsListWrapper == null
-                    ? this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(this.LoadedModsCenterViewComboBox.Text + "_" + wrapperKey)
+                    ? this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + wrapperKey)
                     : xmlObjectsListWrapper;
                 if (xmlObjectsListWrapper == null)
                 {
                     MessageBox.Show(
-                        "The was an error in the file for " + this.LoadedModsCenterViewComboBox.Text + "_" + wrapperKey + ".\n\n" +
+                        "The was an error in the file for " + Properties.Settings.Default.ModTagSetting + "_" + wrapperKey + ".\n\n" +
                         "It is probably malformed xml, to check this, switch to the mod, open the \"File\" menu and click \"Validate Mod files\".",
                         "File Loading Error!",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
-
+                    return;
                 }
                 string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
 
@@ -245,7 +247,7 @@ namespace SevenDaysToDieModCreator
                 Properties.Settings.Default.ModTagSetting = customModFile;
                 Properties.Settings.Default.Save();
 
-                this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(customModFile));
+                this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(customModFile, Properties.Settings.Default.ModTagSetting + "_"));
             }
         }
         private void XmlOutputBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
@@ -425,35 +427,66 @@ namespace SevenDaysToDieModCreator
                 }
             }
         }
-        private void OpenDirectEditViewButton_Click(object sender, RoutedEventArgs e)
+        private void OpenDirectEditModXmlViewButton_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = CurrentModFilesCenterViewComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
+            string[] objectSplit = selectedObject.Split("_");
+            string standardWrapperKey = "";
+            for (int i = 1; i < objectSplit.Length; i++) standardWrapperKey += objectSplit[i] + "_";
+            standardWrapperKey = standardWrapperKey.Substring(0, standardWrapperKey.Length - 1);
+            //Try to grab the default wrapper
+            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(standardWrapperKey);
+            //If it is null there is an issue with the game file 
+            if (selectedWrapper == null)
+            {
+                //Try to load the mod wrapper
+                selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
+                //If it is still null there is an xml issue
+                if (selectedWrapper == null) 
+                {
+                    MessageBox.Show(
+                        "The was an error opening the selected file.\n\n" +
+                        "There are a couple of possible issues:\n" +
+                        "One issue can be invalid xml for the file you are trying to open. You can validate the xml using the \"File Menu Option and fix any errors in an external editor. " +
+                        "Note, after fixing any errors in the xml be sure to run the xml validation in the file menu to refresh the loaded objects.\n\n" +
+                        "Another way to fix this issue is load the game xml file for the file you are trying to load. " +
+                        "For example, if you are trying to open the recipes xml file for a mod, load the game recipes xml file and this will work, even with invalid xml.",
+                        "File Loading Error!",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return;
+                }
+            }
+            DirectEditView directEdit = new DirectEditView(selectedWrapper, false, fileLocationPath: XmlFileManager._ModOutputPath);
+            directEdit.Show();
+        }
+        private void OpenDirectEditGameXmlViewButton_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedObject = CurrentGameFilesCenterViewComboBox.Text;
+            if (String.IsNullOrEmpty(selectedObject)) return;
             //Try to grab the default wrapper
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
-            //if the file hasn't been loaded try to grab the wrapper for the file
-            selectedWrapper = selectedWrapper == null
-                ? MainWindowViewController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + selectedObject)
-                : selectedWrapper;
             //If it is still null there is an issue with the file and the file has not been loaded.
             if (selectedWrapper == null)
             {
                 selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + selectedObject);
-                //If it is still null then they have not fixed it
                 if (selectedWrapper == null)
                 {
                     MessageBox.Show(
                         "The was an error opening the selected file.\n\n" +
-                        "There are a couple of ways to fix this:\n" +
-                        "You can load the game file " + selectedObject + ".xml\n" +
-                        "Alternatively, you can validate the xml using the \"File Menu Option and fix any errors in an external editor." +
-                        "After, fixing any errors be sure to run the xml validation in the file menu before retrying.",
+                        "There are a couple of possible issues:\n" +
+                        "One issue can be invalid xml for the file you are trying to open. You can validate the xml using the \"File Menu Option and fix any errors in an external editor. " +
+                        "Note, after fixing any errors in the xml be sure to run the xml validation in the file menu to refresh the loaded objects.\n\n" +
+                        "Another way to fix this issue is load the game xml file for the file you are trying to load. " +
+                        "For example, if you are trying to open the recipes xml file for a mod, load the game recipes xml file and this will work, even with invalid xml.",
                         "File Loading Error!",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
+                    return;
                 }
             }
-            DirectEditView directEdit = new DirectEditView(selectedWrapper);
+            DirectEditView directEdit = new DirectEditView(selectedWrapper, true, fileLocationPath: XmlFileManager._LoadedFilesPath);
             directEdit.Show();
         }
         private void HelpMenu_Click(object sender, RoutedEventArgs e)
