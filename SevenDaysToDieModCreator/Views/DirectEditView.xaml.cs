@@ -4,7 +4,6 @@ using SevenDaysToDieModCreator.Models;
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml;
@@ -28,7 +27,7 @@ namespace SevenDaysToDieModCreator.Views
             this.CloseButton.AddToolTip("Click here to close the window");
             this.ValidateXmlButton.AddToolTip("Click here to validate the xml");
 
-            if (contentsForXmlOutputBox == null) 
+            if (contentsForXmlOutputBox == null)
             {
                 string parentString = Wrapper.xmlFile.ParentPath == null
                     ? ""
@@ -57,7 +56,7 @@ namespace SevenDaysToDieModCreator.Views
         private void XmlOutputBox_TextChanged(object sender, EventArgs e)
         {
             string currentContents = GetCurrentFileContents();
-            this.Title =  XmlOutputBox.Text.Equals(currentContents) ? Wrapper.xmlFile.FileName : "*" + Wrapper.xmlFile.FileName; 
+            this.Title = XmlOutputBox.Text.Equals(currentContents) ? Wrapper.xmlFile.FileName : "*" + Wrapper.xmlFile.FileName;
         }
         private void SaveXmlButton_Click(object sender, RoutedEventArgs e)
         {
@@ -140,7 +139,7 @@ namespace SevenDaysToDieModCreator.Views
             bool isFileChanged = !String.IsNullOrEmpty(fileContents) && !fileContents.Equals(StartingFileContents);
             return isFileChanged;
         }
-        private string GetCurrentFileContents() 
+        private string GetCurrentFileContents()
         {
             string parentString = Wrapper.xmlFile.ParentPath == null
                 ? ""
@@ -148,14 +147,14 @@ namespace SevenDaysToDieModCreator.Views
             string fileContents = XmlFileManager.ReadExistingFile(Path.Combine(parentString, Wrapper.xmlFile.FileName));
             return fileContents;
         }
-        private bool IsFileChanged() 
+        private bool IsFileChanged()
         {
             string fileContents = GetCurrentFileContents();
             //                      Are there file contents                 do the fileContents equal what is in the XmlOutput
             bool isFileChanged = !String.IsNullOrEmpty(fileContents) && !fileContents.Equals(XmlOutputBox.Text);
             return isFileChanged;
         }
-        private MessageBoxResult SaveFile() 
+        private MessageBoxResult SaveFile()
         {
             MessageBoxResult result = MessageBox.Show(
                 "This will overwrite the file in the output location with your changes. Are you sure?",

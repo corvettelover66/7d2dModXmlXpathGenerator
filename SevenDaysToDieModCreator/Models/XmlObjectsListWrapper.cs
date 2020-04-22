@@ -42,6 +42,11 @@ namespace SevenDaysToDieModCreator.Models
             TraverseXml(false);
             SetTopLevelNodes();
         }
+        public string GenerateDictionaryKey() 
+        {
+            return  this.xmlFile.ParentPath == null ? this.xmlFile.GetFileNameWithoutExtension() : this.xmlFile.ParentPath + "_" + this.xmlFile.GetFileNameWithoutExtension();
+
+        }
         public void ClearAllLists()
         {
             this.objectNameToAttributesMap.Clear();

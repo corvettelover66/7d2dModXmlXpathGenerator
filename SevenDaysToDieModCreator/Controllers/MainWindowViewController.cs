@@ -223,7 +223,7 @@ namespace SevenDaysToDieModCreator.Controllers
 
                         if (wrapper != null)
                         {
-                            string wrapperDictionaryKey = wrapper.xmlFile.ParentPath == null ? wrapper.xmlFile.GetFileNameWithoutExtension() : wrapper.xmlFile.ParentPath + "_" + wrapper.xmlFile.GetFileNameWithoutExtension();
+                            string wrapperDictionaryKey = wrapper.GenerateDictionaryKey();
                             UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
                             SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
                             NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
@@ -240,7 +240,7 @@ namespace SevenDaysToDieModCreator.Controllers
 
                     if (wrapper != null)
                     {
-                        string wrapperDictionaryKey = wrapper.xmlFile.ParentPath == null ? wrapper.xmlFile.GetFileNameWithoutExtension() : wrapper.xmlFile.ParentPath + "_" + wrapper.xmlFile.GetFileNameWithoutExtension();
+                        string wrapperDictionaryKey = wrapper.GenerateDictionaryKey();
                         UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
                         SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
                         NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
@@ -322,17 +322,12 @@ namespace SevenDaysToDieModCreator.Controllers
                 XmlObjectsListWrapper wrapper = LoadWrapperFromFile(nextModFile);
                 if (wrapper != null)
                 {
-                    string parentPath = wrapper.xmlFile.ParentPath == null ? "" : wrapper.xmlFile.ParentPath;
-                    string wrapperDictionaryKey = String.IsNullOrEmpty(parentPath)
-                        ? nextModTag + "_" + wrapper.xmlFile.GetFileNameWithoutExtension()
-                        : nextModTag + "_" + wrapper.xmlFile.ParentPath + "_" + wrapper.xmlFile.GetFileNameWithoutExtension();
+                    string wrapperDictionaryKey = nextModTag + "_" + wrapper.GenerateDictionaryKey();
 
                     UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
-                    string loadedModFilesCenterViewItem = String.IsNullOrEmpty(wrapper.xmlFile.ParentPath)
-                        ? wrapper.xmlFile.GetFileNameWithoutExtension()
-                        : parentPath + "_" + wrapper.xmlFile.GetFileNameWithoutExtension();
-                    if (nextModTag.Equals(Properties.Settings.Default.ModTagSetting)) currentModLoadedFilesCenterViewComboBox.AddUniqueValueTo(loadedModFilesCenterViewItem);
+                    if (nextModTag.Equals(Properties.Settings.Default.ModTagSetting)) currentModLoadedFilesCenterViewComboBox.AddUniqueValueTo(wrapperDictionaryKey);
                     if (!Directory.Exists(newOutputLocation)) Directory.CreateDirectory(newOutputLocation);
+                    string parentPath = wrapper.xmlFile.ParentPath == null ? "" : wrapper.xmlFile.ParentPath;
                     if (!File.Exists(Path.Combine(newOutputLocation, parentPath, wrapper.xmlFile.FileName)))
                     {
                         Directory.CreateDirectory(Path.Combine(newOutputLocation, parentPath));

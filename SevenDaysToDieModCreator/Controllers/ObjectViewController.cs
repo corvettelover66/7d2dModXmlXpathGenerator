@@ -2,6 +2,7 @@
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -54,6 +55,8 @@ namespace SevenDaysToDieModCreator.Controllers
         //Key top tag name i.e. recipe, progression, item
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
+        public bool DidShowModErrorMessage { get; private set; } = false;
+
         public ObjectViewController(ICSharpCode.AvalonEdit.TextEditor xmlOutputBox, Dictionary<string, XmlObjectsListWrapper> loadedListWrappers)
         {
             this.LoadedListWrappers = loadedListWrappers;
@@ -171,7 +174,7 @@ namespace SevenDaysToDieModCreator.Controllers
             };
             return SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newTopTree, startingXmlTagName, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue(), doSkipFirstAttributes);
         }
-        private void SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, string tagName, Dictionary<string, Queue<string>> allChildrenDictionary)
+        private void SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, string tagName, Dictionary<string,Queue<string>> allChildrenDictionary, HashSet<string> alreadyAddedChildNodes = null)
         {
            Queue<string> allChildren = allChildrenDictionary.GetValueOrDefault(tagName);
 
@@ -180,6 +183,12 @@ namespace SevenDaysToDieModCreator.Controllers
                 string nextChild = allChildren.Dequeue();
                 while (!String.IsNullOrEmpty(nextChild))
                 {
+                    //If we have already added elements and the child was already added we want to skip it.
+                    if (alreadyAddedChildNodes != null && alreadyAddedChildNodes.Contains(nextChild))
+                    {
+                        allChildren.TryDequeue(out nextChild);
+                        continue;
+                    }
                     TreeViewItem newChildTopTree = new TreeViewItem();
                     TreeViewItem childrenTreeView = SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newChildTopTree, nextChild, allChildrenDictionary);
                     topTreeView.Items.Add(childrenTreeView);
@@ -258,6 +267,95 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
         }
+        private TreeViewItem GetNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, XmlNode startingNode, string wrapperKey)
+        {
+            TreeViewItem newTreeView = SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, startingNode, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue());
+            newTreeView.FontSize = OBJECT_VIEW_FONT_SIZE + 6 + ObjectTreeFontChange;
+            newTreeView.IsExpanded = true;
+            newTreeView.AddToolTip("Here you can create new " + startingNode.Name + " tags");
+
+            return newTreeView;
+        }
+        private TreeViewItem SetNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, XmlNode currentNode, Dictionary<string, Queue<string>> allChildrenDictionary, string nodeName = null)
+        {
+            string nodeNameToUse = String.IsNullOrEmpty(nodeName) ? currentNode.Name : nodeName;
+            List<string> attributes = xmlObjectListWrapper.objectNameToAttributesMap.GetValueOrDefault(nodeNameToUse);
+            TreeViewItem newTreeView = attributes != null
+                ? SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, nodeNameToUse, currentNode)
+                : null;
+            if (newTreeView != null)
+            {
+                newTreeView.AddToolTip("Edit form for the " + nodeNameToUse + " object");
+                string attributeValue = currentNode != null && currentNode.GetAvailableAttribute() != null ?
+                    ":" + currentNode.GetAvailableAttribute().Value : "";
+                Button addNewObjectButton = new Button
+                {
+                    Content = nodeNameToUse + attributeValue,
+                    Tag = wrapperKey,
+                    FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange,
+                    Foreground = Brushes.Purple,
+                    Background = Brushes.White
+                };
+                addNewObjectButton.AddToolTip("Click to add another " + nodeNameToUse + " object");
+                addNewObjectButton.Click += AddNewObjectButton_Click;
+                newTreeView.Header = addNewObjectButton;
+            }
+            SetNextNewObjectFormChildren(xmlObjectListWrapper, wrapperKey, newTreeView, currentNode, allChildrenDictionary, nodeName);
+
+            return newTreeView;
+        }
+        private void SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, XmlNode currentNode, Dictionary<string, Queue<string>> allChildrenDictionary, string nodeName = null)
+        {
+            HashSet<string> childNodeNames = new HashSet<string>();
+            if (currentNode != null && currentNode.HasChildNodes)
+            {
+                foreach (XmlNode nextChildNode in currentNode.ChildNodes)
+                {
+                    TreeViewItem childTree = SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, nextChildNode, allChildrenDictionary);
+                    if (childTree != null)
+                    {
+                        topTreeView.Items.Add(childTree);
+                        childNodeNames.Add(nextChildNode.Name);
+                    }
+                }
+            }
+            SetNextNewObjectFormChildren(xmlObjectListWrapper, wrapperKey, topTreeView, currentNode.Name, allChildrenDictionary, childNodeNames);
+        }
+        private void EditObject_ContextMenuClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem senderAsMenuItem = (MenuItem)sender;
+            ContextMenu parentMenu = senderAsMenuItem.Parent as ContextMenu;
+            TreeViewItem senderTreeView = parentMenu.PlacementTarget as TreeViewItem;
+            if (senderTreeView == null)
+            {
+                if (parentMenu.PlacementTarget is TextBox searchTreeBox)
+                {
+                    senderTreeView = searchTreeBox.Tag as TreeViewItem;
+                }
+            }
+            if (senderTreeView != null)
+            {
+                XmlNode xmlNode = senderTreeView.Tag as XmlNode;
+                string[] wrapperKeySplit = senderTreeView.Uid.Split("_");
+                string mainWrapperKey = wrapperKeySplit[wrapperKeySplit.Length - 1];
+                XmlObjectsListWrapper wrapperToUse = this.LoadedListWrappers.GetValueOrDefault(mainWrapperKey);
+                if (wrapperToUse == null)
+                {
+                    MessageBox.Show("Problem loading object.");
+                    return;
+                }
+                TreeViewItem newObjectFormTree = this.GetNewObjectFormTree(wrapperToUse, xmlNode, mainWrapperKey);
+                XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
+                //Set the uid to the wrapper so we can find the wrapper later
+                newObjectFormTree.Uid = mainWrapperKey;
+                //Set the xmlNode that was included with the object into the top tree view
+                newObjectFormTree.Tag = xmlNode;
+                newObjectFormTree.Foreground = Brushes.Purple;
+                newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
+                newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
+                NewObjectFormViewPanel.Children.Add(newObjectFormTree);
+            }
+        }
         public TreeViewItem GetSearchTreeViewRecursive(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, bool addContextMenu = true)
         {
             XmlNodeList allObjects = xmlObjectListWrapper.xmlFile.xmlDocument.GetElementsByTagName(xmlObjectListWrapper.TopTagName);
@@ -270,6 +368,8 @@ namespace SevenDaysToDieModCreator.Controllers
                 Uid = wrapperKey
             };
             topObjectsTreeView = SetSearchTreeViewNextObject(topObjectsTreeView, allObjects, wrapperKey, xmlObjectListWrapper, addContextMenu);
+            //Need to reset the boolean after running to make sure the next time it is displayed if there are issues.
+            DidShowModErrorMessage = false;
             topObjectsTreeView.AddContextMenu(RemoveTreeSearchViewContextMenu_Click,
                 "Remove Object From View",
                 "Click here to remove this tree from the view.");
@@ -299,121 +399,35 @@ namespace SevenDaysToDieModCreator.Controllers
                     }
                     else 
                     {
+                        //That means that this is a mod search tree
                         if (ModXmlNodeContextMenu == null) 
-                            ModXmlNodeContextMenu = nextTreeView.AddContextMenu(EditObject_ContextMenuClick, 
-                                "Edit Object", 
-                                "Click here to add object to left panel to make edits.");
+                        {
+                            XmlObjectsListWrapper standardFileWrapper = this.LoadedListWrappers.GetValueOrDefault(xmlObjectListWrapper.GenerateDictionaryKey());
+                            if (standardFileWrapper != null && standardFileWrapper.allTopLevelTags.Contains(nextObjectNode.Name))
+                                ModXmlNodeContextMenu = nextTreeView.AddContextMenu(EditObject_ContextMenuClick,
+                                    "Edit Object",
+                                    "Click here to add object to left panel to make edits.");
+                            else if (standardFileWrapper == null && !DidShowModErrorMessage)
+                            {
+                                MessageBox.Show(
+                                  "The application could not load the game xml file. This is probably because the file is not loaded. " +
+                                  "For the edit function to work you must load the " + xmlObjectListWrapper.xmlFile.FileName + " game XML file.",
+                                  "Game File Missing",
+                                  MessageBoxButton.OK,
+                                  MessageBoxImage.Error);
+                                DidShowModErrorMessage = true;
+                            }
+                            else 
+                            {
+                                nextTreeView.ContextMenu = null;
+                            }
+                        } 
                         else nextTreeView.ContextMenu = ModXmlNodeContextMenu;
                     }
                     topObjectsTreeView.Items.Add(nextTreeView);
                 }
             }
-
             return topObjectsTreeView;
-        }
-        private TreeViewItem GetNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, XmlNode startingNode, string wrapperKey)
-        {
-            TreeViewItem newTreeView = SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, startingNode, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue());
-            newTreeView.FontSize = OBJECT_VIEW_FONT_SIZE + 6 + ObjectTreeFontChange;
-            newTreeView.IsExpanded = true;
-            newTreeView.AddToolTip("Here you can create new " + startingNode.Name + " tags");
-
-            return newTreeView;
-        }
-        private TreeViewItem SetNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, XmlNode currentNode, Dictionary<string, Queue<string>> allChildrenDictionary, string nodeName = null)
-        {
-            string nodeNameToUse = String.IsNullOrEmpty(nodeName) ? currentNode.Name : nodeName;
-            List<string> attributes = xmlObjectListWrapper.objectNameToAttributesMap.GetValueOrDefault(nodeNameToUse);
-            TreeViewItem newTreeView = SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, nodeNameToUse, currentNode);
-            if (newTreeView != null)
-            {
-                newTreeView.AddToolTip("Edit form for the " + nodeNameToUse + " object");
-                string attributeValue = currentNode != null && currentNode.GetAvailableAttribute() != null ?
-                    ":" + currentNode.GetAvailableAttribute().Value : "";
-                Button addNewObjectButton = new Button
-                {
-                    Content = nodeNameToUse + attributeValue,
-                    Tag = wrapperKey,
-                    FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange,
-                    Foreground = Brushes.Purple,
-                    Background = Brushes.White
-                };
-                addNewObjectButton.AddToolTip("Click to add another " + nodeNameToUse + " object");
-                addNewObjectButton.Click += AddNewObjectButton_Click;
-                newTreeView.Header = addNewObjectButton;
-            }
-            SetNextNewObjectFormChildren(xmlObjectListWrapper, wrapperKey, newTreeView, currentNode, allChildrenDictionary, nodeName);
-
-            return newTreeView;
-        }
-        private void SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, XmlNode currentNode, Dictionary<string, Queue<string>> allChildrenDictionary, string nodeName = null)
-        {
-            //TODO this method will only do existing objects. If an object does not exist it will be excluded, this is not what we want. We meed this object in the view.
-            List<string> childNodeNames = new List<string>();
-            if (currentNode != null && currentNode.HasChildNodes) 
-            {
-                foreach (XmlNode nextChildNode in currentNode.ChildNodes) 
-                {
-                    childNodeNames.Add(nextChildNode.Name);
-                }
-            }
-            string nameToUse = String.IsNullOrEmpty(nodeName) ? currentNode.Name : nodeName;
-            Queue<string> allChildren = allChildrenDictionary.GetValueOrDefault(nameToUse);
-
-            if (allChildren != null && allChildren.Count > 0)
-            {
-                string nextChild = allChildren.Dequeue();
-                while (!String.IsNullOrEmpty(nextChild))
-                {
-                    int index = childNodeNames.IndexOf(nextChild);
-                    if (index > 0)
-                    {
-                        TreeViewItem childTree = SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, currentNode.ChildNodes[index], allChildrenDictionary);
-                        if (childTree != null) topTreeView.Items.Add(childTree);
-                    }
-                    else 
-                    {
-                        TreeViewItem childTree = SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, null, allChildrenDictionary, nextChild);
-                        if (childTree != null) topTreeView.Items.Add(childTree);
-                    }
-                }
-            }
-        }
-
-        private void EditObject_ContextMenuClick(object sender, RoutedEventArgs e)
-        {
-            MenuItem senderAsMenuItem = (MenuItem)sender;
-            ContextMenu parentMenu = senderAsMenuItem.Parent as ContextMenu;
-            TreeViewItem senderTreeView = parentMenu.PlacementTarget as TreeViewItem;
-            if (senderTreeView == null)
-            {
-                if (parentMenu.PlacementTarget is TextBox searchTreeBox)
-                {
-                    senderTreeView = searchTreeBox.Tag as TreeViewItem;
-                }
-            }
-            if (senderTreeView != null)
-            {
-                XmlNode xmlNode = senderTreeView.Tag as XmlNode;
-                string[] wrapperKeySplit = senderTreeView.Uid.Split("_");
-                string mainWrapperKey = wrapperKeySplit[wrapperKeySplit.Length - 1];
-                XmlObjectsListWrapper wrapperToUse = this.LoadedListWrappers.GetValueOrDefault(mainWrapperKey);
-                if (wrapperToUse == null) 
-                {
-                    MessageBox.Show("Problem loading object.");
-                    return;
-                }
-                TreeViewItem newObjectFormTree = this.GetNewObjectFormTree(wrapperToUse, xmlNode, mainWrapperKey);
-                XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
-                //Set the uid to the wrapper so we can find the wrapper later
-                newObjectFormTree.Uid = mainWrapperKey;
-                //Set the xmlNode that was included with the object into the top tree view
-                newObjectFormTree.Tag = xmlNode;
-                newObjectFormTree.Foreground = Brushes.Purple;
-                newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
-                newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
-                NewObjectFormViewPanel.Children.Add(newObjectFormTree);
-            }
         }
         public ContextMenu AddTargetContextMenuToControl(Control controlToAddMenu, bool isAttributeControl = false)
         {
