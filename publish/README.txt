@@ -99,7 +99,7 @@ Version History
 	- In the mod search tree users can now right click on an object in the tree, then click "edit" and the object is moved into the new object window.
 	- This feature allows users to change other mods much easier and add those changes into their own mods or even the existing mod easily.
 	- BEWARE: The feature does not Auto remove the original entry so it may need to be removed manually if you want to replace it.
-- 
+- Moved the mod file selection ui elements from the search tree panel, into the file selection panel.
  
  
  
