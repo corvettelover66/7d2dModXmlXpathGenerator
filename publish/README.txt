@@ -81,7 +81,7 @@ Change property tags to use common attributes for the name and not the tag name.
 Add the ability to open game files in direct edit.
 Add a view to add the mod info.xml file.
 Finish the duplicate an object in the left new object panel feature.
-
+Clean up the mod edit function, there are still bugs.
 
 
 Version History
@@ -91,10 +91,16 @@ Version History
  - Added appropriate title to the Custom Tag Popups
  - Added better resolution handling to Custom Tag Popup.
  - Added zooming to the New Object view. Now all views can become bigger or smaller.
- - Removed width setting on New Objects Combo boxs. The width will adjust inself based on contents.
- - Cleaned up the zooming to ensure no issues with zooming to small.
+ - Removed width setting on New Objects Combo boxs. The width will adjust itself based on contents.
+ - Cleaned up the zooming to ensure no issues with zooming too small.
  - Added error handling if users select the config directory and not the main mod directory when adding new mods.
- - Removed all width attributes. Now view objects' width is based on text within.
+ - Removed all width attributes. Now view objects' width is based on text within. 
+ - Added the ability to copy objects from mods directly into the new object view.
+	- In the mod search tree users can now right click on an object in the tree, then click "edit" and the object is moved into the new object window.
+	- This feature allows users to change other mods much easier and add those changes into their own mods or even the existing mod easily.
+	- BEWARE: The feature does not Auto remove the original entry so it may need to be removed manually if you want to replace it.
+- 
+ 
  
  
 1.5.7 

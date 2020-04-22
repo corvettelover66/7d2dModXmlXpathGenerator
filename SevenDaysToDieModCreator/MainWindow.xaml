@@ -96,7 +96,7 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
-                    <StackPanel >
+                    <StackPanel Name="SearchViewModSelectionPanel">
                         <ComboBox Name="SearchTreeLoadedFilesComboBox" FontSize="20" >
                         </ComboBox>
                         <Button x:Name="AddNewTreeViewButton" Click="AddNewSearchTreeView_Click" FontSize="18">Add Game Search Tree</Button>

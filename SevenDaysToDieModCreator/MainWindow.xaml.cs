@@ -272,19 +272,19 @@ namespace SevenDaysToDieModCreator
             string modToLoad = senderAsBox.Text;
             if (!String.IsNullOrEmpty(modToLoad))
             {
-                if (!this.SearchTreeFormsPanel.Children.Contains(this.LoadedModFilesSearchViewComboBox)
-                    && !this.SearchTreeFormsPanel.Children.Contains(this.LoadedModFilesButton))
+                if (!this.SearchViewModSelectionPanel.Children.Contains(this.LoadedModFilesSearchViewComboBox)
+                    && !this.SearchViewModSelectionPanel.Children.Contains(this.LoadedModFilesButton))
                 {
-                    this.SearchTreeFormsPanel.Children.Insert(0, this.LoadedModFilesSearchViewComboBox);
-                    this.SearchTreeFormsPanel.Children.Insert(1, this.LoadedModFilesButton);
+                    this.SearchViewModSelectionPanel.Children.Add(this.LoadedModFilesSearchViewComboBox);
+                    this.SearchViewModSelectionPanel.Children.Add(this.LoadedModFilesButton);
                 }
                 this.LoadedModFilesSearchViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(modToLoad, modToLoad + "_"));
                 this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
             }
             else
             {
-                this.SearchTreeFormsPanel.Children.Remove(this.LoadedModFilesSearchViewComboBox);
-                this.SearchTreeFormsPanel.Children.Remove(this.LoadedModFilesButton);
+                this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesSearchViewComboBox);
+                this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesButton);
             }
         }
         private void MyBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
