@@ -50,6 +50,18 @@ namespace SevenDaysToDieModCreator.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DoLogTimestampOnSave {
+            get {
+                return ((bool)(this["DoLogTimestampOnSave"]));
+            }
+            set {
+                this["DoLogTimestampOnSave"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool AutoMoveMod {
             get {
                 return ((bool)(this["AutoMoveMod"]));

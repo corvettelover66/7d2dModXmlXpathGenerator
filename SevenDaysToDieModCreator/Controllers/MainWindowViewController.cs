@@ -201,7 +201,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 MessageBox.Show(messageBoxText, caption, button, icon);
             }
         }
-        public void LoadFilesViewControl(ComboBox SearchTreeLoadedFilesComboBox, ComboBox NewObjectViewLoadedFilesComboBox)
+        public void LoadFilesViewControl(ComboBox SearchTreeLoadedFilesComboBox, ComboBox NewObjectViewLoadedFilesComboBox, ComboBox currentGameFilesCenterViewComboBox)
         {
             List<string> unloadedFiles = new List<string>();
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -226,6 +226,7 @@ namespace SevenDaysToDieModCreator.Controllers
                             UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
                             SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
                             NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                            currentGameFilesCenterViewComboBox.AddUniqueValueTo(wrapperDictionaryKey);
                         }
                     }
                 }
@@ -243,6 +244,7 @@ namespace SevenDaysToDieModCreator.Controllers
                         UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
                         SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
                         NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                        currentGameFilesCenterViewComboBox.AddUniqueValueTo(wrapperDictionaryKey);
                     }
                 }
             }

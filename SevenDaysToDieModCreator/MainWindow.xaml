@@ -28,6 +28,7 @@
                         <MenuItem Header="_Game Mods Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
                         <MenuItem Header="Create _New Tag/Mod" Name="ChangeCustomTagMenuItem" Click="ChangeCustomTagMenuItem_Click" />
                         <MenuItem Header="Edit _Tag/Mod Name" Name="EditTagNameMenuItem" Click="EditTagNameMenuItem_Click" />
+                        <MenuItem Header="T_imestamp" Name="ChangeLogTimeStampMenuItem"  Click="ChangeLogTimeStampMenuItem_Click" />
                         <MenuItem Header="_Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
                     </MenuItem>
                     <MenuItem Header="_Help" Name="HelpMenuItem"  Click="HelpMenu_Click"/>
