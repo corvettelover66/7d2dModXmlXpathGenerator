@@ -45,7 +45,6 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         private ContextMenu XmlNodeContextMenu { get; set; }
         private ContextMenu ModXmlNodeContextMenu { get; set; }
-
         private ContextMenu XmlAttributeContextMenu { get; set; }
         public int SEARCH_VIEW_SEARCH_BOX_CREATION_THRESHOLD { get; private set; } = 15;
         public MyStackPanel NewObjectFormViewPanel { get; set; }
@@ -55,7 +54,6 @@ namespace SevenDaysToDieModCreator.Controllers
         //Key top tag name i.e. recipe, progression, item
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
-
         public ObjectViewController(ICSharpCode.AvalonEdit.TextEditor xmlOutputBox, Dictionary<string, XmlObjectsListWrapper> loadedListWrappers)
         {
             this.LoadedListWrappers = loadedListWrappers;
@@ -170,7 +168,7 @@ namespace SevenDaysToDieModCreator.Controllers
             TreeViewItem newTopTree = new TreeViewItem
             {
                 Header = startingXmlTagName,
-                FontSize = OBJECT_VIEW_FONT_SIZE + 6 + ObjectTreeFontChange,
+                FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange,
             };
             return SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newTopTree, startingXmlTagName, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue(), doSkipFirstAttributes);
         }
@@ -531,7 +529,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
                 else
                 {
-                    newObjectFormTree = new TreeViewItem { FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange };
+                    newObjectFormTree = new TreeViewItem { FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange };
                     XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
                     string attributeValue = avalailableAttribute == null ? "" : ": " + avalailableAttribute.Name + "=" + avalailableAttribute.Value;
                     newObjectFormTree.Header = xmlNode.Name + attributeValue + " (" + xPathAction + ") ";
@@ -552,7 +550,7 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             TreeViewItem newObjectFormTree = new TreeViewItem
             {
-                FontSize = OBJECT_VIEW_FONT_SIZE + ObjectTreeFontChange,
+                FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange,
                 //          Node Name           Attribute targeted            Xpath action              
                 Header = xmlNode.Name + ": " + xmlAttributeName + "=" + xmlAttributeValue + " (" + senderAsMenuItem.Name + ") "
             };

@@ -611,11 +611,11 @@ namespace SevenDaysToDieModCreator
         private void EditTagNameMenuItem_Click(object sender, RoutedEventArgs e)
         {
             CustomTagDialogPopUp("Please input a new name for the tag.\n\n" +
-                "Your current tag to change is: " + Properties.Settings.Default.ModTagSetting, 
-                "Add your new tag name here", 
-                "Create New Tag",true);
+                "Note that the mod name you will change is the current selected mod.\n" +
+                "Your current mod to change is: " + Properties.Settings.Default.ModTagSetting, 
+                "Add the new tag name here", 
+                "Edit Tag Name",true);
         }
-
         private void ChangeLogTimeStampMenuItem_Click(object sender, RoutedEventArgs e)
         {
             CheckLogTimestampProperty();

@@ -122,8 +122,11 @@ namespace SevenDaysToDieModCreator.Controllers
 
                 if (hasXmlFiles && !fullSelectedPath.ToLower().Contains("config"))
                 {
+                    currentModFilesCenterViewComboBox.SetComboBox(new List<string>());
                     Properties.Settings.Default.ModTagSetting = currentModName;
                     Properties.Settings.Default.Save();
+                    loadedModsSearchViewComboBox.SelectedItem = currentModName;
+                    loadedModsCenterViewComboBox.SelectedItem = currentModName;
                     //Copy the files to the output path at Output/Mods/ModName
                     string appOutputPath = Path.Combine(XmlFileManager._fileOutputPath, "Mods", currentModName);
                     XmlFileManager.CopyAllFilesToPath(fullSelectedPath, appOutputPath);
