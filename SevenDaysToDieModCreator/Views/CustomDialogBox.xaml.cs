@@ -37,7 +37,7 @@ namespace SevenDaysToDieModCreator.Views
         }
         public string ResponseText
         {
-            get { return AllTagsComboBox.Text; }
+            get { return AllTagsComboBox.Text.Trim(); }
             set { AllTagsComboBox.Text = value; }
         }
 
