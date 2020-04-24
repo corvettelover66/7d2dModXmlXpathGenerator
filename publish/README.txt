@@ -81,9 +81,16 @@ Add a view to add the mod info.xml file.
 Finish the duplicate an object in the left new object panel feature.
 Make it so on save, append tags are not generated per object.
 Make it so the combo boxes in the new object view allow searching.
+Add logic to auto remove config tags from the files.
 
 
 Version History
+1.6
+ - Fixed a small issue when loading a mod with the boxes in the view not updating correctly.
+ - Fixed crashing issue if the user did not set the custom tag with a new install.
+ - Fixed font when using xpath commands. Now it should be uniform when adding new objects to the view.
+ - Title for CustomTag popup was incorrect when editing a mod name.
+ - Added better resolution handling for the CustomTag popup. Also cleaned up the pop up view to fill the space better.
 1.5.9
  - Fixed app crashing when selecting a mod for direct edit opening. There was an issue when you click save it updated the mod files combo box incorrectly.
  - Fixed issue with the center game file combo box was not updating when loading a new game file.
