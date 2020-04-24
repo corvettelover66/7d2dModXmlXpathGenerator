@@ -50,7 +50,7 @@ namespace SevenDaysToDieModCreator.Models
                     XmlObjectsListWrapper xmlObjectsListWrapper = newObjectFormsPanel.LoadedListWrappers.GetValueOrDefault(nextChildAsTree.Uid);
                     string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
                     string xmlOut = xmlObjectsListWrapper == null ? "" : GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper, true);
-                    if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut.TrimEnd() + "\n" + topTagEnd, true);
+                    if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut.TrimEnd() + "\n" + topTagEnd, Properties.Settings.Default.DoLogTimestampOnSave);
                     if (writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToLog(xmlOut, true);
                 }
             }

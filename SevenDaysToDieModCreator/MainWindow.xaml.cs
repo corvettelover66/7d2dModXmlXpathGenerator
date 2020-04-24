@@ -77,10 +77,11 @@ namespace SevenDaysToDieModCreator
             LoadModDirectoryMenuItem.AddToolTip("Click here to load a mod directory\nThis would typically be the main mod folder with the mod name not the Config directory within");
             ValidateXmlMenuItem.AddToolTip("Click here to validate all xml files for the selected tag/mod\nAny xml violations will be displayed");
             EditTagNameMenuItem.AddToolTip("Click here to change the name of the current tag/mod\nThis will also change the folder name in the Output/Mods/ dir");
+            ChangeLogTimeStampMenuItem.AddToolTip("Click here to change the Timestamp setting");
             //LoadGameModDirectoryMenuItem.AddToolTip("Click here to load the 7 days to die \"Mods\" directory, to load all mods");
             //Buttons
             SaveXmlViewButton.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
-            OpenModFileDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected file from the combo box above");
+            OpenModFileDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected mod file from the combo box above");
             AddObjectViewButton.AddToolTip("Click to add a new object creation view using the game file from above\nWARNING: This could take awhile");
             AddNewTreeViewButton.AddToolTip("Click to add a new searchable tree view using the game file from above" +
                 "\nWith this tree you can perform any xpath command on any in game object" +
@@ -88,6 +89,7 @@ namespace SevenDaysToDieModCreator
             ClearAllObjectsViewButton.AddToolTip("Click to remove all objects from the view above\nThis action will also free up the used memory instantly.");
             ClearTreesViewButton.AddToolTip("Click to remove all trees from the view above\nThis action will also free up the used memory instantly.");
             LoadedModFilesButton.AddToolTip("Click to add a search tree for the mod file selected above");
+            OpenGameFileDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected game file from the combo box above");
             //Combo Boxes
             LoadedModFilesSearchViewComboBox.AddToolTip("Mod file used to generate a search tree when clicking the button below");
             LoadedModsSearchViewComboBox.AddToolTip("Select a mod here to generate search trees for its files");
@@ -95,8 +97,7 @@ namespace SevenDaysToDieModCreator
             CurrentModFilesCenterViewComboBox.AddToolTip("Select a file here to make direct edits\nThese are the currently selected mod's files");
             SearchTreeLoadedFilesComboBox.AddToolTip("The selected file here is used to create a search tree below\nAdd files to the list by loading an xml file from the game folder");
             NewObjectViewLoadedFilesComboBox.AddToolTip("The selected file here is used to create the new object view below\nAdd files to the list by loading an xml file from the game folder");
-            CurrentGameFilesCenterViewComboBox.AddToolTip("");
-            OpenGameFileDirectEditViewButton.AddToolTip("");
+            CurrentGameFilesCenterViewComboBox.AddToolTip("The selected file here is the game file opened when you click the direct edit button just below");
         }
         private void SetPanels()
         {
@@ -308,7 +309,7 @@ namespace SevenDaysToDieModCreator
         }
         private void LoadFile_Click(object sender, RoutedEventArgs e)
         {
-            MainWindowViewController.LoadFilesViewControl(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox);
+            MainWindowViewController.LoadFilesViewControl(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
         }
         private void SaveXmlFile_Click(object sender, RoutedEventArgs e)
         {
@@ -330,7 +331,7 @@ namespace SevenDaysToDieModCreator
                     if (Properties.Settings.Default.AutoMoveMod) XmlFileManager.CopyAllOutputFiles();
                     string currentLoadedMod = Properties.Settings.Default.ModTagSetting;
                     this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
-                    this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentLoadedMod));
+                    this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentLoadedMod, Properties.Settings.Default.ModTagSetting + "_"));
                     break;
             }
         }
@@ -339,7 +340,7 @@ namespace SevenDaysToDieModCreator
             string currentStatus = Properties.Settings.Default.AutoMoveMod ? "Activated" : "Deactived";
             MessageBoxResult innerResult = MessageBox.Show("Would you like to change the status of the Auto Move feature?\n\n" +
                 "Current status " + currentStatus + "\n\n" +
-                "When activated, on saving, the application automatically moves all files to the Games Mod Folder chosen.\n" +
+                "When activated, on saving, the application automatically moves all files to the Games Mod Folder chosen as well.\n" +
                 appendMessage,
                 "Auto Move Game Files",
                 MessageBoxButton.YesNo,
@@ -363,6 +364,23 @@ namespace SevenDaysToDieModCreator
             }
             if (!Properties.Settings.Default.AutoMoveDecisionMade) Properties.Settings.Default.AutoMoveDecisionMade = true;
             Properties.Settings.Default.Save();
+        }
+        private void CheckLogTimestampProperty() 
+        {
+            string currentStatus = Properties.Settings.Default.DoLogTimestampOnSave ? "Activated" : "Deactived";
+            MessageBoxResult innerResult = MessageBox.Show("Would you like to change the status writing a timestamp on saving?\n\n" +
+                "Current status " + currentStatus + "\n\n" +
+                "When activated, on saving, the application will write a timestamp above the generated xml.\n",
+                "Timestamp Setting",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            switch (innerResult)
+            {
+                case MessageBoxResult.Yes:
+                    Properties.Settings.Default.DoLogTimestampOnSave = !Properties.Settings.Default.DoLogTimestampOnSave;
+                    Properties.Settings.Default.Save();
+                    break;
+            }
         }
         private void AddObjectView_Click(object sender, RoutedEventArgs e)
         {
@@ -433,7 +451,8 @@ namespace SevenDaysToDieModCreator
             if (String.IsNullOrEmpty(selectedObject)) return;
             string[] objectSplit = selectedObject.Split("_");
             string standardWrapperKey = "";
-            for (int i = 1; i < objectSplit.Length; i++) standardWrapperKey += objectSplit[i] + "_";
+
+            if(objectSplit.Length > 0)for (int i = 1; i < objectSplit.Length; i++) standardWrapperKey += objectSplit[i] + "_";
             standardWrapperKey = standardWrapperKey.Substring(0, standardWrapperKey.Length - 1);
             //Try to grab the default wrapper
             XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(standardWrapperKey);
@@ -550,12 +569,14 @@ namespace SevenDaysToDieModCreator
         {
             string currentStatus = Properties.Settings.Default.AutoMoveMod ? "Activated" : "Deactived";
             string autoMoveStatus = "Auto Move Status: " + currentStatus + "\n\n";
+            string currentStatusTimestampLog = Properties.Settings.Default.DoLogTimestampOnSave ? "Activated" : "Deactived";
+            string logTimestampStatus = "Write Time Stamp On Save: " + currentStatusTimestampLog + "\n\n";
             string autoMoveDirectory = String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory) ? "Auto Move Directory: Not Set\n\n" :
                 "Auto Move Directory: " + Properties.Settings.Default.GameFolderModDirectory + "\n\n";
             string customTag = String.IsNullOrEmpty(Properties.Settings.Default.ModTagSetting) ? "Custom Tag: Not Set\n\n" :
                 "Custom Tag: " + Properties.Settings.Default.ModTagSetting + "\n\n";
 
-            string messageString = autoMoveStatus + autoMoveDirectory + customTag;
+            string messageString = autoMoveStatus + logTimestampStatus + autoMoveDirectory + customTag;
             MessageBox.Show(messageString, "All Settings", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         private void LoadModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
@@ -593,6 +614,11 @@ namespace SevenDaysToDieModCreator
                 "Your current tag to change is: " + Properties.Settings.Default.ModTagSetting, 
                 "Add your new tag name here", 
                 "Create New Tag",true);
+        }
+
+        private void ChangeLogTimeStampMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            CheckLogTimestampProperty();
         }
         //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
         //{

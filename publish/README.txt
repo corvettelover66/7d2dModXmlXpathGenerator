@@ -76,15 +76,19 @@ TODO
 Add a setting to change the search box threshold
 Change the way settings are displayed potentially so adding settings becomes easier.
 Finish load Mods Directory Menu Item for loading all mods in the game directory. 
-Add the ability to target specfic xml in a mod tree view.
 Change property tags to use common attributes for the name and not the tag name.
-Add the ability to open game files in direct edit.
 Add a view to add the mod info.xml file.
 Finish the duplicate an object in the left new object panel feature.
-Clean up the mod edit function, there are still bugs.
+Make it so on save, append tags are not generated per object.
+Make it so the combo boxes in the new object view allow searching.
 
 
 Version History
+1.5.9
+ - Fixed app crashing when selecting a mod for direct edit opening. There was an issue when you click save it updated the mod files combo box incorrectly.
+ - Fixed issue with the center game file combo box was not updating when loading a new game file.
+ - Adding a setting to turn writing the timestamp on/off when saving xml. Off by default.
+ - Added missing tooltips to the new view elements from v1.5.8
 1.5.8
  - Made direct edit view resolution friendly.
  - Changed label to be purple in direct edit view.
@@ -100,7 +104,8 @@ Version History
 	- This feature allows users to change other mods much easier and add those changes into their own mods or even the existing mod easily.
 	- BEWARE: The feature does not Auto remove the original entry so it may need to be removed manually if you want to replace it.
 - Moved the mod file selection ui elements from the search tree panel, into the file selection panel.
- 
+- Added new UI elements to open game files directly.
+- Fixed small issue in the center view. If the xml was invalid for a mod file then the app would crash when selecting that file.  
  
  
 1.5.7 
