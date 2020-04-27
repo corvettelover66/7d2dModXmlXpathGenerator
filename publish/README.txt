@@ -79,10 +79,15 @@ Finish load Mods Directory Menu Item for loading all mods in the game directory.
 Change property tags to use common attributes for the name and not the tag name.
 Add a view to add the mod info.xml file.
 Finish the duplicate an object in the left new object panel feature.
+	For this, write out to a tmp file. Read the xml, create a temp xmlWrapper, and create a view using the correct object.
 Make it so on save, append tags are not generated per object.
 Make it so the combo boxes in the new object view allow searching.
 Add logic to auto remove config tags from the files.
-
+Add children to the on hover in the search tree. 
+Add a collapse parent option to the new object view.
+Combo boxes from set attribute trees, in the New Object view do not zoom in and out correctly. 
+Search boxes in Mod trees do not give the edit object context menu command.
+Add a popup on edit, to remove the object from the xml or not.
 
 Version History
 1.6
@@ -113,8 +118,6 @@ Version History
 - Moved the mod file selection ui elements from the search tree panel, into the file selection panel.
 - Added new UI elements to open game files directly.
 - Fixed small issue in the center view. If the xml was invalid for a mod file then the app would crash when selecting that file.  
- 
- 
 1.5.7 
  - Changed xaml to use correct Auto and fill values, rather than hardcoded numbers. Tested with multiple resolutions.
 1.5.6
