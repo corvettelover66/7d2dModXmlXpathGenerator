@@ -88,6 +88,14 @@ Add a collapse parent option to the new object view.
 Combo boxes from set attribute trees, in the New Object view do not zoom in and out correctly. 
 Search boxes in Mod trees do not give the edit object context menu command.
 Add a popup on edit, to remove the object from the xml or not.
+Add the horizontal scroll bar to the New Object View.
+On search trees, make clicking on an object copy the first attribute.
+Add a hide unused attributes in the new object view.
+On saving in direct edit view, validate xml and warn user if the xml is invalid. 
+Fix bug, buttons in new object window are using quick keys.
+Add a copy all children for a mod search tree, to the new object view.
+Add the ability to set the wrapper for a New Object view to allow for eaiser additions when creating mods from mods.
+Make sure all generated attribute values are trimmed.
 
 Version History
 1.6
