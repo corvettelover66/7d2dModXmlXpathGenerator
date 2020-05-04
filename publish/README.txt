@@ -102,7 +102,7 @@ MEDIUM:
 -Finish load Mods Directory Menu Item for loading all mods in the game directory. 
 -Add a popup on edit, to remove the object from the xml or not.
 -Add a hide unused attributes in the new object view.
-+Insert Before insert after and append not orking properly on attributes.
++Insert Before insert after and append not working properly on attributes.
 +Add the ability to set the wrapper for a New Object view to allow for eaiser additions when creating mods from mods. Basically this means to put mod used attributes in the New Ibject Combo box to make adding new objects using mods eaiser.
 +Add logic to auto remove config tags from the files.
 ++Add a view to add the mod info.xml file.
