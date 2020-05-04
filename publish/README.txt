@@ -105,6 +105,12 @@ Add the ability to validate Recipes against the items xml to help with in game i
 Add the ability to combine tags in a file.
 Add side by side search trees for easier comparison.
 Add game button text is centered, should be left.
+In mod trees, on right click, have option to search a file for dependencies.
+Add mod name to dorect edit window title.
+Add mod search tree crashes program when clicked without a file within.
+Crashed when running edit object on forearms expanded mod recipe.
+	ERROR TRACE:    at SevenDaysToDieModCreator.Controllers.ObjectViewController.SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, String wrapperKey, TreeViewItem topTreeView, XmlNode currentNode, Dictionary`2 allChildrenDictionary, String nodeName)
+
 
 Version History
 1.6
