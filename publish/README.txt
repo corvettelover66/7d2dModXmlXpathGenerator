@@ -73,43 +73,51 @@ Authors
 @Wrathmaniac or @ThatJonesyGuy
 
 TODO
-Add a setting to change the search box threshold
-Change the way settings are displayed potentially so adding settings becomes easier.
-Finish load Mods Directory Menu Item for loading all mods in the game directory. 
-Change property tags to use common attributes for the name and not the tag name.
-Add a view to add the mod info.xml file.
-Finish the duplicate an object in the left new object panel feature.
-	For this, write out to a tmp file. Read the xml, create a temp xmlWrapper, and create a view using the correct object.
-Make it so on save, append tags are not generated per object.
-Make it so the combo boxes in the new object view allow searching.
-Add logic to auto remove config tags from the files.
-Add children to the on hover in the search tree. 
-Add a collapse parent option to the new object view.
-Combo boxes from set attribute trees, in the New Object view do not zoom in and out correctly. 
-Search boxes in Mod trees do not give the edit object context menu command.
-Add a popup on edit, to remove the object from the xml or not.
++ = Important, more pluses means more important
+- = Not Important
 
-
-Add the horizontal scroll bar to the New Object View.
-On search trees, make clicking on an object copy the first attribute.
-Add a hide unused attributes in the new object view.
-On saving in direct edit view, validate xml and warn user if the xml is invalid. 
-Fix bug, buttons in new object window are using quick keys.
-Add a copy all children for a mod search tree, to the new object view.
-Add the ability to set the wrapper for a New Object view to allow for eaiser additions when creating mods from mods.
-Make sure all generated attribute values are trimmed.
-When renaming a mod the auto move folder will be missing other files. Need to copy full directory into Game_XMLS files.
-Add a button to open xml files in an external program.
-Make it so when adding a mod search view it updates the wrapper. That way any changes to the file will update the search tree.
-Add the ability to validate Recipes against the items xml to help with in game issues.
-Add the ability to combine tags in a file.
-Add side by side search trees for easier comparison.
-Add game button text is centered, should be left.
-In mod trees, on right click, have option to search a file for dependencies.
-Add mod name to dorect edit window title.
-Add mod search tree crashes program when clicked without a file within.
-Crashed when running edit object on forearms expanded mod recipe.
+EASY:
+-Add a setting to change the search box threshold
+-Search boxes in Mod trees do not give the edit object context menu command.
+-Add a new menu item to the top tree context menu to include or exclude comments.
+-On saving in direct edit view, validate xml and warn user if the xml is invalid. 
++Make it so when adding a mod search view it updates the wrapper. That way any changes to the file will update the search tree. BAsically the add mod search tree button updates wrappers before adding the tree.
++Make sure all generated attribute values are trimmed.
++Add children to the on hover in the search tree. 
++On search trees, make clicking on an object copy the first attribute.
+++Fix bug, buttons in new object window are using quick keys.
+++When renaming a mod the auto move folder will be missing other files. Need to copy full directory into Game_XMLS files.
++++Combo boxes from set attribute trees, in the New Object view do not zoom in and out correctly. 
++++Add the horizontal scroll bar to the New Object View.
++++Add a collapse parent option to the new object view.
++++Add game button text is centered, should be left.
++++Add mod name to direct edit window title.
++++Add mod search tree crashes program when clicked without a file within.
++++Crashed when running edit object on forearms expanded mod recipe.
 	ERROR TRACE:    at SevenDaysToDieModCreator.Controllers.ObjectViewController.SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, String wrapperKey, TreeViewItem topTreeView, XmlNode currentNode, Dictionary`2 allChildrenDictionary, String nodeName)
+
+MEDIUM:
+-Add a button to open xml files in an external program.
+-Change the way settings are displayed potentially so adding settings becomes easier.
+-Finish load Mods Directory Menu Item for loading all mods in the game directory. 
+-Add a popup on edit, to remove the object from the xml or not.
+-Add a hide unused attributes in the new object view.
++Insert Before insert after and append not orking properly on attributes.
++Add the ability to set the wrapper for a New Object view to allow for eaiser additions when creating mods from mods. Basically this means to put mod used attributes in the New Ibject Combo box to make adding new objects using mods eaiser.
++Add logic to auto remove config tags from the files.
+++Add a view to add the mod info.xml file.
+++Add side by side search trees for easier comparison.
++++Change property tags to use common attributes for the name and not the tag name.
+++++Make it so on save, append tags are not generated per object. Or add the ability to combine tags in a file.
+
+HARD:
+-Finish the duplicate an object in the left new object panel feature.
+	For this, write out to a tmp file. Read the xml, create a temp xmlWrapper, and create a view using the correct object.
+-Add the ability to validate Recipes against the items xml to help with in game issues.
+-In mod trees, on right click, have option to search a file for dependencies.
+
+UNKNOWN:
+Add a copy all children for a mod search tree, to the new object view.
 
 
 Version History
