@@ -303,15 +303,34 @@ namespace SevenDaysToDieModCreator.Controllers
                 addNewObjectButton.Click += AddNewObjectButton_Click;
                 newTreeView.Header = addNewObjectButton;
             }
-            SetNextNewObjectFormChildren(xmlObjectListWrapper, wrapperKey, newTreeView, currentNode, allChildrenDictionary, nodeName);
+            TreeViewItem finalTreeView = SetNextNewObjectFormChildren(xmlObjectListWrapper, wrapperKey, newTreeView, currentNode, allChildrenDictionary, nodeNameToUse);
 
-            return newTreeView;
+            return finalTreeView;
         }
-        private void SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, XmlNode currentNode, Dictionary<string, Queue<string>> allChildrenDictionary, string nodeName = null)
+        private TreeViewItem SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, XmlNode currentNode, Dictionary<string, Queue<string>> allChildrenDictionary, string nodeName = null)
         {
             HashSet<string> childNodeNames = new HashSet<string>();
             if (currentNode != null && currentNode.HasChildNodes)
             {
+                //There are children but no attributes
+                if (topTreeView == null) 
+                { 
+                    topTreeView = new TreeViewItem();
+                    topTreeView.AddToolTip("Edit form for the " + nodeName + " object");
+                    string attributeValue = currentNode != null && currentNode.GetAvailableAttribute() != null ?
+                        ":" + currentNode.GetAvailableAttribute().Value : "";
+                    Button addNewObjectButton = new Button
+                    {
+                        Content = nodeName + attributeValue,
+                        Tag = wrapperKey,
+                        FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange,
+                        Foreground = Brushes.Purple,
+                        Background = Brushes.White
+                    };
+                    addNewObjectButton.AddToolTip("Click to add another " + nodeName + " object");
+                    addNewObjectButton.Click += AddNewObjectButton_Click;
+                    topTreeView.Header = addNewObjectButton;
+                }
                 foreach (XmlNode nextChildNode in currentNode.ChildNodes)
                 {
                     TreeViewItem childTree = SetNewObjectFormTree(xmlObjectListWrapper, wrapperKey, nextChildNode, allChildrenDictionary);
@@ -323,6 +342,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
             SetNextNewObjectFormChildren(xmlObjectListWrapper, wrapperKey, topTreeView, currentNode.Name, allChildrenDictionary, childNodeNames);
+            return topTreeView;
         }
         private void EditObject_ContextMenuClick(object sender, RoutedEventArgs e)
         {

@@ -105,7 +105,7 @@ HARD:
 
 Version History
 1.6.1
- - Fixed crashing issue when using the edit object function on a Mod Search Tree (NEED TO TEST!!!!!)
+ - Fixed crashing issue when using the edit object function on a Mod Search Tree
  - Fixed crashing issue when clicking add mod search tree when the selected file is blank.
  - Fixed issue with the edit functionality was displaying to many times. Also modifies the error message to be more descriptive as to the issue.
  - Fixed issue with the Auto Move feature. If the mod had other directories and a localization.txt, these files and directories were ignored, this is now fixed. 
