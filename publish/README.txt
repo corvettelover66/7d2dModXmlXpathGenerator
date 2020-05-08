@@ -78,23 +78,6 @@ TODO
 
 EASY:
 -Add a setting to change the search box threshold
--Search boxes in Mod trees do not give the edit object context menu command.
--Add a new menu item to the top tree context menu to include or exclude comments.
--On saving in direct edit view, validate xml and warn user if the xml is invalid. 
-+Make it so when adding a mod search view it updates the wrapper. That way any changes to the file will update the search tree. BAsically the add mod search tree button updates wrappers before adding the tree.
-+Make sure all generated attribute values are trimmed.
-+Add children to the on hover in the search tree. 
-+On search trees, make clicking on an object copy the first attribute.
-++Fix bug, buttons in new object window are using quick keys.
-++When renaming a mod the auto move folder will be missing other files. Need to copy full directory into Game_XMLS files.
-+++Combo boxes from set attribute trees, in the New Object view do not zoom in and out correctly. 
-+++Add the horizontal scroll bar to the New Object View.
-+++Add a collapse parent option to the new object view.
-+++Add game button text is centered, should be left.
-+++Add mod name to direct edit window title.
-+++Add mod search tree crashes program when clicked without a file within.
-+++Crashed when running edit object on forearms expanded mod recipe.
-	ERROR TRACE:    at SevenDaysToDieModCreator.Controllers.ObjectViewController.SetNextNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, String wrapperKey, TreeViewItem topTreeView, XmlNode currentNode, Dictionary`2 allChildrenDictionary, String nodeName)
 
 MEDIUM:
 -Add a button to open xml files in an external program.
@@ -102,25 +85,45 @@ MEDIUM:
 -Finish load Mods Directory Menu Item for loading all mods in the game directory. 
 -Add a popup on edit, to remove the object from the xml or not.
 -Add a hide unused attributes in the new object view.
-+Insert Before insert after and append not working properly on attributes.
-+Add the ability to set the wrapper for a New Object view to allow for eaiser additions when creating mods from mods. Basically this means to put mod used attributes in the New Ibject Combo box to make adding new objects using mods eaiser.
+-Fix bug, buttons in new object window are using quick keys.
++Add the ability to set the wrapper for a New Object view to allow for eaiser additions when creating mods from mods. Basically this means to put mod used attributes in the New Object Combo box to make adding new objects using mods eaiser.
 +Add logic to auto remove config tags from the files.
 ++Add a view to add the mod info.xml file.
-++Add side by side search trees for easier comparison.
 +++Change property tags to use common attributes for the name and not the tag name.
 ++++Make it so on save, append tags are not generated per object. Or add the ability to combine tags in a file.
 
 HARD:
+-When updating a mod, using the Load mod menu item, merge the files.
 -Finish the duplicate an object in the left new object panel feature.
 	For this, write out to a tmp file. Read the xml, create a temp xmlWrapper, and create a view using the correct object.
 -Add the ability to validate Recipes against the items xml to help with in game issues.
 -In mod trees, on right click, have option to search a file for dependencies.
-
-UNKNOWN:
-Add a copy all children for a mod search tree, to the new object view.
-
+-Add in functionality to handle the locilization file.
+-Find a way to live update search trees on file changes.
+-Add code completion to the Avolon text edit views
++Add side by side search trees for easier comparison.
 
 Version History
+1.6.1
+ - Fixed crashing issue when using the edit object function on a Mod Search Tree (NEED TO TEST!!!!!)
+ - Fixed crashing issue when clicking add mod search tree when the selected file is blank.
+ - Fixed issue with the edit functionality was displaying to many times. Also modifies the error message to be more descriptive as to the issue.
+ - Fixed issue with the Auto Move feature. If the mod had other directories and a localization.txt, these files and directories were ignored, this is now fixed. 
+ - Fixed combo boxes from set attribute trees, from the New Object view, did not zoom in and out correctly. 
+ - Fixed insert Before and insert after not working properly on attributes in search trees.
+ - Added mod name to direct edit window title when opening a mod file in the direct edit window.
+ - Added the horizontal scroll bar to the New Object View.
+ - Added children to the on hover in the search tree. With this comes a new checkbox to decide for each tree.
+ - Added a checkbox to include comments or not in newly generated search trees.
+ - Added an option to overwrite local files when loading a mod. This is so you can reload mods. Warning does not MERGE. Any changes to the mod by you will be overritten.
+ - Added the Collapse parent right click menu to the mod search trees.
+ - Added functionality clicking on an objects, in search trees,  copies the first attribute. Now you can click the main object for the first attribute or open it and click individual attributes.
+ - Changed all xaml ui elements in main wndow to be center aligned. This is to have better consistancy in the app.
+ - All generated attribute values are trimmed. Meaning accidental white spaces in the new object view input boxes are automatically removed.
+ - When adding a mod object, the app reloads all wrappers to ensure any xml updates are reflected in the search tree.
+ - On saving in direct edit view, xml is validated and warns the user if the xml is invalid. 
+ - Removed warning pop-up when saving in the direct-edit view.
+ 
 1.6
  - Fixed a small issue when loading a mod with the boxes in the view not updating correctly.
  - Fixed crashing issue if the user did not set the custom tag with a new install.
