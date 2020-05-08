@@ -118,6 +118,7 @@ Version History
  - Added an option to overwrite local files when loading a mod. This is so you can reload mods. Warning does not MERGE. Any changes to the mod by you will be overritten.
  - Added the Collapse parent right click menu to the mod search trees.
  - Added functionality clicking on an objects, in search trees,  copies the first attribute. Now you can click the main object for the first attribute or open it and click individual attributes.
+ - Added the ability to expand and collapse xml nodes in the direct edit view. Includes a context menu to expand or collapse all nodes in the document.
  - Changed all xaml ui elements in main wndow to be center aligned. This is to have better consistancy in the app.
  - All generated attribute values are trimmed. Meaning accidental white spaces in the new object view input boxes are automatically removed.
  - When adding a mod object, the app reloads all wrappers to ensure any xml updates are reflected in the search tree.
