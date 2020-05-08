@@ -25,9 +25,9 @@ namespace SevenDaysToDieModCreator.Controllers
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.LeftNewObjectViewController = new ObjectViewController(xmlOutputBox, this.LoadedListWrappers);
         }
-        public void AddSearchTree(MyStackPanel searchTreeFormsPanel, ComboBox SearchTreeLoadedFilesComboBox, bool doAddContextMenu = true)
+        public void AddSearchTree(MyStackPanel searchTreeFormsPanel, ComboBox searchTreeLoadedFilesComboBox, bool doAddContextMenu = true, bool includeChildrenInOnHover = false, bool includeComments = false)
         {
-            string selectedObject = SearchTreeLoadedFilesComboBox.Text;
+            string selectedObject = searchTreeLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             XmlObjectsListWrapper selectedWrapper = this.LoadedListWrappers.GetWrapperFromDictionary(selectedObject);
             if (selectedObject.Split("_").Length > 1)
@@ -47,7 +47,7 @@ namespace SevenDaysToDieModCreator.Controllers
             XmlObjectsListWrapper leftObjectWrapper = searchTreeFormsPanel.LoadedListWrappers.GetValueOrDefault(selectedObject);
             if (leftObjectWrapper == null || leftObjectWrapper.xmlFile.FileSize < this.FILE_SIZE_THRESHOLD)
             {
-                TreeViewItem nextTreeView = this.LeftNewObjectViewController.GetSearchTreeViewRecursive(selectedWrapper, selectedObject, doAddContextMenu);
+                TreeViewItem nextTreeView = this.LeftNewObjectViewController.GetSearchTreeViewRecursive(selectedWrapper, selectedObject,addContextMenu: doAddContextMenu, includeChildrenInOnHover: includeChildrenInOnHover, includeComments: includeComments);
                 nextTreeView.Header = selectedObject;
                 searchTreeFormsPanel.Children.Add(nextTreeView);
             }
@@ -61,7 +61,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 switch (result)
                 {
                     case MessageBoxResult.Yes:
-                        TreeViewItem nextTreeView = LeftNewObjectViewController.GetSearchTreeViewRecursive(selectedWrapper, selectedObject, doAddContextMenu);
+                        TreeViewItem nextTreeView = LeftNewObjectViewController.GetSearchTreeViewRecursive(selectedWrapper, selectedObject, addContextMenu: doAddContextMenu, includeChildrenInOnHover: includeChildrenInOnHover, includeComments: includeComments);
                         nextTreeView.Header = selectedObject;
                         searchTreeFormsPanel.Children.Add(nextTreeView);
                         break;
@@ -122,6 +122,7 @@ namespace SevenDaysToDieModCreator.Controllers
 
                 if (hasXmlFiles && !fullSelectedPath.ToLower().Contains("config"))
                 {
+    
                     currentModFilesCenterViewComboBox.SetComboBox(new List<string>());
                     Properties.Settings.Default.ModTagSetting = currentModName;
                     Properties.Settings.Default.Save();
@@ -129,7 +130,23 @@ namespace SevenDaysToDieModCreator.Controllers
                     loadedModsCenterViewComboBox.SelectedItem = currentModName;
                     //Copy the files to the output path at Output/Mods/ModName
                     string appOutputPath = Path.Combine(XmlFileManager._fileOutputPath, "Mods", currentModName);
-                    XmlFileManager.CopyAllFilesToPath(fullSelectedPath, appOutputPath);
+                    bool overwriteLocalAppFiles = false;
+                    if (Directory.Exists(appOutputPath)) 
+                    {
+                        MessageBoxResult messageBoxResult = MessageBox.Show(
+                            "The mod is already loaded. Do you want to OVERWRITE the local, application files?\n\n" +
+                            "WARNING: This feature does not merge the files! If you have changes in the files, they will be overwritten.",
+                            "Overwrite Application Mod Files",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Question);
+                        switch (messageBoxResult) 
+                        {
+                            case MessageBoxResult.Yes:
+                                overwriteLocalAppFiles = true;
+                                break;
+                        }
+                    }
+                    XmlFileManager.CopyAllFilesToPath(fullSelectedPath, appOutputPath, overwriteLocalAppFiles);
                     loadedModsCenterViewComboBox.AddUniqueValueTo(currentModName);
                     loadedModsSearchViewComboBox.AddUniqueValueTo(currentModName);
                     LoadCustomTagWrappers(currentModName, currentModFilesCenterViewComboBox);
@@ -260,6 +277,10 @@ namespace SevenDaysToDieModCreator.Controllers
                 if (fontChange < 0 && nextControl.FontSize < 6) continue;
                 if (nextControl is TreeViewItem nextTreeViewItem)
                 {
+                    if (nextTreeViewItem.Header is ComboBox comboBox)
+                    {
+                        if (comboBox.FontSize > 4 || fontChange > 0) comboBox.FontSize += fontChange;
+                    }
                     if (nextTreeViewItem.Header is MyComboBox myComboBox)
                     {
                         if (myComboBox.FontSize > 4 || fontChange > 0) myComboBox.FontSize += fontChange;
@@ -367,7 +388,7 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         internal void SetNewCustomTag(Views.CustomDialogBox dialog, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox)
         {
-            string name = XmlConvert.VerifyName(dialog.ResponseText);
+            string name = XmlConvert.VerifyName(dialog.ResponseText.Trim());
             Properties.Settings.Default.ModTagSetting = name;
             Properties.Settings.Default.Save();
             currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(name));
@@ -376,7 +397,7 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         internal void ChangeCustomTagName(CustomDialogBox dialog, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox, ComboBox loadedModsSearchViewComboBox)
         {
-            string newModName = XmlConvert.VerifyName(dialog.ResponseText);
+            string newModName = XmlConvert.VerifyName(dialog.ResponseText.Trim());
             string oldModName = Properties.Settings.Default.ModTagSetting;
             XmlFileManager.RenameModDirectory(oldModName, newModName);
             Properties.Settings.Default.ModTagSetting = newModName;

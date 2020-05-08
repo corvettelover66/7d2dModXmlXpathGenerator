@@ -19,7 +19,7 @@
                         <MenuItem Header="_Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
                         <MenuItem Header="Load _Mod" Name="LoadModDirectoryMenuItem" Click="LoadModDirectoryMenuItem_Click"/>
                         <!--<MenuItem Header="Load Mods _Directory" Name="LoadGameModDirectoryMenuItem" Click="LoadGameModDirectoryMenuItem_Click"/>-->
-                        <MenuItem Header="_Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
+                        <MenuItem Header="Sa_ve All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
                         <MenuItem Header="Stage _All" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
                         <MenuItem Header="_Validate Mod Files" Name="ValidateXmlMenuItem" Click="ValidateXmlMenuItem_Click"/>
                     </MenuItem>
@@ -52,12 +52,12 @@
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0" VerticalAlignment="Top" >
                         <StackPanel Name="MainSP">
-                            <ComboBox Name="NewObjectViewLoadedFilesComboBox" FontSize="20" ></ComboBox>
+                            <ComboBox Name="NewObjectViewLoadedFilesComboBox" HorizontalContentAlignment="Center" FontSize="20" ></ComboBox>
                             <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
                         </StackPanel >
                     </Grid>
                     <Grid Grid.Row="1"  VerticalAlignment="Top">
-                        <ScrollViewer Name="NewObjectScrollView" HorizontalContentAlignment="Right"  VerticalAlignment="Top">
+                        <ScrollViewer Name="NewObjectScrollView" HorizontalContentAlignment="Right"  VerticalAlignment="Top" HorizontalScrollBarVisibility="Auto">
                         </ScrollViewer>
                     </Grid>
                     <Grid Grid.Row="2" VerticalAlignment="Bottom" >
@@ -89,7 +89,7 @@
                     <StackPanel VerticalAlignment="Bottom">
                         <ComboBox Name="CurrentGameFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
                         <Button x:Name="OpenGameFileDirectEditViewButton" Click="OpenDirectEditGameXmlViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
-                        <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
+                        <Button x:Name="_SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
                     </StackPanel>
                 </Grid>
             </Grid>
@@ -102,11 +102,29 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <StackPanel Name="SearchViewModSelectionPanel">
-                        <ComboBox Name="SearchTreeLoadedFilesComboBox" FontSize="20" >
-                        </ComboBox>
-                        <Button x:Name="AddNewTreeViewButton" Click="AddNewSearchTreeView_Click" FontSize="18">Add Game Search Tree</Button>
-                        <ComboBox Name="LoadedModsSearchViewComboBox" FontSize="20" >
-                        </ComboBox>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <ComboBox Name="SearchTreeLoadedFilesComboBox" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <CheckBox x:Name="IncludeChildrenInOnHoverCheckBox" Content="Include Children" IsChecked="False" FontSize="16" />
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <CheckBox x:Name="IncludeCommentsCheckBox" Content="Include Comments" IsChecked="False" FontSize="16"  />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        <Button x:Name="AddNewTreeViewButton"  Click="AddNewSearchTreeView_Click" FontSize="18" HorizontalContentAlignment="Center">Add Game Search Tree</Button>
+                        <ComboBox Name="LoadedModsSearchViewComboBox" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1" VerticalAlignment="Top">

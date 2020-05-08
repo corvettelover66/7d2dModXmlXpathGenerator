@@ -78,7 +78,7 @@ namespace SevenDaysToDieModCreator.Models
                     if (count != null) count[0]++;
                 }
             }
-            this.MainWindowViewController.LeftNewObjectViewController.xmlOutBlock.Text =
+            this.MainWindowViewController.LeftNewObjectViewController.XmlOutBlock.Text =
                 XmlXpathGenerator.GenerateXmlViewOutput(this.MainWindowViewController.LeftNewObjectViewController.NewObjectFormViewPanel);
         }
     }

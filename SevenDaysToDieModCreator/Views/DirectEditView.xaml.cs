@@ -1,4 +1,5 @@
-﻿using ICSharpCode.AvalonEdit.Search;
+﻿using ICSharpCode.AvalonEdit.Folding;
+using ICSharpCode.AvalonEdit.Search;
 using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using System;
@@ -17,9 +18,11 @@ namespace SevenDaysToDieModCreator.Views
     {
         private XmlObjectsListWrapper Wrapper { get; set; }
         private string StartingFileContents { get; set; }
+        private string StartingTitle { get; set; }
         private string FileLocationPath { get; set; }
         private bool IsGameFile { get; set; }
-
+        private FoldingManager FoldingManager { get; }
+        private XmlFoldingStrategy FoldingStrategy { get; }
 
         public DirectEditView(XmlObjectsListWrapper wrapperToUse, bool isGameFile, string title = null, string contentsForXmlOutputBox = null, string fileLocationPath = "")
         {
@@ -50,9 +53,15 @@ namespace SevenDaysToDieModCreator.Views
             string labelContents = isGameFile
                 ? "Game File: " + wrapperToUse.xmlFile.FileName + "\n"
                 : "Mod: " + Properties.Settings.Default.ModTagSetting + "\n" + "File: " + wrapperToUse.xmlFile.FileName + "\n";
-            this.Title = wrapperToUse.xmlFile.FileName;
+            this.StartingTitle = isGameFile 
+                ? "Game File: " + wrapperToUse.xmlFile.FileName 
+                : wrapperToUse.xmlFile.GetFileNameWithoutExtension() + " : " + Properties.Settings.Default.ModTagSetting; 
+            this.Title = StartingTitle;
 
             ModNameLabel.Content = String.IsNullOrEmpty(title) ? labelContents : title;
+            FoldingManager = FoldingManager.Install(this.XmlOutputBox.TextArea);
+            FoldingStrategy = new XmlFoldingStrategy();
+            FoldingStrategy.UpdateFoldings(FoldingManager, this.XmlOutputBox.Document);
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
         private void XmlOutputBox_GotMouseCapture(object sender, MouseEventArgs e)
@@ -62,11 +71,14 @@ namespace SevenDaysToDieModCreator.Views
         private void XmlOutputBox_TextChanged(object sender, EventArgs e)
         {
             string currentContents = GetCurrentFileContents();
-            this.Title = XmlOutputBox.Text.Equals(currentContents) ? Wrapper.xmlFile.FileName : "*" + Wrapper.xmlFile.FileName;
+            this.Title = XmlOutputBox.Text.Equals(currentContents)
+                ? this.StartingTitle
+                : "*" + this.StartingTitle;
+            FoldingStrategy.UpdateFoldings(FoldingManager, this.XmlOutputBox.Document);
         }
         private void SaveXmlButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = SaveFile();
+            SaveFile();
         }
         private void ReloadFileXmlButton_Click(object sender, RoutedEventArgs e)
         {
@@ -106,10 +118,10 @@ namespace SevenDaysToDieModCreator.Views
                             ? ""
                             : Wrapper.xmlFile.ParentPath;
                         string xmlOut = XmlOutputBox.Text;
-                        if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(XmlFileManager._ModOutputPath, parentString), Wrapper.xmlFile.FileName, xmlOut, true);
+                        if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(XmlFileManager._ModConfigOutputPath, parentString), Wrapper.xmlFile.FileName, xmlOut, true);
                         break;
                     case MessageBoxResult.Cancel:
-                        DirectEditView directEditView = new DirectEditView(this.Wrapper, this.IsGameFile, ModNameLabel.Content.ToString(), XmlOutputBox.Text, FileLocationPath);
+                        DirectEditView directEditView = new DirectEditView(this.Wrapper, this.IsGameFile, this.StartingTitle, XmlOutputBox.Text, FileLocationPath);
                         directEditView.Show();
                         break;
                 }
@@ -160,27 +172,31 @@ namespace SevenDaysToDieModCreator.Views
             bool isFileChanged = !String.IsNullOrEmpty(fileContents) && !fileContents.Equals(XmlOutputBox.Text);
             return isFileChanged;
         }
-        private MessageBoxResult SaveFile()
+        private void SaveFile()
         {
-            MessageBoxResult result = MessageBox.Show(
-                "This will overwrite the file in the output location with your changes. Are you sure?",
-                "Save Direct Changes",
-                MessageBoxButton.OKCancel,
-                MessageBoxImage.Warning);
-            switch (result)
+            string xmlOut = XmlOutputBox.Text;
+            bool isXmlValid = ValidateXml(xmlOut);
+            if (!isXmlValid)
             {
-                case MessageBoxResult.OK:
-                    string xmlOut = XmlOutputBox.Text;
-                    string parentPath = Wrapper.xmlFile.ParentPath == null ? "" : Wrapper.xmlFile.ParentPath;
-                    if (!String.IsNullOrEmpty(xmlOut))
-                    {
-                        XmlFileManager.WriteStringToFile(Path.Combine(this.FileLocationPath, parentPath), Wrapper.xmlFile.FileName, xmlOut);
-                        StartingFileContents = xmlOut;
-                        this.Title = Wrapper.xmlFile.FileName;
-                    }
-                    break;
+                MessageBoxResult saveInvalidXmlDecision = MessageBox.Show(
+                    "The xml is not valid! Would you like to save anyway?\n\n" +
+                    " To see the error, run the xml validate function.",
+                    "Invalid XML!",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Error);
+                switch (saveInvalidXmlDecision)
+                {
+                    case MessageBoxResult.No:
+                        return;
+                }
             }
-            return result;
+            string parentPath = Wrapper.xmlFile.ParentPath == null ? "" : Wrapper.xmlFile.ParentPath;
+            if (!String.IsNullOrEmpty(xmlOut))
+            {
+                XmlFileManager.WriteStringToFile(Path.Combine(this.FileLocationPath, parentPath), Wrapper.xmlFile.FileName, xmlOut);
+                StartingFileContents = xmlOut;
+                this.Title = this.StartingTitle;
+            }
         }
         private void UpdateViewComponents()
         {
@@ -205,8 +221,9 @@ namespace SevenDaysToDieModCreator.Views
                 }
             }
         }
-        private void ValidateXmlButton_Click(object sender, RoutedEventArgs e)
+        private bool ValidateXml(string xmlToValidate, bool doShowValidationMessage = false) 
         {
+            bool isValid = true;
             string fileValidationString;
             try
             {
@@ -218,8 +235,14 @@ namespace SevenDaysToDieModCreator.Views
             catch (XmlException exception)
             {
                 fileValidationString = "File is invalid Xml:\n\n" + exception.Message;
+                isValid = false;
             }
-            MessageBox.Show(fileValidationString, "Xml Validation", MessageBoxButton.OK, MessageBoxImage.Information);
+            if(!String.IsNullOrEmpty(fileValidationString) && doShowValidationMessage)MessageBox.Show(fileValidationString, "Xml Validation", MessageBoxButton.OK, MessageBoxImage.Information);
+            return isValid;
+        }
+        private void ValidateXmlButton_Click(object sender, RoutedEventArgs e)
+        {
+            ValidateXml(XmlOutputBox.Text, true);
         }
     }
 }

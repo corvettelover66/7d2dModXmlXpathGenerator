@@ -8,15 +8,15 @@ namespace SevenDaysToDieModCreator.Models
     {
         private static string ReadFileContents;
         public static string _fileOutputPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
-        public static string _ModPath
+        public static string _ModDirectoryOutputPath
         {
-            get => Properties.Settings.Default.ModTagSetting + "/Config/";
-            set => _ModPath = value;
+            get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/", Properties.Settings.Default.ModTagSetting);
+            set => _ModDirectoryOutputPath = value;
         }
-        public static string _ModOutputPath
+        public static string _ModConfigOutputPath
         {
             get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + Properties.Settings.Default.ModTagSetting + "/Config/");
-            set => _ModOutputPath = value;
+            set => _ModConfigOutputPath = value;
         }
         public static string _LoadedFilesPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
         public static string Xui_Folder_Name = "XUi";
@@ -99,7 +99,7 @@ namespace SevenDaysToDieModCreator.Models
         //Pass in the Custom Tag to exclude it from the read.
         public static string ReadExistingFile(string fileName, string MyCustomTagName = null)
         {
-            string fileContents = GetFileContents(_ModOutputPath, fileName);
+            string fileContents = GetFileContents(_ModConfigOutputPath, fileName);
             if (fileContents != null && MyCustomTagName != null)
             {
                 fileContents = fileContents.Replace("<" + MyCustomTagName + ">\n", "");
@@ -160,15 +160,12 @@ namespace SevenDaysToDieModCreator.Models
             foreach (string fileName in filesInDirectory)
             {
                 string newFilePath = Path.Combine(outputPath, Path.GetFileName(fileName));
-                if (Path.GetFileName(fileName).Contains(".xml"))
+                if (doOverwriteFiles)
                 {
-                    if (doOverwriteFiles)
-                    {
-                        if (File.Exists(newFilePath)) File.Delete(newFilePath);
-                        File.Copy(fileName, newFilePath);
-                    }
-                    else if (!File.Exists(newFilePath)) File.Copy(fileName, newFilePath);
+                    if (File.Exists(newFilePath)) File.Delete(newFilePath);
+                    File.Copy(fileName, newFilePath);
                 }
+                else if (!File.Exists(newFilePath)) File.Copy(fileName, newFilePath);
             }
             if (directoriesInConfig.Length > 0)
             {
@@ -210,10 +207,11 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static void CopyAllOutputFiles()
         {
-            string gameModDirectory = Properties.Settings.Default.GameFolderModDirectory + _ModPath;
+            string gameModDirectory = Path.Combine(Properties.Settings.Default.GameFolderModDirectory, Properties.Settings.Default.ModTagSetting);
+
             Directory.CreateDirectory(gameModDirectory);
-            Directory.CreateDirectory(_ModOutputPath);
-            if (!String.IsNullOrEmpty(gameModDirectory)) CopyAllFilesToPath(_ModOutputPath, gameModDirectory, true);
+            Directory.CreateDirectory(_ModConfigOutputPath);
+            if (!String.IsNullOrEmpty(gameModDirectory)) CopyAllFilesToPath(_ModDirectoryOutputPath, gameModDirectory, true);
         }
         internal static void RenameModDirectory(string oldModName, string newModName)
         {

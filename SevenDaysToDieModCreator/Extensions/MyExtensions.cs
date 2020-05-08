@@ -245,9 +245,9 @@ namespace SevenDaysToDieModCreator.Extensions
             newBox.SelectedIndex = 0;
             return newBox;
         }
-        public static MyComboBox CreateMyComboBoxList<T>(this IList<T> listToUse, ObjectViewController objectViewController, bool doAddContextMenu = true, string name = null)
+        public static MyComboBox CreateMyComboBoxList<T>(this IList<T> listToUse, ObjectViewController objectViewController, bool isGameFileSearchTree = true, string name = null)
         {
-            MyComboBox newBox = new MyComboBox(objectViewController, doAddContextMenu);
+            MyComboBox newBox = new MyComboBox(objectViewController, isGameFileSearchTree);
             newBox.IsEditable = true;
             if (name != null) newBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
@@ -258,8 +258,16 @@ namespace SevenDaysToDieModCreator.Extensions
             newBox.ItemsSource = allItems;
             return newBox;
         }
+        public static void AddUniqueValueTo(this MyComboBox boxToAddTo, string valueToAdd)
+        {
+            AddUniqueValueTo(boxToAddTo as ComboBox, valueToAdd);
+        }
         public static void AddUniqueValueTo(this ComboBox boxToAddTo, string valueToAdd)
         {
+            if (boxToAddTo == null) 
+            {
+                Console.WriteLine();
+            }
             if (boxToAddTo.ItemsSource == null)
             {
                 ObservableCollection<string> allItems = new ObservableCollection<string>();

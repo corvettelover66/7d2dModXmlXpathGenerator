@@ -102,12 +102,14 @@ namespace SevenDaysToDieModCreator.Models
             string attributeName = "";
             string nodeToSkip;
             //If it is insert before or insert after and a top tag we don't want to skip the first tag.
-            if ((xPathAction.Equals(XPATH_ACTION_INSERT_AFTER) || xPathAction.Equals(XPATH_ACTION_INSERT_BEFORE)) && xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = "";
+            if (((xPathAction.Equals(XPATH_ACTION_INSERT_AFTER) || xPathAction.Equals(XPATH_ACTION_INSERT_BEFORE)) && String.IsNullOrEmpty(attributeInAction)) && xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = "";
             else nodeToSkip = nodeName;
 
             string generatedXml = GenerateXmlForObject(topTree, "", nodeToSkip, xPathAction, nodeName, 1);
-
-            if (actionSplit[0].Equals(XPATH_ACTION_SET_ATTRIBUTE)) attributeName = ((topTree.Items.GetItemAt(0) as TreeViewItem).Header as TextBox).Text;
+            
+            if (actionSplit[0].Equals(XPATH_ACTION_SET_ATTRIBUTE) 
+                || ((actionSplit[0].Equals(XPATH_ACTION_INSERT_AFTER ) || actionSplit[0].Equals(XPATH_ACTION_INSERT_BEFORE)) 
+                    && !String.IsNullOrEmpty(attributeInAction))) attributeName = ((topTree.Items.GetItemAt(0) as TreeViewItem).Header as TextBox).Text;
 
             string xmlOut = GenerateXpathTagetPath(currentXmlNode, xmlObjectsListWrapper.TopTagName, generatedXml, xPathAction, attributeInAction, attributeName);
             return xmlOut;
@@ -134,7 +136,9 @@ namespace SevenDaysToDieModCreator.Models
                 else break;
             } while (!nextParentNode.Name.Equals(topTagName));
             if (!String.IsNullOrEmpty(attributeInAction)) attributeInAction = "/@" + attributeInAction;
-            if (!String.IsNullOrEmpty(attributeName)) attributeInAction = "\" name=\"" + attributeName + "\"";
+            if (!String.IsNullOrEmpty(attributeName) && xpathAction.Equals(XPATH_ACTION_SET_ATTRIBUTE)) attributeInAction = "\" name=\"" + attributeName + "\"";
+            else if(!String.IsNullOrEmpty(attributeName)) attributeInAction += "\" name=\"" + attributeName;
+
             pathToParent = "/" + topTagName + pathToParent + attributeInAction;
             //                  if the action is not a one line type action and attribute in action is null
             string endingXml;
@@ -183,8 +187,9 @@ namespace SevenDaysToDieModCreator.Models
             }
             if (nextTreeItem.Name.Equals(ATTRIBUTE_NAME)) return "";
 
+            Button headerAsButton = nextTreeItem.Header as Button;
             //If the target node is null use the treeitem header 
-            string targetNodeContent = targetNode ?? ((Button)nextTreeItem.Header).Content.ToString().Split(":")[0];
+            string targetNodeContent = targetNode ?? headerAsButton.Content.ToString().Split(":")[0];
 
             bool didAddAttributes = AddTagWithAttributes(nextTreeItem, ref xmlOut, targetNodeContent);
             if (didAddAttributes) xmlOut = tabs + xmlOut;
@@ -232,7 +237,7 @@ namespace SevenDaysToDieModCreator.Models
                     {
                         hasFoundItem = true;
                         if (!didWriteStart) xmlOut += "<" + headerContent;
-                        xmlOut += " " + nextControlAsBox.Tag + "=\"" + nextControlAsBox.Text + "\" ";
+                        xmlOut += " " + nextControlAsBox.Tag + "=\"" + nextControlAsBox.Text.Trim() + "\" ";
                         didWriteStart = true;
                     }
                 }
@@ -244,22 +249,21 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static string GenerateXmlViewOutput(MyStackPanel newObjectFormsPanel)
         {
-            string addedViewTextStart = "WARNING: Direct text edits made here will NOT be saved.\n\n" +
-             "To make direct file edits you can select a file below and open the direct editor window for the file.\n\n" +
-             "You can also make direct changes to the file(s) at the current output location: \n" + XmlFileManager._ModOutputPath + "\n";
+            string addedViewTextStart = " <!--WARNING: Direct text edits made here will NOT be saved.-->\n\n" +
+             "<!--To make direct file edits you can select a file below and open the direct editor window for the file.-->\n\n" +
+             "<!--You can also make direct changes to the file(s) at the current output location: \n" + XmlFileManager._ModConfigOutputPath + "-->\n";
             string unsavedGeneratedXmlStart = "<!-- -------------------------------------- Current Unsaved XML ----------------------------------- -->\n\n";
 
             string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
-            string existingWrapperFileData = "<!-- SAVED XML  -->\n\n";
 
-            foreach (XmlObjectsListWrapper xmlObjectsListWrapper in newObjectFormsPanel.LoadedListWrappers.Values)
-            {
-                string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
-                existingWrapperFileData += XmlFileManager.ReadExistingFile(Path.Combine(parentPath, xmlObjectsListWrapper.xmlFile.FileName), Properties.Settings.Default.ModTagSetting);
-            }
+            //foreach (XmlObjectsListWrapper xmlObjectsListWrapper in newObjectFormsPanel.LoadedListWrappers.Values)
+            //{
+            //    string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
+            //    existingWrapperFileData += XmlFileManager.ReadExistingFile(Path.Combine(parentPath, xmlObjectsListWrapper.xmlFile.FileName), Properties.Settings.Default.ModTagSetting);
+            //}
 
             string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel);
-            return addedViewTextStart + unsavedGeneratedXmlStart + allGeneratedXml + unsavedGeneratedXmlEnd + existingWrapperFileData;
+            return addedViewTextStart + unsavedGeneratedXmlStart + allGeneratedXml + unsavedGeneratedXmlEnd ;
         }
     }
 }

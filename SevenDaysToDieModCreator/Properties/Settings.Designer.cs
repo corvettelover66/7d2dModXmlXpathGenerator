@@ -82,5 +82,29 @@ namespace SevenDaysToDieModCreator.Properties {
                 this["AutoMoveDecisionMade"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IncludeChildrenSearchTreeTooltip {
+            get {
+                return ((bool)(this["IncludeChildrenSearchTreeTooltip"]));
+            }
+            set {
+                this["IncludeChildrenSearchTreeTooltip"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IncludeCommentsSearchTreeTooltip {
+            get {
+                return ((bool)(this["IncludeCommentsSearchTreeTooltip"]));
+            }
+            set {
+                this["IncludeCommentsSearchTreeTooltip"] = value;
+            }
+        }
     }
 }
