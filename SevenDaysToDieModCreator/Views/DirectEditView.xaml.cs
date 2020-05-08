@@ -49,7 +49,12 @@ namespace SevenDaysToDieModCreator.Views
             this.XmlOutputBox.GotMouseCapture += XmlOutputBox_GotMouseCapture;
             this.XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
             this.XmlOutputBox.TextChanged += XmlOutputBox_TextChanged;
-
+            this.XmlOutputBox.AddContextMenu(CollapseAllContextMenu_Clicked, 
+                "Collapse All", 
+                "Click here to collapse all nodes in the document.");
+            this.XmlOutputBox.AddContextMenu(ExpandAllContextMenu_Clicked,
+                "Expand All",
+                "Click here to expand  all nodes in the document.");
             string labelContents = isGameFile
                 ? "Game File: " + wrapperToUse.xmlFile.FileName + "\n"
                 : "Mod: " + Properties.Settings.Default.ModTagSetting + "\n" + "File: " + wrapperToUse.xmlFile.FileName + "\n";
@@ -61,9 +66,27 @@ namespace SevenDaysToDieModCreator.Views
             ModNameLabel.Content = String.IsNullOrEmpty(title) ? labelContents : title;
             FoldingManager = FoldingManager.Install(this.XmlOutputBox.TextArea);
             FoldingStrategy = new XmlFoldingStrategy();
+            FoldingStrategy.ShowAttributesWhenFolded = true;
             FoldingStrategy.UpdateFoldings(FoldingManager, this.XmlOutputBox.Document);
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
+
+        private void CollapseAllContextMenu_Clicked(object sender, RoutedEventArgs e)
+        {
+            foreach (FoldingSection nextSection in FoldingManager.AllFoldings)
+            {
+                nextSection.IsFolded = true;
+            }
+        }
+
+        private void ExpandAllContextMenu_Clicked(object sender, RoutedEventArgs e)
+        {
+            foreach (FoldingSection nextSection in FoldingManager.AllFoldings) 
+            {
+                nextSection.IsFolded = false;
+            }
+        }
+
         private void XmlOutputBox_GotMouseCapture(object sender, MouseEventArgs e)
         {
             HandleExternalFileChanges();
