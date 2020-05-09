@@ -78,7 +78,12 @@ TODO
 
 EASY:
 -Add a setting to change the search box threshold
-
++Add a copy (same as edit on mod trees) context menu to the game search trees.
+++Make sure the context menu is being reused for mod search trees.
+++Change splash screen popup to be yes or no
+++Add an auto move button to the main UI
+++Add the edit feature for any object, I.E. clicking on a passive effect will generate a passive effect for you with everything filled in
+++++disable on hover inside search box.
 MEDIUM:
 -Add a button to open xml files in an external program.
 -Change the way settings are displayed potentially so adding settings becomes easier.
@@ -86,14 +91,17 @@ MEDIUM:
 -Add a popup on edit, to remove the object from the xml or not.
 -Add a hide unused attributes in the new object view.
 -Fix bug, buttons in new object window are using quick keys.
++Add the ability to move lines in the direct edit view.
 +Add the ability to set the wrapper for a New Object view to allow for eaiser additions when creating mods from mods. Basically this means to put mod used attributes in the New Object Combo box to make adding new objects using mods eaiser.
 +Add logic to auto remove config tags from the files.
++Add the ability to add comments in the direct edit view.
 ++Add a view to add the mod info.xml file.
 +++Change property tags to use common attributes for the name and not the tag name.
 ++++Make it so on save, append tags are not generated per object. Or add the ability to combine tags in a file.
 
 HARD:
 -When updating a mod, using the Load mod menu item, merge the files.
+-Add the possibility to add multiple attributes to the xpath action.
 -Finish the duplicate an object in the left new object panel feature.
 	For this, write out to a tmp file. Read the xml, create a temp xmlWrapper, and create a view using the correct object.
 -Add the ability to validate Recipes against the items xml to help with in game issues.
@@ -105,7 +113,7 @@ HARD:
 
 Version History
 1.6.1
- - Fixed crashing issue when using the edit object function on a Mod Search Tree
+ - Fixed crashing issue when using the edit object function on a Mod Search Tree.
  - Fixed crashing issue when clicking add mod search tree when the selected file is blank.
  - Fixed issue with the edit functionality was displaying to many times. Also modifies the error message to be more descriptive as to the issue.
  - Fixed issue with the Auto Move feature. If the mod had other directories and a localization.txt, these files and directories were ignored, this is now fixed. 
