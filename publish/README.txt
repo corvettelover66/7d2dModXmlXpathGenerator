@@ -83,21 +83,25 @@ EASY:
 ++Change splash screen popup to be yes or no
 ++Add an auto move button to the main UI
 ++Add the edit feature for any object, I.E. clicking on a passive effect will generate a passive effect for you with everything filled in
+++ Add an ignore tag to an object tree. This is to ignore it when saving.
 ++++disable on hover inside search box.
+++++Fix bug, when loading a mod, the search tree file box does not update.
 MEDIUM:
 -Add a button to open xml files in an external program.
 -Change the way settings are displayed potentially so adding settings becomes easier.
 -Finish load Mods Directory Menu Item for loading all mods in the game directory. 
 -Add a popup on edit, to remove the object from the xml or not.
--Add a hide unused attributes in the new object view.
 -Fix bug, buttons in new object window are using quick keys.
 +Add the ability to move lines in the direct edit view.
 +Add the ability to set the wrapper for a New Object view to allow for eaiser additions when creating mods from mods. Basically this means to put mod used attributes in the New Object Combo box to make adding new objects using mods eaiser.
 +Add logic to auto remove config tags from the files.
 +Add the ability to add comments in the direct edit view.
++When adding a name in the new object view update the button header.
 ++Add a view to add the mod info.xml file.
 +++Change property tags to use common attributes for the name and not the tag name.
 ++++Make it so on save, append tags are not generated per object. Or add the ability to combine tags in a file.
+++++Add a hide unused attributes in the new object view.
+++++Fix, sound xml does not add objects correctly.
 
 HARD:
 -When updating a mod, using the Load mod menu item, merge the files.
