@@ -78,44 +78,55 @@ TODO
 
 EASY:
 -Add a setting to change the search box threshold
-+Add a copy (same as edit on mod trees) context menu to the game search trees.
-++Make sure the context menu is being reused for mod search trees.
-++Change splash screen popup to be yes or no
-++Add an auto move button to the main UI
-++Add the edit feature for any object, I.E. clicking on a passive effect will generate a passive effect for you with everything filled in
-++ Add an ignore tag to an object tree. This is to ignore it when saving.
-++++disable on hover inside search box.
-++++Fix bug, when loading a mod, the search tree file box does not update.
+
 MEDIUM:
 -Add a button to open xml files in an external program.
 -Change the way settings are displayed potentially so adding settings becomes easier.
 -Finish load Mods Directory Menu Item for loading all mods in the game directory. 
 -Add a popup on edit, to remove the object from the xml or not.
--Fix bug, buttons in new object window are using quick keys.
-+Add the ability to move lines in the direct edit view.
-+Add the ability to set the wrapper for a New Object view to allow for eaiser additions when creating mods from mods. Basically this means to put mod used attributes in the New Object Combo box to make adding new objects using mods eaiser.
 +Add logic to auto remove config tags from the files.
+-When adding a name in the new object view update the button header, essentially use the combo box to update the button name.
 +Add the ability to add comments in the direct edit view.
-+When adding a name in the new object view update the button header.
+++Add code completion to the direct edit box. http://avalonedit.net/documentation/
 ++Add a view to add the mod info.xml file.
++++Add the ability to move lines in the direct edit view.
 +++Change property tags to use common attributes for the name and not the tag name.
-++++Make it so on save, append tags are not generated per object. Or add the ability to combine tags in a file.
-++++Add a hide unused attributes in the new object view.
-++++Fix, sound xml does not add objects correctly.
 
 HARD:
 -When updating a mod, using the Load mod menu item, merge the files.
 -Add the possibility to add multiple attributes to the xpath action.
--Finish the duplicate an object in the left new object panel feature.
-	For this, write out to a tmp file. Read the xml, create a temp xmlWrapper, and create a view using the correct object.
+-Finish the duplicate an object in the left new object panel feature. (This is essentially already in the app. With the copy object command in the search tree you can achieve this functionality)
 -Add the ability to validate Recipes against the items xml to help with in game issues.
 -In mod trees, on right click, have option to search a file for dependencies.
 -Add in functionality to handle the locilization file.
 -Find a way to live update search trees on file changes.
--Add code completion to the Avolon text edit views
+-Remove all hardcoded ui strings into a properties file for easily translating the application to other languages.(Not super hard, just time consuming)
 +Add side by side search trees for easier comparison.
 
 Version History
+1.6.2
+ - Added code to reuse context menu in the mod search trees. This was something that was done on the regular search trees to conserve used memory.
+ - Re-added the call to the Garbage Collector on removal of ui generated view items. This makes it so that on removal of any object memory should be freed. That means that as you work in the app, memory used should be freed more regularly. Originally I removed this due to recommendations against it. However, I have not noticed a negative impact on performance, only a positive impact. Therefore I'm keeping it.
+ - Added the edit object function to game trees. Also changed the function name to "Copy Object" in the UI.
+ - Fixed, sound xml did not add all objects correctly.
+ - Fixed bug, buttons in new object window were using access keys, potentially blocking the defined access keys. 
+ - Added functionality for empty tags, before there was no application way to add these tags. Now there is a checkbox to add an empty tag. Example, recipes.xml wildforgecard category has a checkbox to be added in generated xml.
+ - Removed children from onHover in search boxes in the search trees. It was really annoying in the main search box to have the on hover popup blocking the entries.
+ - Added a combine feature to direct edit windows. This allows users to combine on top level append tags into the same tag. This is to optimize search trees so app generated appends can be combined into a single tag. 
+ - Added an undo all menu button to the DirectEditWindow. This undos any changes in the file since the time of opening the window.
+ - Changed splash screen popup to be yes or no.
+ - Fixed, when loading a mod, the search tree mod file combo box does not update.
+ - Added a new context menu item to new object trees, to flag for ignoring the tree when saving.
+ - Added an auto move button to the main UI, this uses the same function as the stage all menu item
+ - Added access keys to the main ui for save and stage. To save all xml files users can press alt-s, to stage all mod files users can press alt-a.
+ - Reorganized the direct edit ui elements to be next to each other.
+ - Added a new combo box in the new object window that fills with common attributes from all mod files or the current slected mod. This includes a CheckBox to decide for each added object. You should note that even objects added from the search trees will use the checkbox. 
+ - Added drag and drop option to direct edit view. Users can select text and dag and drop it elsewhere in the doc.
+ - Added the show tabs option to the direct edit view.
+ - Added current line highlighting to the direct edit view.
+ - Added rectangular selection as well. Just press alt when clicking.
+ - Added context menu to New Object Trees to hide any unused attributes. This is useful when creating objects that are all similiar and you don't need the attributes. If a node has hidden attributes you will see a (*) in the tree name.
+
 1.6.1
  - Fixed crashing issue when using the edit object function on a Mod Search Tree.
  - Fixed crashing issue when clicking add mod search tree when the selected file is blank.
