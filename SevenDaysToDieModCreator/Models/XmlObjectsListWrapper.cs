@@ -90,7 +90,7 @@ namespace SevenDaysToDieModCreator.Models
             else if (lastParentName.Length > 0)
             {
                 List<string> childrenList = this.objectNameToChildrenMap.GetValueOrDefault(lastParentName);
-                childrenList.AddUnique(nextObjectNode.Name.ToLower());
+                childrenList.AddUnique(nextObjectNode.Name);
             }
             if (nextObjectNode.Attributes != null) TraverseAttributes(nextObjectNode);
             if (nextObjectNode.HasChildNodes)

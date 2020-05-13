@@ -245,9 +245,9 @@ namespace SevenDaysToDieModCreator.Extensions
             newBox.SelectedIndex = 0;
             return newBox;
         }
-        public static MyComboBox CreateMyComboBoxList<T>(this IList<T> listToUse, ObjectViewController objectViewController, bool isGameFileSearchTree = true, string name = null)
+        public static MyComboBox CreateMyComboBoxList<T>(this IList<T> listToUse, ObjectViewController objectViewController, XmlNode objectNode, bool isGameFileSearchTree = true, string name = null)
         {
-            MyComboBox newBox = new MyComboBox(objectViewController, isGameFileSearchTree);
+            MyComboBox newBox = new MyComboBox(objectViewController, objectNode, isGameFileSearchTree);
             newBox.IsEditable = true;
             if (name != null) newBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
@@ -264,10 +264,6 @@ namespace SevenDaysToDieModCreator.Extensions
         }
         public static void AddUniqueValueTo(this ComboBox boxToAddTo, string valueToAdd)
         {
-            if (boxToAddTo == null) 
-            {
-                Console.WriteLine();
-            }
             if (boxToAddTo.ItemsSource == null)
             {
                 ObservableCollection<string> allItems = new ObservableCollection<string>();
@@ -295,6 +291,15 @@ namespace SevenDaysToDieModCreator.Extensions
                 dictionaryToReturn.Add(key, returnQ);
             }
             return dictionaryToReturn;
+        }
+        public static bool ChildIsCheckBox(this TreeViewItem controlObject)
+        {
+            bool isCheckBox = false;
+            if (controlObject.HasItems) 
+            {
+               isCheckBox = controlObject.Items[0] as CheckBox != null ;
+            }
+            return isCheckBox;
         }
     }
 }

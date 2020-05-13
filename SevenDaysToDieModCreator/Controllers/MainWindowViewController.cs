@@ -20,10 +20,10 @@ namespace SevenDaysToDieModCreator.Controllers
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
         public ObjectViewController LeftNewObjectViewController { get; private set; }
-        public MainWindowViewController(ICSharpCode.AvalonEdit.TextEditor xmlOutputBox)
+        public MainWindowViewController(ICSharpCode.AvalonEdit.TextEditor xmlOutputBox, CheckBox includeAllModsCheckBox)
         {
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
-            this.LeftNewObjectViewController = new ObjectViewController(xmlOutputBox, this.LoadedListWrappers);
+            this.LeftNewObjectViewController = new ObjectViewController(xmlOutputBox, this.LoadedListWrappers, includeAllModsCheckBox);
         }
         public void AddSearchTree(MyStackPanel searchTreeFormsPanel, ComboBox searchTreeLoadedFilesComboBox, bool doAddContextMenu = true, bool includeChildrenInOnHover = false, bool includeComments = false)
         {
@@ -127,7 +127,6 @@ namespace SevenDaysToDieModCreator.Controllers
                     Properties.Settings.Default.ModTagSetting = currentModName;
                     Properties.Settings.Default.Save();
                     loadedModsSearchViewComboBox.SelectedItem = currentModName;
-                    loadedModsCenterViewComboBox.SelectedItem = currentModName;
                     //Copy the files to the output path at Output/Mods/ModName
                     string appOutputPath = Path.Combine(XmlFileManager._fileOutputPath, "Mods", currentModName);
                     bool overwriteLocalAppFiles = false;

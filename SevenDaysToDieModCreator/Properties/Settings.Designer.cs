@@ -106,5 +106,17 @@ namespace SevenDaysToDieModCreator.Properties {
                 this["IncludeCommentsSearchTreeTooltip"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IncludeAllModsObjectTreeAttributes {
+            get {
+                return ((bool)(this["IncludeAllModsObjectTreeAttributes"]));
+            }
+            set {
+                this["IncludeAllModsObjectTreeAttributes"] = value;
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using SevenDaysToDieModCreator.Controllers;
 using SevenDaysToDieModCreator.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Windows.Controls;
 
@@ -53,6 +54,7 @@ namespace SevenDaysToDieModCreator.Models
                         }
                     }
                 }
+                GC.Collect();
             }
         }
         private void HandleVisualChangedAdded(System.Windows.DependencyObject visualAdded)

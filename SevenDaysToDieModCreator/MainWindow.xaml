@@ -19,7 +19,7 @@
                         <MenuItem Header="_Load File(s)" Name="LoadFileMenuItem" Click="LoadFile_Click"/>
                         <MenuItem Header="Load _Mod" Name="LoadModDirectoryMenuItem" Click="LoadModDirectoryMenuItem_Click"/>
                         <!--<MenuItem Header="Load Mods _Directory" Name="LoadGameModDirectoryMenuItem" Click="LoadGameModDirectoryMenuItem_Click"/>-->
-                        <MenuItem Header="Sa_ve All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
+                        <MenuItem Header="_Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
                         <MenuItem Header="Stage _All" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
                         <MenuItem Header="_Validate Mod Files" Name="ValidateXmlMenuItem" Click="ValidateXmlMenuItem_Click"/>
                     </MenuItem>
@@ -51,10 +51,30 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0" VerticalAlignment="Top" >
-                        <StackPanel Name="MainSP">
-                            <ComboBox Name="NewObjectViewLoadedFilesComboBox" HorizontalContentAlignment="Center" FontSize="20" ></ComboBox>
-                            <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
-                        </StackPanel >
+                        <Grid >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <ComboBox Name="NewObjectViewLoadedFilesComboBox" HorizontalContentAlignment="Center" FontSize="20" ></ComboBox>
+                                    </Grid>
+                                    <Grid Grid.Column="1">
+                                        <CheckBox x:Name="IncludeAllModsInBoxesCheckBox" Content="Include All Mods" IsChecked="False" FontSize="16" />
+                                    </Grid>
+                                </Grid>
+
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <Button x:Name="AddObjectViewButton" Click="AddObjectView_Click" FontSize="18">Add New Object</Button>
+                            </Grid>
+                        </Grid>
                     </Grid>
                     <Grid Grid.Row="1"  VerticalAlignment="Top">
                         <ScrollViewer Name="NewObjectScrollView" HorizontalContentAlignment="Right"  VerticalAlignment="Top" HorizontalScrollBarVisibility="Auto">
@@ -75,22 +95,63 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" >
-                    <StackPanel VerticalAlignment="Top">
-                        <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center"/>
-                        <ComboBox Name="CurrentModFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
-                        <Button x:Name="OpenModFileDirectEditViewButton" Click="OpenDirectEditModXmlViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
-                    </StackPanel>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center"/>
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0">
+                                    <ComboBox Name="CurrentModFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
+                                </Grid>
+                                <Grid Grid.Column="1">
+                                    <Button x:Name="OpenModFileDirectEditViewButton" Click="OpenDirectEditModXmlViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
+                                </Grid>
+                            </Grid>
+                        </Grid>
                 </Grid>
                 <Grid Grid.Row="1">
                     <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
                     </avalonedit:TextEditor>
                 </Grid>
                 <Grid Grid.Row="2" VerticalAlignment="Bottom">
-                    <StackPanel VerticalAlignment="Bottom">
-                        <ComboBox Name="CurrentGameFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
-                        <Button x:Name="OpenGameFileDirectEditViewButton" Click="OpenDirectEditGameXmlViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
-                        <Button x:Name="_SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >Save All XML</Button>
-                    </StackPanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <ComboBox Name="CurrentGameFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Button x:Name="OpenGameFileDirectEditViewButton" Click="OpenDirectEditGameXmlViewButton_Click" FontSize="18">Open Direct Editor Window</Button>
+                            </Grid>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <Button x:Name="SaveXmlViewButton" Click="SaveXmlFile_Click" FontSize="18" >_Save All XML</Button>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Button x:Name="Stage_AllViewButton" Click="MoveFileMenuHeader_Click" FontSize="18" >Stage _All Files</Button>
+                            </Grid>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
             <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />

@@ -18,6 +18,7 @@ namespace SevenDaysToDieModCreator.Models
         public const string XPATH_ACTION_INSERT_AFTER = "insertAfter";
         public const string ATTRIBUTE_NAME = "Attribute";
         public const string ATTRIBUTE_VALUE = "AttributeValue";
+        public const string IGNORE_STRING = "IGNORE";
 
         public static string GenerateXmlForObjectView(MyStackPanel newObjectFormsPanel)
         {
@@ -65,18 +66,24 @@ namespace SevenDaysToDieModCreator.Models
             {
                 //The header is in the form nodename:targetattributename
                 string[] treeTagSplit = nextChildAsTree.Header.ToString().Split(":");
-                xmlOut += GenerateAppendXmlForTargetObject(xmlObjectsListWrapper, nextChildAsTree, (XmlNode)nextChildAsTree.Tag, treeTagSplit[0]);
+                if (!treeTagSplit[0].Equals(IGNORE_STRING)) xmlOut += GenerateAppendXmlForTargetObject(xmlObjectsListWrapper, nextChildAsTree, (XmlNode)nextChildAsTree.Tag, treeTagSplit[0]);
             }
             //We have a normal object creation tree view 
             else
             {
                 Button nextChildTreeButton = (Button)nextChildAsTree.Header;
+
                 foreach (string nodeName in xmlObjectsListWrapper.allTopLevelTags)
                 {
                     if (nextChildTreeButton.Content.ToString().Split(":")[0].Equals(nodeName))
                     {
                         xmlOut += GenerateAppendXmlForObject(xmlObjectsListWrapper, nextChildAsTree, nodeName);
                     }
+                }
+                if (nextChildAsTree.Tag != null)
+                {
+                    bool doIgnore = (bool)nextChildAsTree.Tag;
+                    if (doIgnore) xmlOut = "";
                 }
             }
             string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
@@ -187,10 +194,20 @@ namespace SevenDaysToDieModCreator.Models
             }
             if (nextTreeItem.Name.Equals(ATTRIBUTE_NAME)) return "";
 
+
             Button headerAsButton = nextTreeItem.Header as Button;
             //If the target node is null use the treeitem header 
             string targetNodeContent = targetNode ?? headerAsButton.Content.ToString().Split(":")[0];
-
+            if (nextTreeItem.ChildIsCheckBox())
+            {
+                CheckBox treeViewChildCheckBox = nextTreeItem.Items[0] as CheckBox;
+                string valueToReturn = null;
+                if (treeViewChildCheckBox.IsChecked.Value)
+                {
+                    valueToReturn = tabs + "<" + targetNodeContent + "/>\n";
+                }
+                return valueToReturn;
+            }
             bool didAddAttributes = AddTagWithAttributes(nextTreeItem, ref xmlOut, targetNodeContent);
             if (didAddAttributes) xmlOut = tabs + xmlOut;
 
@@ -207,7 +224,7 @@ namespace SevenDaysToDieModCreator.Models
                 if (!String.IsNullOrEmpty(childXml))
                 {
                     //if there aren't attributes print top tag
-                    if (!didAddAttributes && targetNodeContent != nodeToSkip) xmlOut += tabs + "<" + targetNodeContent + ">\n";
+                    if (!didAddAttributes && targetNodeContent != nodeToSkip ) xmlOut += tabs + "<" + targetNodeContent + ">\n";
                     if (targetNodeContent != nodeToSkip) xmlOut += childXml + tabs + "</" + targetNodeContent + ">\n";
                     else xmlOut += childXml;
                 }

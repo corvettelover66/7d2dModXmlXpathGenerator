@@ -13,7 +13,7 @@ namespace SevenDaysToDieModCreator
         {
             SetupExceptionHandling();
             //Show splash screen
-            MessageBox.Show("Killing zombies or making mods?", "Making Mods", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Killing zombies or making mods?", "Making Mods", MessageBoxButton.YesNo, MessageBoxImage.Information);
 
             MainWindow mwd = new MainWindow
             {
