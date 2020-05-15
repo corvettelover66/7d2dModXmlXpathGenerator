@@ -201,7 +201,6 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             const string hideString = "Hide Unused Attributes";
             const string unhideString = "Unhide Unused Attributes";
-            const string headerAppendString = "(*)";
 
             MenuItem senderAsMenuItem = (MenuItem)sender;
             bool isHidden = senderAsMenuItem.Header.ToString().Equals(unhideString);
@@ -212,11 +211,11 @@ namespace SevenDaysToDieModCreator.Controllers
                 //We want to unhide the attributes
                 if (senderTreeView.Header.GetType() == typeof(string)) 
                 {
-                    senderTreeView.Header = senderTreeView.Header.ToString().Replace(headerAppendString, "");
+                    senderTreeView.Header = senderTreeView.Header.ToString().Replace(XmlXpathGenerator.HEADER_APPEND_STRING, "");
                 }
                 else if (senderTreeView.Header is Button senderTreeViewHeaderButton) 
                 {
-                    senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString().Replace(headerAppendString, "");
+                    senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString().Replace(XmlXpathGenerator.HEADER_APPEND_STRING, "");
                 }
                 senderAsMenuItem.Header = hideString;
                 AddAllRemovedAttributeBoxes(senderTreeView);
@@ -226,11 +225,11 @@ namespace SevenDaysToDieModCreator.Controllers
                 //We want to hide the attributes
                 if (senderTreeView.Header.GetType() == typeof(string))
                 {
-                    senderTreeView.Header = senderTreeView.Header.ToString() + headerAppendString;
+                    senderTreeView.Header = senderTreeView.Header.ToString() + XmlXpathGenerator.HEADER_APPEND_STRING;
                 }
                 else if (senderTreeView.Header is Button senderTreeViewHeaderButton)
                 {
-                    senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString() + headerAppendString;
+                    senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString() + XmlXpathGenerator.HEADER_APPEND_STRING;
                 }
                 senderAsMenuItem.Header = unhideString;
                 RemoveUnusedAttributeComboBoxes(senderTreeView);
@@ -525,7 +524,7 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             MenuItem senderAsMenuItem = (MenuItem)sender;
             ContextMenu parentMenu = senderAsMenuItem.Parent as ContextMenu;
-            TreeViewItem senderTreeView = parentMenu.PlacementTarget as TreeViewItem;
+            TreeViewItem senderTreeView = parentMenu != null ? parentMenu.PlacementTarget as TreeViewItem : null;
             if (senderTreeView == null)
             {
                 if (parentMenu.PlacementTarget is TextBox searchTreeBox)
@@ -536,26 +535,27 @@ namespace SevenDaysToDieModCreator.Controllers
             if (senderTreeView != null)
             {
                 XmlNode xmlNode = senderTreeView.Tag as XmlNode;
-                string[] wrapperKeySplit = senderTreeView.Uid.Split("_");
-                string mainWrapperKey = wrapperKeySplit[wrapperKeySplit.Length - 1];
-                XmlObjectsListWrapper wrapperToUse = this.LoadedListWrappers.GetValueOrDefault(mainWrapperKey);
-                if (wrapperToUse == null)
+                XmlObjectsListWrapper modFileWrapper = this.LoadedListWrappers.GetValueOrDefault(senderTreeView.Uid);
+                string mainWrapperKey = modFileWrapper.GenerateDictionaryKey();
+                XmlObjectsListWrapper gameFileWrapper = this.LoadedListWrappers.GetValueOrDefault(mainWrapperKey);
+                if (gameFileWrapper == null)
                 {
-                    throw new Exception("Issue in Edit functionality, Edit was clicked and the wrapper was not loaded. This should not be possible. Try restarting the app.");
+                    MessageBox.Show("Missing the game xml for the object. Try loading the " + mainWrapperKey + ".xml file to have this functionality.", "Missing Game File", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-                TreeViewItem newObjectFormTree = this.GetNewObjectFormTree(wrapperToUse, xmlNode, mainWrapperKey);
-                XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
-                //Set the uid to the wrapper so we can find the wrapper later
-                newObjectFormTree.Uid = mainWrapperKey;
-                //Set the tag to be not ignored
-                newObjectFormTree.Tag = false;
-                newObjectFormTree.Foreground = Brushes.Purple;
-                newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
-                newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
-
-                NewObjectFormViewPanel.Children.Add(newObjectFormTree);
-                if (wrapperToUse.allTopLevelTags.Contains(xmlNode.Name))
+                if (gameFileWrapper.allTopLevelTags.Contains(xmlNode.Name))
                 {
+                    TreeViewItem newObjectFormTree = this.GetNewObjectFormTree(gameFileWrapper, xmlNode, mainWrapperKey);
+                    XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
+                    //Set the uid to the wrapper so we can find the wrapper later
+                    newObjectFormTree.Uid = mainWrapperKey;
+                    //Set the tag to be not ignored
+                    newObjectFormTree.Tag = false;
+                    newObjectFormTree.Foreground = Brushes.Purple;
+                    newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
+                    newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
+
+                    NewObjectFormViewPanel.Children.Add(newObjectFormTree);
                 }
                 //This should also not be possible, edit should only exist for top lvel tags.
                 else
@@ -646,7 +646,7 @@ namespace SevenDaysToDieModCreator.Controllers
         private void AddSearchTreeContextMenu(TreeViewItem nextNewTreeViewItem, XmlObjectsListWrapper xmlObjectListWrapper, string nextObjectNodeName, bool isGameFileTree)
         {
             bool doAddCopyContextMenu = false;
-            XmlObjectsListWrapper standardFileWrapper = this.LoadedListWrappers.GetValueOrDefault(xmlObjectListWrapper.xmlFile.GetFileNameWithoutExtension());
+            XmlObjectsListWrapper standardFileWrapper = this.LoadedListWrappers.GetValueOrDefault(xmlObjectListWrapper.GenerateDictionaryKey());
             if (standardFileWrapper != null && standardFileWrapper.allTopLevelTags.Contains(nextObjectNodeName))
             {
                 doAddCopyContextMenu = true;
@@ -744,7 +744,7 @@ namespace SevenDaysToDieModCreator.Controllers
                "Click here to collapse the parent tree");
             if (modListWrapper != null && controlAsTextBox != null)
             {
-                XmlObjectsListWrapper standardFileWrapper = this.LoadedListWrappers.GetValueOrDefault(modListWrapper.xmlFile.GetFileNameWithoutExtension());
+                XmlObjectsListWrapper standardFileWrapper = this.LoadedListWrappers.GetValueOrDefault(modListWrapper.GenerateDictionaryKey());
                 string nodeName = controlAsTextBox.Uid;
                 if (standardFileWrapper != null && standardFileWrapper.allTopLevelTags.Contains(nodeName))
                 {

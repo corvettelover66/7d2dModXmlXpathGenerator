@@ -466,18 +466,13 @@ namespace SevenDaysToDieModCreator
         {
             string selectedObject = CurrentModFilesCenterViewComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
-            string[] objectSplit = selectedObject.Split("_");
-            string standardWrapperKey = "";
-
-            if(objectSplit.Length > 0)for (int i = 1; i < objectSplit.Length; i++) standardWrapperKey += objectSplit[i] + "_";
-            standardWrapperKey = standardWrapperKey.Substring(0, standardWrapperKey.Length - 1);
-            //Try to grab the default wrapper
-            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(standardWrapperKey);
-            //If it is null there is an issue with the game file 
+            //Try to load the wrapper from the selected object.
+            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
             if (selectedWrapper == null)
             {
-                //Try to load the mod wrapper
-                selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
+                //Try to grab the default wrapper
+                selectedWrapper  = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedWrapper.GenerateDictionaryKey());
+
                 //If it is still null there is an xml issue
                 if (selectedWrapper == null) 
                 {

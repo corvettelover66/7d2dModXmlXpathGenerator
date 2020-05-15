@@ -102,7 +102,7 @@ namespace SevenDaysToDieModCreator.Models
             string fileContents = GetFileContents(_ModConfigOutputPath, fileName);
             if (fileContents != null && MyCustomTagName != null)
             {
-                fileContents = fileContents.Replace("<" + MyCustomTagName + ">\n", "");
+                fileContents = fileContents.Replace("<" + MyCustomTagName + ">", "");
                 fileContents = fileContents.Replace("</" + MyCustomTagName + ">", "");
             }
 

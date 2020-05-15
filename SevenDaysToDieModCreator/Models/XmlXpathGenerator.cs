@@ -19,6 +19,8 @@ namespace SevenDaysToDieModCreator.Models
         public const string ATTRIBUTE_NAME = "Attribute";
         public const string ATTRIBUTE_VALUE = "AttributeValue";
         public const string IGNORE_STRING = "IGNORE";
+        public const string HEADER_APPEND_STRING = "(*)";
+
 
         public static string GenerateXmlForObjectView(MyStackPanel newObjectFormsPanel)
         {
@@ -39,7 +41,7 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static void SaveAllGeneratedXmlToPath(MyStackPanel newObjectFormsPanel, string path, bool writeToLog = false)
         {
-            string topTag = "\n<" + Properties.Settings.Default.ModTagSetting + ">\n";
+            string topTag = "<" + Properties.Settings.Default.ModTagSetting + ">\n";
             string topTagEnd = "</" + Properties.Settings.Default.ModTagSetting + ">\n";
 
             foreach (Control nextChild in newObjectFormsPanel.Children)
@@ -197,7 +199,7 @@ namespace SevenDaysToDieModCreator.Models
 
             Button headerAsButton = nextTreeItem.Header as Button;
             //If the target node is null use the treeitem header 
-            string targetNodeContent = targetNode ?? headerAsButton.Content.ToString().Split(":")[0];
+            string targetNodeContent = targetNode ?? headerAsButton.Content.ToString().Replace(HEADER_APPEND_STRING, "").Split(":")[0];
             if (nextTreeItem.ChildIsCheckBox())
             {
                 CheckBox treeViewChildCheckBox = nextTreeItem.Items[0] as CheckBox;

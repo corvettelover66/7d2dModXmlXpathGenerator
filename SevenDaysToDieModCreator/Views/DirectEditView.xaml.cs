@@ -359,7 +359,7 @@ namespace SevenDaysToDieModCreator.Views
             foreach (XmlNode nextNode in xmlNodeList) 
             {
                 XmlAttribute firstAttribute = nextNode.GetAvailableAttribute();
-                if (firstAttribute.Value.Equals(xPathValue)) 
+                if (firstAttribute.Value.Equals(xPathValue) || firstAttribute.Value.Equals(xPathValue.Replace("/", ""))) 
                 {
                     newXmlStringBuilder.Append(nextNode.InnerXml);
                     nodesToRemove.Add(nextNode);
