@@ -213,11 +213,11 @@ namespace SevenDaysToDieModCreator.Controllers
                 //We want to unhide the attributes
                 if (senderTreeView.Header.GetType() == typeof(string)) 
                 {
-                    senderTreeView.Header = senderTreeView.Header.ToString().Replace(XmlXpathGenerator.HEADER_APPEND_STRING, "");
+                    senderTreeView.Header = senderTreeView.Header.ToString().Replace(XmlXpathGenerator.HEADER_UNUSED_ATTRIBUTES_STRING, "");
                 }
                 else if (senderTreeView.Header is Button senderTreeViewHeaderButton) 
                 {
-                    senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString().Replace(XmlXpathGenerator.HEADER_APPEND_STRING, "");
+                    senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString().Replace(XmlXpathGenerator.HEADER_UNUSED_ATTRIBUTES_STRING, "");
                 }
                 senderAsMenuItem.Header = hideString;
                 AddAllRemovedAttributeBoxes(senderTreeView);
@@ -227,11 +227,11 @@ namespace SevenDaysToDieModCreator.Controllers
                 //We want to hide the attributes
                 if (senderTreeView.Header.GetType() == typeof(string))
                 {
-                    senderTreeView.Header = senderTreeView.Header.ToString() + XmlXpathGenerator.HEADER_APPEND_STRING;
+                    senderTreeView.Header = senderTreeView.Header.ToString() + XmlXpathGenerator.HEADER_UNUSED_ATTRIBUTES_STRING;
                 }
                 else if (senderTreeView.Header is Button senderTreeViewHeaderButton)
                 {
-                    senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString() + XmlXpathGenerator.HEADER_APPEND_STRING;
+                    senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString() + XmlXpathGenerator.HEADER_UNUSED_ATTRIBUTES_STRING;
                 }
                 senderAsMenuItem.Header = unhideString;
                 RemoveUnusedAttributeComboBoxes(senderTreeView);

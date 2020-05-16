@@ -19,7 +19,7 @@ namespace SevenDaysToDieModCreator.Models
         public const string ATTRIBUTE_NAME = "Attribute";
         public const string ATTRIBUTE_VALUE = "AttributeValue";
         public const string IGNORE_STRING = "IGNORE";
-        public const string HEADER_APPEND_STRING = "(*)";
+        public const string HEADER_UNUSED_ATTRIBUTES_STRING = "(*)";
 
 
         public static string GenerateXmlForObjectView(MyStackPanel newObjectFormsPanel)
