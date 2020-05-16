@@ -64,11 +64,6 @@ namespace SevenDaysToDieModCreator.Models
                 TreeViewItem senderAsTreeView = (TreeViewItem)visualAdded;
                 XmlObjectsListWrapper wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(senderAsTreeView.Uid);
                 string wrapperKey = senderAsTreeView.Uid;
-                if (wrapperToUse == null)
-                {
-                    wrapperToUse = this.MainWindowViewController.LoadedListWrappers.GetWrapperFromDictionary(senderAsTreeView.Header.ToString());
-                    wrapperKey = senderAsTreeView.Header.ToString();
-                }
                 if (!this.LoadedListWrappers.ContainsKey(wrapperKey) && wrapperToUse != null)
                 {
                     this.LoadedListWrappers.Add(wrapperKey, wrapperToUse);

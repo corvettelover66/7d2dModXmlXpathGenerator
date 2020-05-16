@@ -68,7 +68,7 @@ namespace SevenDaysToDieModCreator.Models
             {
                 //The header is in the form nodename:targetattributename
                 string[] treeTagSplit = nextChildAsTree.Header.ToString().Split(":");
-                if (!treeTagSplit[0].Equals(IGNORE_STRING)) xmlOut += GenerateAppendXmlForTargetObject(xmlObjectsListWrapper, nextChildAsTree, (XmlNode)nextChildAsTree.Tag, treeTagSplit[0]);
+                if (!treeTagSplit[0].Equals(IGNORE_STRING)) xmlOut += GenerateAppendXmlForTargetObject(xmlObjectsListWrapper, nextChildAsTree, (XmlNode)nextChildAsTree.Tag, nextChildAsTree.Uid);
             }
             //We have a normal object creation tree view 
             else
@@ -77,7 +77,7 @@ namespace SevenDaysToDieModCreator.Models
 
                 foreach (string nodeName in xmlObjectsListWrapper.allTopLevelTags)
                 {
-                    if (nextChildTreeButton.Content.ToString().Split(":")[0].Equals(nodeName))
+                    if (nodeName.Contains(nextChildTreeButton.Uid))
                     {
                         xmlOut += GenerateAppendXmlForObject(xmlObjectsListWrapper, nextChildAsTree, nodeName);
                     }
@@ -199,7 +199,7 @@ namespace SevenDaysToDieModCreator.Models
 
             Button headerAsButton = nextTreeItem.Header as Button;
             //If the target node is null use the treeitem header 
-            string targetNodeContent = targetNode ?? headerAsButton.Content.ToString().Replace(HEADER_APPEND_STRING, "").Split(":")[0];
+            string targetNodeContent = targetNode ?? headerAsButton.Uid;
             if (nextTreeItem.ChildIsCheckBox())
             {
                 CheckBox treeViewChildCheckBox = nextTreeItem.Items[0] as CheckBox;

@@ -81,7 +81,7 @@ namespace SevenDaysToDieModCreator.Controllers
             string startingNodeName = senderAsButton.Content.ToString().Split(":")[0];
             TreeViewItem newObjectFormTreeView = this.GetNewObjectFormTreeAddButton(xmlObjectsListWrapper, senderAsButton.Tag.ToString(), startingNodeName);
             newObjectFormTreeView.AddContextMenu(this.RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
-            newObjectFormTreeView.Uid = senderAsButton.Tag.ToString();
+            newObjectFormTreeView.Name = senderAsButton.Tag.ToString();
             if (sendersParent.Parent.GetType() == typeof(MyStackPanel))
             {
                 int indexToInsert = ((MyStackPanel)sendersParent.Parent).Children.IndexOf(sendersParent) + 1;
@@ -107,8 +107,7 @@ namespace SevenDaysToDieModCreator.Controllers
 
             foreach (string topTag in xmlObjectListWrapper.allTopLevelTags)
             {
-                TreeViewItem returnedTree = GetEmptyNewObjectFormTree(xmlObjectListWrapper, topTag, wrapperKey);
-                returnedTree.Uid = wrapperKey;
+                TreeViewItem returnedTree = GetEmptyNewObjectFormTree(xmlObjectListWrapper, topTag, wrapperKey);                
                 returnedTree.AddContextMenu(this.RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
                 NewObjectFormViewPanel.Children.Add(returnedTree);
             }
@@ -155,6 +154,7 @@ namespace SevenDaysToDieModCreator.Controllers
             TreeViewItem newObjectFormTree = new TreeViewItem
             {
                 FontSize = OBJECT_VIEW_FONT_SIZE + 6 + ObjectTreeFontChange,
+                Uid = wrapperKey,
                 IsExpanded = true
             };
             newObjectFormTree.AddToolTip("Here you can create new " + tagName + " tags");
@@ -174,6 +174,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     Content = currentTagName.Replace("_", "__"),
                     Tag = wrapperKey,
+                    Uid = currentTagName,
                     FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange,
                     Foreground = Brushes.Purple,
                     Background = Brushes.White
@@ -195,6 +196,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 bool isChecked = alreadyAddedChildNodes != null && alreadyAddedChildNodes.Contains(currentTagName);
                 topTreeView.Items.Add(new CheckBox() { Tag = wrapperKey, Content = "Add empty tag", IsChecked = isChecked });
             }
+            topTreeView.Uid = wrapperKey;
             return topTreeView;
         }
         private void AddHideAttributesFlagContextMenu_Click(object sender, RoutedEventArgs e)
@@ -303,6 +305,7 @@ namespace SevenDaysToDieModCreator.Controllers
             TreeViewItem newTopTree = new TreeViewItem
             {
                 Header = startingXmlTagName,
+                Uid = wrapperKey,
                 FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange,
             };
             return SetEmptyNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newTopTree, startingXmlTagName, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue(), doSkipFirstAttributes);
@@ -446,6 +449,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 if (senderTreeView.Parent is TreeViewItem parent) parent.Items.Remove(senderTreeView);
                 else
                 {
+                    Label l;
                     MessageBoxResult result = MessageBox.Show(
                         "This will remove the entire object. Are you sure?",
                         "Remove Top Level",
@@ -458,6 +462,10 @@ namespace SevenDaysToDieModCreator.Controllers
                             break;
                     }
                 }
+            } 
+            else if (contextMenu.PlacementTarget is Control myControl) 
+            {
+                if (myControl.Parent is MyStackPanel parent) parent.Children.Remove(myControl);
             }
         }
         private TreeViewItem GetNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, XmlNode startingNode, string wrapperKey)
@@ -474,9 +482,7 @@ namespace SevenDaysToDieModCreator.Controllers
             string nodeNameToUse = String.IsNullOrEmpty(nodeName) ? currentNode.Name : nodeName;
             List<string> attributes = xmlObjectListWrapper.objectNameToAttributesMap.GetValueOrDefault(nodeNameToUse);
             TreeViewItem newTreeView = new TreeViewItem();
-             newTreeView = attributes != null
-                ? SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, nodeNameToUse, currentNode)
-                : null;
+            if (attributes != null) newTreeView = SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, nodeNameToUse, currentNode);
             newTreeView = SetNextNewObjectFormChildren(xmlObjectListWrapper, wrapperKey, newTreeView, currentNode, allChildrenDictionary, nodeNameToUse);
             if (newTreeView != null) 
             {
@@ -486,7 +492,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 Button addNewObjectButton = new Button
                 {
                     Content = nodeNameToUse.Replace("_", "__") + attributeValue.Replace("_", "__"),
-                    Tag = wrapperKey,
+                    Uid = nodeNameToUse, 
                     FontSize = OBJECT_VIEW_FONT_SIZE + 4 + ObjectTreeFontChange,
                     Foreground = Brushes.Purple,
                     Background = Brushes.White
@@ -499,6 +505,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     newTreeView.AddContextMenu(this.AddIgnoreFlagToTreeContextMenu_Click, "Toggle Ignore", "Click here to flag the tree for ignore when clicking Save All XML ");
                 }
+                newTreeView.Uid = wrapperKey;
             }
             return newTreeView;
         }
@@ -543,22 +550,24 @@ namespace SevenDaysToDieModCreator.Controllers
                     MessageBox.Show("Missing the game xml for the object. Try loading the " + mainWrapperKey + ".xml file to have this functionality.", "Missing Game File", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                if (gameFileWrapper.allTopLevelTags.Contains(xmlNode.Name))
-                {
-                    TreeViewItem newObjectFormTree = this.GetNewObjectFormTree(gameFileWrapper, xmlNode, mainWrapperKey);
-                    XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
-                    //Set the uid to the wrapper so we can find the wrapper later
-                    newObjectFormTree.Uid = mainWrapperKey;
-                    //Set the tag to be not ignored
-                    newObjectFormTree.Tag = false;
-                    newObjectFormTree.Foreground = Brushes.Purple;
-                    newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
-                    newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
+                bool didSetTree = false;
+                foreach (string nodeName in gameFileWrapper.allTopLevelTags)
+                { 
+                    if (nodeName.Contains(xmlNode.Name))
+                    {
+                        TreeViewItem newObjectFormTree = this.GetNewObjectFormTree(gameFileWrapper, xmlNode, mainWrapperKey);
+                        XmlAttribute avalailableAttribute = xmlNode.GetAvailableAttribute();
+                        //Set the tag to be not ignored
+                        newObjectFormTree.Tag = false;
+                        newObjectFormTree.Foreground = Brushes.Purple;
+                        newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
+                        newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
 
-                    NewObjectFormViewPanel.Children.Add(newObjectFormTree);
+                        NewObjectFormViewPanel.Children.Add(newObjectFormTree);
+                        didSetTree = true;
+                    }             
                 }
-                //This should also not be possible, edit should only exist for top lvel tags.
-                else
+                if(!didSetTree)
                 {
                     MessageBox.Show("This action can only be done on a top level object, for example if this object were in a recipes file you would need to right click a recipe object. ");
                 }
