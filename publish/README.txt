@@ -104,6 +104,15 @@ HARD:
 +Add side by side search trees for easier comparison.
 
 Version History
+1.6.3 
+ - Fixed all issues from 1.6.2
+ - Fixed issues:
+ - Issue with extra top tag when saving a file.
+ - Issue, hiding un-used attributes (*) in the header was causing the object to be ignored by the xml xpath generation.
+ - Crashing issue when trying to copy an invalid tag in a mod tree.
+ - Crash when trying to copy a valid loot object.
+ - Issue on copy perk object, users were unable to click the correct item in the progressions tree.
+ - Error with access key fix. Any tags with underscores will include too many underscores in the output xml..
 1.6.2
  - Added code to reuse context menu in the mod search trees. This was something that was done on the regular search trees to conserve used memory.
  - Re-added the call to the Garbage Collector on removal of ui generated view items. This makes it so that on removal of any object memory should be freed. That means that as you work in the app, memory used should be freed more regularly. Originally I removed this due to recommendations against it. However, I have not noticed a negative impact on performance, only a positive impact. Therefore I'm keeping it.
