@@ -466,15 +466,16 @@ namespace SevenDaysToDieModCreator
         {
             string selectedObject = CurrentModFilesCenterViewComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
-            //Try to load the wrapper from the selected object.
-            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
+            string defaultWrapperKey = selectedObject.Replace(Properties.Settings.Default.ModTagSetting + "_", "");
+            //Try to grab the default wrapper
+            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(defaultWrapperKey);
+
             if (selectedWrapper == null)
             {
-                //Try to grab the default wrapper
-                selectedWrapper  = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedWrapper.GenerateDictionaryKey());
-
+                //Try to load the wrapper from the selected object.
+                selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
                 //If it is still null there is an xml issue
-                if (selectedWrapper == null) 
+                if (selectedWrapper == null)
                 {
                     MessageBox.Show(
                         "The was an error opening the selected file.\n\n" +
@@ -488,10 +489,24 @@ namespace SevenDaysToDieModCreator
                         MessageBoxImage.Error);
                     return;
                 }
+                else 
+                {
+                    MessageBox.Show("Missing game file "+ defaultWrapperKey  +".xml. In order to use all direct edit functions, you must load this file and reopen the file in a new direct edit window.",
+                        "Missing Game File", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                }
             }
             DirectEditView directEdit = new DirectEditView(selectedWrapper, false, fileLocationPath: XmlFileManager._ModConfigOutputPath);
+            directEdit.Closed += DirectEdit_Closed;
             directEdit.Show();
         }
+        private void DirectEdit_Closed(object sender, EventArgs e)
+        {
+            string currentLoadedMod = Properties.Settings.Default.ModTagSetting;
+            this.MainWindowViewController.LoadCustomTagWrappers(currentLoadedMod, this.CurrentModFilesCenterViewComboBox);
+            this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentLoadedMod, currentLoadedMod + "_"));
+        }
+
         private void OpenDirectEditGameXmlViewButton_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = CurrentGameFilesCenterViewComboBox.Text;
@@ -518,6 +533,7 @@ namespace SevenDaysToDieModCreator
                 }
             }
             DirectEditView directEdit = new DirectEditView(selectedWrapper, true, fileLocationPath: XmlFileManager._LoadedFilesPath);
+            directEdit.Closed += DirectEdit_Closed;
             directEdit.Show();
         }
         private void HelpMenu_Click(object sender, RoutedEventArgs e)

@@ -123,7 +123,6 @@ namespace SevenDaysToDieModCreator.Views
                 nextSection.IsFolded = true;
             }
         }
-
         private void ExpandAllContextMenu_Clicked(object sender, RoutedEventArgs e)
         {
             foreach (FoldingSection nextSection in FoldingManager.AllFoldings) 
@@ -131,7 +130,6 @@ namespace SevenDaysToDieModCreator.Views
                 nextSection.IsFolded = false;
             }
         }
-
         private void XmlOutputBox_GotMouseCapture(object sender, MouseEventArgs e)
         {
             HandleExternalFileChanges();

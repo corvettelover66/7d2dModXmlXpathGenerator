@@ -77,11 +77,11 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             Button senderAsButton = (Button)sender;
             TreeViewItem sendersParent = (TreeViewItem)senderAsButton.Parent;
-            XmlObjectsListWrapper xmlObjectsListWrapper = this.NewObjectFormViewPanel.LoadedListWrappers.GetValueOrDefault(senderAsButton.Tag.ToString());
-            string startingNodeName = senderAsButton.Content.ToString().Split(":")[0];
-            TreeViewItem newObjectFormTreeView = this.GetNewObjectFormTreeAddButton(xmlObjectsListWrapper, senderAsButton.Tag.ToString(), startingNodeName);
+            XmlObjectsListWrapper xmlObjectsListWrapper = this.NewObjectFormViewPanel.LoadedListWrappers.GetValueOrDefault(sendersParent.Uid);
+            string startingNodeName = senderAsButton.Uid;
+            TreeViewItem newObjectFormTreeView = this.GetNewObjectFormTreeAddButton(xmlObjectsListWrapper, sendersParent.Uid, startingNodeName);
             newObjectFormTreeView.AddContextMenu(this.RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
-            newObjectFormTreeView.Name = senderAsButton.Tag.ToString();
+            newObjectFormTreeView.Uid = sendersParent.Uid.ToString();
             if (sendersParent.Parent.GetType() == typeof(MyStackPanel))
             {
                 int indexToInsert = ((MyStackPanel)sendersParent.Parent).Children.IndexOf(sendersParent) + 1;
@@ -562,6 +562,7 @@ namespace SevenDaysToDieModCreator.Controllers
                         newObjectFormTree.Foreground = Brushes.Purple;
                         newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
                         newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
+                        newObjectFormTree.AddContextMenu(this.AddIgnoreFlagToTreeContextMenu_Click, "Toggle Ignore", "Click here to flag the tree for ignore when clicking Save All XML ");
 
                         NewObjectFormViewPanel.Children.Add(newObjectFormTree);
                         didSetTree = true;
