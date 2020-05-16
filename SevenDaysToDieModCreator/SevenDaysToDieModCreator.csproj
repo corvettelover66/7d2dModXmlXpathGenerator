@@ -7,6 +7,7 @@
     <ApplicationIcon>7dtd_icon.ico</ApplicationIcon>
     <Win32Resource />
     <Version>1.6.3</Version>
+    <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
