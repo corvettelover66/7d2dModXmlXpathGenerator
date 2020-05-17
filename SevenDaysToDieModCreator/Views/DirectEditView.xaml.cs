@@ -31,11 +31,6 @@ namespace SevenDaysToDieModCreator.Views
             InitializeComponent();
             this.Wrapper = wrapperToUse;
             this.IsGameFile = isGameFile;
-            this.SaveXmlButton.AddToolTip("Click to save all changes");
-            this.ReloadFileXmlButton.AddToolTip("Click here to reload the file from disk");
-            this.CloseButton.AddToolTip("Click here to close the window");
-            this.ValidateXmlButton.AddToolTip("Click here to validate the xml");
-            UndoAllChangesXmlButton.AddToolTip("Click here to undo any changes made since opening the window");
             this.FileLocationPath = fileLocationPath;
             if (contentsForXmlOutputBox == null)
             {
@@ -45,10 +40,31 @@ namespace SevenDaysToDieModCreator.Views
                 XmlOutputBox.Text = XmlFileManager.GetFileContents(Path.Combine(this.FileLocationPath, parentString), Wrapper.xmlFile.FileName);
             }
             else XmlOutputBox.Text = contentsForXmlOutputBox;
-
             this.StartingFileContents = XmlOutputBox.Text;
             this.UnchangedStartingFileContents = unchangedStartingFileContents == null ? XmlOutputBox.Text : unchangedStartingFileContents;
+            
+            string labelContents = isGameFile
+                ? "Game File: " + wrapperToUse.xmlFile.FileName + "\n"
+                : "Mod: " + Properties.Settings.Default.ModTagSetting + "\n" + "File: " + wrapperToUse.xmlFile.FileName + "\n";
+            this.StartingTitle = isGameFile
+                ? "Game File: " + wrapperToUse.xmlFile.FileName
+                : wrapperToUse.xmlFile.GetFileNameWithoutExtension() + " : " + Properties.Settings.Default.ModTagSetting;
+
+            this.Title = StartingTitle;
+            ModNameLabel.Content = String.IsNullOrEmpty(title) ? labelContents : title;
+
+            this.SaveXmlButton.AddToolTip("Click to save all changes");
+            this.ReloadFileXmlButton.AddToolTip("Click here to reload the file from disk");
+            this.CloseButton.AddToolTip("Click here to close the window");
+            this.ValidateXmlButton.AddToolTip("Click here to validate the xml");
+            UndoAllChangesXmlButton.AddToolTip("Click here to undo any changes made since opening the window");
+
             SearchPanel.Install(XmlOutputBox);
+
+            FoldingManager = FoldingManager.Install(this.XmlOutputBox.TextArea);
+            FoldingStrategy = new XmlFoldingStrategy();
+            FoldingStrategy.ShowAttributesWhenFolded = true;
+            FoldingStrategy.UpdateFoldings(FoldingManager, this.XmlOutputBox.Document);
 
             TextEditorOptions newOptions = new TextEditorOptions();
             newOptions.EnableRectangularSelection = true;
@@ -70,21 +86,6 @@ namespace SevenDaysToDieModCreator.Views
             this.XmlOutputBox.AddContextMenu(ExpandAllContextMenu_Clicked,
                 "Expand All",
                 "Click here to expand  all nodes in the document.");
-
-            string labelContents = isGameFile
-                ? "Game File: " + wrapperToUse.xmlFile.FileName + "\n"
-                : "Mod: " + Properties.Settings.Default.ModTagSetting + "\n" + "File: " + wrapperToUse.xmlFile.FileName + "\n";
-            this.StartingTitle = isGameFile 
-                ? "Game File: " + wrapperToUse.xmlFile.FileName 
-                : wrapperToUse.xmlFile.GetFileNameWithoutExtension() + " : " + Properties.Settings.Default.ModTagSetting; 
-
-            this.Title = StartingTitle;
-            ModNameLabel.Content = String.IsNullOrEmpty(title) ? labelContents : title;
-
-            FoldingManager = FoldingManager.Install(this.XmlOutputBox.TextArea);
-            FoldingStrategy = new XmlFoldingStrategy();
-            FoldingStrategy.ShowAttributesWhenFolded = true;
-            FoldingStrategy.UpdateFoldings(FoldingManager, this.XmlOutputBox.Document);
 
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
