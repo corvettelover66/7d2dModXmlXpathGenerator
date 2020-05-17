@@ -57,8 +57,8 @@ namespace SevenDaysToDieModCreator.Models
                     string xmlOut = xmlObjectsListWrapper == null ? "" : GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper, true);
                     if (!String.IsNullOrEmpty(xmlOut))
                     {
-                        xmlOut = CombineAppendTags(xmlObjectsListWrapper, xmlOut);
-                        XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut.TrimEnd() + "\n" + topTagEnd, Properties.Settings.Default.DoLogTimestampOnSave);
+                        xmlOut = CombineAppendTags(xmlObjectsListWrapper, topTag + xmlOut + topTagEnd);
+                        XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, xmlOut.TrimEnd(), Properties.Settings.Default.DoLogTimestampOnSave);
                     }
                     if (writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToLog(xmlOut, true);
                 }
@@ -282,9 +282,8 @@ namespace SevenDaysToDieModCreator.Models
             string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
 
             string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel);
-
+            string customTag = Properties.Settings.Default.ModTagSetting;
             string allGeneratedXmlAfterCombine = "";
-
             foreach (XmlObjectsListWrapper xmlObjectsListWrapper in newObjectFormsPanel.LoadedListWrappers.Values)
             {
                 allGeneratedXmlAfterCombine += CombineAppendTags(xmlObjectsListWrapper, allGeneratedXml);

@@ -23,7 +23,6 @@
                     <MenuItem Name="UndoAllChangesXmlButton" Click="UndoAllChangesXmlButton_Click" Header="_Undo All" FontSize="15"/>
                     <MenuItem Name="CloseButton" Click="CloseButton_Click" Header="_Close" FontSize="15"/>
                     <MenuItem Name="ValidateXmlButton" Click="ValidateXmlButton_Click" Header="_Validate" FontSize="15"/>
-                    <MenuItem Name="CombineTagsXmlButton" Click="CombineTagsXmlButton_Click" Header="Com_bine" FontSize="15"/>
                 </Menu>
             </DockPanel>
         </Grid>

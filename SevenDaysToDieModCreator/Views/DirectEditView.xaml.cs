@@ -31,13 +31,10 @@ namespace SevenDaysToDieModCreator.Views
             InitializeComponent();
             this.Wrapper = wrapperToUse;
             this.IsGameFile = isGameFile;
-            if (this.IsGameFile) this.CombineTagsXmlButton.IsEnabled = false;
             this.SaveXmlButton.AddToolTip("Click to save all changes");
             this.ReloadFileXmlButton.AddToolTip("Click here to reload the file from disk");
             this.CloseButton.AddToolTip("Click here to close the window");
             this.ValidateXmlButton.AddToolTip("Click here to validate the xml");
-            this.CombineTagsXmlButton.AddToolTip("Click here to combine all top level append tags into one tag\n" +
-                                                    "This is good for the mod search trees in the app");
             UndoAllChangesXmlButton.AddToolTip("Click here to undo any changes made since opening the window");
             this.FileLocationPath = fileLocationPath;
             if (contentsForXmlOutputBox == null)
@@ -291,15 +288,6 @@ namespace SevenDaysToDieModCreator.Views
         private void ValidateXmlButton_Click(object sender, RoutedEventArgs e)
         {
             XmlXpathGenerator.ValidateXml(XmlOutputBox.Text, doShowValidationMessage: true);
-        }
-
-        private void CombineTagsXmlButton_Click(object sender, RoutedEventArgs e)
-        {
-            string allXml = this.XmlOutputBox.Text;
-            if (XmlXpathGenerator.ValidateXml(allXml, errorPrependMessage: "Error: Could not execute combine function because xml is invalid.", doShowValidationMessage: true))
-            {
-                this.XmlOutputBox.Text = XmlXpathGenerator.CombineAppendTags(this.Wrapper, allXml);
-            }
         }
 
         private void UndoAllChangesXmlButton_Click(object sender, RoutedEventArgs e)
