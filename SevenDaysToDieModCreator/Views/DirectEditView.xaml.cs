@@ -242,12 +242,11 @@ namespace SevenDaysToDieModCreator.Views
         private void SaveFile()
         {
             string xmlOut = XmlOutputBox.Text;
-            bool isXmlValid = ValidateXml(xmlOut);
-            if (!isXmlValid)
+            string isInvalid = XmlXpathGenerator.ValidateXml(xmlOut);
+            if (isInvalid != null)
             {
                 MessageBoxResult saveInvalidXmlDecision = MessageBox.Show(
-                    "The xml is not valid! Would you like to save anyway?\n\n" +
-                    " To see the error, run the xml validate function.",
+                    "The xml is not valid! Would you like to save anyway?\n\n" + isInvalid,
                     "Invalid XML!",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Error);
@@ -289,95 +288,18 @@ namespace SevenDaysToDieModCreator.Views
                 }
             }
         }
-        private bool ValidateXml(string xmlToValidate, bool doShowValidationMessage = false) 
-        {
-            bool isValid = true;
-            string fileValidationString;
-            try
-            {
-                XmlDocument xmlDocument = new XmlDocument();
-                xmlDocument.LoadXml(xmlToValidate);
-                fileValidationString = "File is valid Xml.";
-            }
-            catch (XmlException exception)
-            {
-                fileValidationString = "File is invalid Xml:\n\n" + exception.Message;
-                isValid = false;
-            }
-            if(!String.IsNullOrEmpty(fileValidationString) && doShowValidationMessage)MessageBox.Show(fileValidationString, "Xml Validation", MessageBoxButton.OK, MessageBoxImage.Information);
-            return isValid;
-        }
         private void ValidateXmlButton_Click(object sender, RoutedEventArgs e)
         {
-            ValidateXml(XmlOutputBox.Text, true);
+            XmlXpathGenerator.ValidateXml(XmlOutputBox.Text, doShowValidationMessage: true);
         }
 
         private void CombineTagsXmlButton_Click(object sender, RoutedEventArgs e)
         {
             string allXml = this.XmlOutputBox.Text;
-            if (ValidateXml(allXml))
+            if (XmlXpathGenerator.ValidateXml(allXml, errorPrependMessage: "Error: Could not execute combine function because xml is invalid.", doShowValidationMessage: true))
             {
-                XmlWriterSettings settings = new XmlWriterSettings();
-                settings.Indent = true;
-                settings.IndentChars = "\t";
-                settings.OmitXmlDeclaration = true;
-                foreach (string topTag in this.Wrapper.allTopLevelTags)
-                {
-                    StringBuilder xmlOutBuilder = new StringBuilder();
-                    XmlWriter xmlWriter = XmlWriter.Create(xmlOutBuilder, settings);
-                    //If the wrapper only has one top level tag
-                    XmlDocument xmlDocument = this.Wrapper.allTopLevelTags.Count < 2
-                        ? ConsolidateByTag("xpath=\"/" + this.Wrapper.TopTagName + "\"")
-                        : ConsolidateByTag("xpath=\"/" + this.Wrapper.TopTagName + "/" + topTag + "\"");
-                    if (xmlDocument != null)
-                    {
-                        xmlDocument.WriteContentTo(xmlWriter);
-                        xmlWriter.Close();
-                        this.XmlOutputBox.Text = xmlOutBuilder.ToString();
-                    }
-                }
+                this.XmlOutputBox.Text = XmlXpathGenerator.CombineAppendTags(this.Wrapper, allXml);
             }
-            else 
-            {
-                MessageBox.Show("Error: Could not execute combine function because xml is invalid.", "Combine Appends Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private XmlDocument ConsolidateByTag(string tagToConsolidate)
-        {
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(XmlOutputBox.Text);
-            XmlNode firstChild = xmlDocument.FirstChild;
-            while (firstChild.Name.Contains("#comment")) firstChild = firstChild.NextSibling;
-            StringBuilder newXmlStringBuilder = new StringBuilder();
-            XmlNodeList xmlNodeList = xmlDocument.GetElementsByTagName(XmlXpathGenerator.XPATH_ACTION_APPEND);
-            string[] tagXPathSplit = tagToConsolidate.Split("=");
-            string xPathValue = tagXPathSplit[1].Replace("\"", "");
-            System.Collections.Generic.List<XmlNode> nodesToRemove = new System.Collections.Generic.List<XmlNode>();
-            foreach (XmlNode nextNode in xmlNodeList) 
-            {
-                XmlAttribute firstAttribute = nextNode.GetAvailableAttribute();
-                if (firstAttribute.Value.Equals(xPathValue) || firstAttribute.Value.Equals(xPathValue.Replace("/", ""))) 
-                {
-                    newXmlStringBuilder.Append(nextNode.InnerXml);
-                    nodesToRemove.Add(nextNode);
-                }
-            }
-            foreach (XmlNode nextNode in nodesToRemove)
-            {
-                if(nextNode.HasChildNodes)nextNode.RemoveAll();
-                firstChild.RemoveChild(nextNode);
-            }
-            if (newXmlStringBuilder.Length > 0)
-            {
-                XmlElement newTagConsolidated = xmlDocument.CreateElement(XmlXpathGenerator.XPATH_ACTION_APPEND);
-                newTagConsolidated.SetAttribute("xpath", xPathValue);
-                newTagConsolidated.InnerXml = newXmlStringBuilder.ToString();
-
-                firstChild.InsertBefore(newTagConsolidated, firstChild.FirstChild);
-            }
-            else xmlDocument = null; 
-            return xmlDocument;
         }
 
         private void UndoAllChangesXmlButton_Click(object sender, RoutedEventArgs e)

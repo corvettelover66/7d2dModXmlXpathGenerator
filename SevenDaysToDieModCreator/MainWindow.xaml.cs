@@ -619,21 +619,23 @@ namespace SevenDaysToDieModCreator
             StringBuilder builder = new StringBuilder();
             foreach (string modFile in modOutputFiles)
             {
-                try
+                string isInvalid = XmlXpathGenerator.ValidateXml(XmlFileManager.ReadExistingFile(modFile));
+                //The xml is valid
+                if (isInvalid == null)
                 {
-                    new XmlFileObject(modFile);
                     builder.AppendLine("File: " + Path.GetFileName(modFile));
                     builder.AppendLine("Valid");
-                    builder.AppendLine("");
                 }
-                catch (Exception exception)
+                else 
                 {
-                    builder.Insert(0, "Invalid: " + exception.Message + "\n\n");
+                    builder.Insert(0, isInvalid);
                     builder.Insert(0, "File: " + Path.GetFileName(modFile) + "\n");
                 }
             }
-            builder.Insert(0, "All files: \n\n");
+            builder.Insert(0, "All files: \n");
             builder.Insert(0, "Xml Validation for mod " + Properties.Settings.Default.ModTagSetting + "\n\n");
+            //Remove the trailing newline
+            builder.Remove(builder.Length - 2, 2);
             MessageBox.Show(builder.ToString(), "Xml Validation", MessageBoxButton.OK, MessageBoxImage.Information);
             this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
         }

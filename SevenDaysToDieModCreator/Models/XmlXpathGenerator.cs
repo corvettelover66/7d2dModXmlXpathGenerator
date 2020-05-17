@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
 
@@ -53,7 +55,11 @@ namespace SevenDaysToDieModCreator.Models
                     XmlObjectsListWrapper xmlObjectsListWrapper = newObjectFormsPanel.LoadedListWrappers.GetValueOrDefault(nextChildAsTree.Uid);
                     string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
                     string xmlOut = xmlObjectsListWrapper == null ? "" : GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper, true);
-                    if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut.TrimEnd() + "\n" + topTagEnd, Properties.Settings.Default.DoLogTimestampOnSave);
+                    if (!String.IsNullOrEmpty(xmlOut))
+                    {
+                        xmlOut = CombineAppendTags(xmlObjectsListWrapper, xmlOut);
+                        XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut.TrimEnd() + "\n" + topTagEnd, Properties.Settings.Default.DoLogTimestampOnSave);
+                    }
                     if (writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToLog(xmlOut, true);
                 }
             }
@@ -275,14 +281,117 @@ namespace SevenDaysToDieModCreator.Models
 
             string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
 
-            //foreach (XmlObjectsListWrapper xmlObjectsListWrapper in newObjectFormsPanel.LoadedListWrappers.Values)
-            //{
-            //    string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
-            //    existingWrapperFileData += XmlFileManager.ReadExistingFile(Path.Combine(parentPath, xmlObjectsListWrapper.xmlFile.FileName), Properties.Settings.Default.ModTagSetting);
-            //}
-
             string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel);
-            return addedViewTextStart + unsavedGeneratedXmlStart + allGeneratedXml + unsavedGeneratedXmlEnd ;
+
+            string allGeneratedXmlAfterCombine = "";
+
+            foreach (XmlObjectsListWrapper xmlObjectsListWrapper in newObjectFormsPanel.LoadedListWrappers.Values)
+            {
+                allGeneratedXmlAfterCombine += CombineAppendTags(xmlObjectsListWrapper, allGeneratedXml);
+            }
+
+            return addedViewTextStart + unsavedGeneratedXmlStart + allGeneratedXmlAfterCombine + unsavedGeneratedXmlEnd ;
+        }
+        public static string CombineAppendTags(XmlObjectsListWrapper Wrapper, string xmlToCombine)
+        {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.IndentChars = "\t";
+            settings.OmitXmlDeclaration = true;
+
+            StringBuilder xmlOutBuilder = new StringBuilder();
+            XmlWriter xmlWriter = XmlWriter.Create(xmlOutBuilder, settings);
+            foreach (string topTag in Wrapper.allTopLevelTags)
+            {
+                //If the wrapper only has one top level tag
+                XmlDocument xmlDocument = Wrapper.allTopLevelTags.Count < 2
+                    ? ConsolidateByTag("xpath=\"/" + Wrapper.TopTagName + "\"", xmlToCombine)
+                    : ConsolidateByTag("xpath=\"/" + Wrapper.TopTagName + "/" + topTag + "\"", xmlToCombine);
+                if (xmlDocument != null)
+                {
+                    xmlDocument.WriteContentTo(xmlWriter);
+                }
+            }
+            xmlWriter.Close();
+            return xmlOutBuilder.ToString();
+        }
+        private static XmlDocument ConsolidateByTag(string tagToConsolidate, string fullXml)
+        {
+            XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(fullXml);
+
+            XmlNode firstChild = xmlDocument.FirstChild;
+            while (firstChild.Name.Contains("#comment")) firstChild = firstChild.NextSibling;
+            StringBuilder newXmlStringBuilder = new StringBuilder();
+            XmlNodeList xmlNodeList = xmlDocument.GetElementsByTagName(XmlXpathGenerator.XPATH_ACTION_APPEND);
+            string[] tagXPathSplit = tagToConsolidate.Split("=");
+            string xPathValue = tagXPathSplit[1].Replace("\"", "");
+            System.Collections.Generic.List<XmlNode> nodesToRemove = new System.Collections.Generic.List<XmlNode>();
+            foreach (XmlNode nextNode in xmlNodeList)
+            {
+                XmlAttribute firstAttribute = nextNode.GetAvailableAttribute();
+                if (firstAttribute.Value.Equals(xPathValue) || firstAttribute.Value.Equals(xPathValue.Replace("/", "")))
+                {
+                    newXmlStringBuilder.Append(nextNode.InnerXml);
+                    nodesToRemove.Add(nextNode);
+                }
+            }
+            foreach (XmlNode nextNode in nodesToRemove)
+            {
+                if (nextNode.HasChildNodes) nextNode.RemoveAll();
+                firstChild.RemoveChild(nextNode);
+            }
+            if (newXmlStringBuilder.Length > 0)
+            {
+                XmlElement newTagConsolidated = xmlDocument.CreateElement(XmlXpathGenerator.XPATH_ACTION_APPEND);
+                newTagConsolidated.SetAttribute("xpath", xPathValue);
+                newTagConsolidated.InnerXml = newXmlStringBuilder.ToString();
+
+                firstChild.InsertBefore(newTagConsolidated, firstChild.FirstChild);
+            }
+            else xmlDocument = null;
+            return xmlDocument;
+        }
+        public static bool ValidateXml(string xmlToValidate, string errorPrependMessage = null, bool doShowValidationMessage = false)
+        {
+            bool isValid = true;
+            string fileValidationString;
+            try
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.LoadXml(xmlToValidate);
+                fileValidationString = "File is valid Xml.\n\n";
+            }
+            catch (XmlException exception)
+            {
+                fileValidationString = "File is invalid Xml:\n\n" + exception.Message;
+                isValid = false;
+            }
+            string errorPrependMessageToShow = !String.IsNullOrEmpty(errorPrependMessage) && !isValid
+                ? errorPrependMessage += "\n\n"
+                : "";
+            if (doShowValidationMessage)
+                MessageBox.Show(errorPrependMessageToShow + fileValidationString, "Xml Validation", MessageBoxButton.OK, isValid ? MessageBoxImage.Information : MessageBoxImage.Error);
+
+            return isValid;
+        }
+        //Returns null if the xml is valid.
+        public static string ValidateXml(string xmlToValidate)
+        {
+            string fileValidationString = null;
+            if (!String.IsNullOrEmpty(xmlToValidate)) 
+            {
+                try
+                {
+                    XmlDocument xmlDocument = new XmlDocument();
+                    xmlDocument.LoadXml(xmlToValidate);
+                }
+                catch (XmlException exception)
+                {
+                    fileValidationString = "Xml Error:" + exception.Message;
+                }            
+            }
+            return fileValidationString;
         }
     }
 }
