@@ -78,13 +78,19 @@ TODO
 
 EASY:
 -Add a setting to change the search box threshold
++Force on focus when opening a direct edit window
++When changing the tag name (Edit Custom Mod Name) go through all files and replace the top tag.
++Add an ordering prefix to a mod. Include an option to remove the mod from the auto move location as well.
++Add a check to remove object function to check if it is the last in the tree, rather than go off of the first one. That way you can remove unwanted other trees.
++Add ignore functionality to child trees in new object view.
++Add logic to auto remove config tags from the files.
 
 MEDIUM:
 -Add a button to open xml files in an external program.
 -Change the way settings are displayed potentially so adding settings becomes easier.
 -Finish load Mods Directory Menu Item for loading all mods in the game directory. 
 -Add a popup on edit, to remove the object from the xml or not.
-+Add logic to auto remove config tags from the files.
+
 -When adding a name in the new object view update the button header, essentially use the combo box to update the button name.
 +Add the ability to add comments in the direct edit view.
 ++Add code completion to the direct edit box. http://avalonedit.net/documentation/
@@ -104,6 +110,9 @@ HARD:
 +Add side by side search trees for easier comparison.
 
 Version History
+1.6.4
+ -Refactored xml validation code to XmlXpathGenerator.
+ -Added the combine function to run automatically when generating the xml. With this inclusion the combine function in the Direct Edit View is obsolete, therefore it is removed. There is no reason to not combine these tags. Especially with the mod search trees in mind. 
 1.6.3 
  - Fixed all issues from 1.6.2
  - Fixed issues:
