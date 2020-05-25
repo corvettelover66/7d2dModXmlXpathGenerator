@@ -291,6 +291,14 @@ namespace SevenDaysToDieModCreator.Views
             XmlXpathGenerator.ValidateXml(XmlOutputBox.Text, doShowValidationMessage: true);
         }
 
+        private void CombineTagsXmlButton_Click(object sender, RoutedEventArgs e)
+        {
+            string allXml = this.XmlOutputBox.Text;
+            if (XmlXpathGenerator.ValidateXml(allXml, errorPrependMessage: "Error: Could not execute combine function because xml is invalid.", doShowValidationMessage: true))
+            {
+                this.XmlOutputBox.Text = XmlXpathGenerator.CombineAppendTags(this.Wrapper, allXml);
+            }
+        }
         private void UndoAllChangesXmlButton_Click(object sender, RoutedEventArgs e)
         {
             this.XmlOutputBox.Text = this.UnchangedStartingFileContents;

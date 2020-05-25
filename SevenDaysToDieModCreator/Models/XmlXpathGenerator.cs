@@ -37,6 +37,10 @@ namespace SevenDaysToDieModCreator.Models
                     TreeViewItem nextChildAsTree = (TreeViewItem)nextChild;
                     XmlObjectsListWrapper xmlObjectsListWrapper = newObjectFormsPanel.LoadedListWrappers.GetValueOrDefault(nextChildAsTree.Uid);
                     xmlOut += xmlObjectsListWrapper == null ? "" : GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper);
+                    //if (ValidateXml(xmlOut, null))
+                    //{
+                    //    xmlOut = CombineAppendTags(xmlObjectsListWrapper, xmlOut);
+                    //}
                 }
             }
             return topTag + xmlOut + topTagEnd;
@@ -57,8 +61,8 @@ namespace SevenDaysToDieModCreator.Models
                     string xmlOut = xmlObjectsListWrapper == null ? "" : GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper, true);
                     if (!String.IsNullOrEmpty(xmlOut))
                     {
-                        xmlOut = CombineAppendTags(xmlObjectsListWrapper, topTag + xmlOut + topTagEnd);
-                        XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, xmlOut.TrimEnd(), Properties.Settings.Default.DoLogTimestampOnSave);
+                        //xmlOut = CombineAppendTags(xmlObjectsListWrapper, topTag + xmlOut + topTagEnd);
+                        XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut.TrimEnd() + topTagEnd, Properties.Settings.Default.DoLogTimestampOnSave);
                     }
                     if (writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToLog(xmlOut, true);
                 }
@@ -282,14 +286,8 @@ namespace SevenDaysToDieModCreator.Models
             string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
 
             string allGeneratedXml = GenerateXmlForObjectView(newObjectFormsPanel);
-            string customTag = Properties.Settings.Default.ModTagSetting;
-            string allGeneratedXmlAfterCombine = "";
-            foreach (XmlObjectsListWrapper xmlObjectsListWrapper in newObjectFormsPanel.LoadedListWrappers.Values)
-            {
-                allGeneratedXmlAfterCombine += CombineAppendTags(xmlObjectsListWrapper, allGeneratedXml);
-            }
 
-            return addedViewTextStart + unsavedGeneratedXmlStart + allGeneratedXmlAfterCombine + unsavedGeneratedXmlEnd ;
+            return addedViewTextStart + unsavedGeneratedXmlStart + allGeneratedXml + unsavedGeneratedXmlEnd ;
         }
         public static string CombineAppendTags(XmlObjectsListWrapper Wrapper, string xmlToCombine)
         {
@@ -302,6 +300,7 @@ namespace SevenDaysToDieModCreator.Models
             XmlWriter xmlWriter = XmlWriter.Create(xmlOutBuilder, settings);
             foreach (string topTag in Wrapper.allTopLevelTags)
             {
+
                 //If the wrapper only has one top level tag
                 XmlDocument xmlDocument = Wrapper.allTopLevelTags.Count < 2
                     ? ConsolidateByTag("xpath=\"/" + Wrapper.TopTagName + "\"", xmlToCombine)
@@ -338,7 +337,7 @@ namespace SevenDaysToDieModCreator.Models
             foreach (XmlNode nextNode in nodesToRemove)
             {
                 if (nextNode.HasChildNodes) nextNode.RemoveAll();
-                firstChild.RemoveChild(nextNode);
+                nextNode.ParentNode.RemoveChild(nextNode);
             }
             if (newXmlStringBuilder.Length > 0)
             {
