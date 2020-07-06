@@ -101,6 +101,7 @@ MEDIUM:
 ++Add a view to add the mod info.xml file.
 +++Add the ability to move lines in the direct edit view.
 +++Change property tags to use common attributes for the name and not the tag name.
++++Add comments for every file!
 
 HARD:
 -When updating a mod, using the Load mod menu item, merge the files.
@@ -115,9 +116,9 @@ HARD:
 
 Version History
 1.6.4
- -Refactored xml validation code to XmlXpathGenerator.
- -Added the combine function to run automatically when generating the xml. With this inclusion the combine function in the Direct Edit View is obsolete, therefore it is removed. There is no reason to not combine these tags. Especially with the mod search trees in mind. 
-  
+ - Refactored xml validation code to XmlXpathGenerator.
+ - Completely refectored the code for the controllers. The seperation is better and there is no longer a weird coupling of the controllers.
+ - Removed Garbage Collector call. After enough testing I have enough evidence to know that this was not helping. It made removing views incredibly slow. 
 1.6.3 
  - Fixed all issues from 1.6.2
  - Fixed issues:

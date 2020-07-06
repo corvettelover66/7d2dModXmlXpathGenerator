@@ -7,15 +7,13 @@ namespace SevenDaysToDieModCreator.Models
 {
     class MyComboBox : ComboBox
     {
-        public MyComboBox(ObjectViewController objectViewController, XmlNode ObjectNode,  bool isGameFileSearchTRee = true)
+        public MyComboBox(XmlNode ObjectNode,  bool isGameFileSearchTRee = true)
         {
-            ObjectViewController = objectViewController;
             this.IsGameFileSearchTree = isGameFileSearchTRee;
             this.ObjectNode = ObjectNode;
         }
 
         public TextBox MyTextBox { get; private set; }
-        public ObjectViewController ObjectViewController { get; }
         public bool IsGameFileSearchTree { get; }
 
         public XmlNode ObjectNode { get; private set; }
@@ -27,8 +25,8 @@ namespace SevenDaysToDieModCreator.Models
             MyTextBox = textBox;
             MyTextBox.Tag = this.Parent;
             MyTextBox.Uid = ObjectNode == null ? "" : ObjectNode.Name;
-            XmlObjectsListWrapper wrapperToUse = this.ObjectViewController.LoadedListWrappers.GetValueOrDefault(this.Uid);
-            if (IsGameFileSearchTree) this.ObjectViewController.AddTargetContextMenuToControl(MyTextBox, wrapperToUse);
+            XmlObjectsListWrapper wrapperToUse = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(this.Uid);
+            if (IsGameFileSearchTree) TreeViewGenerator.AddTargetContextMenuToControl(MyTextBox, wrapperToUse);
         }
     }
 }

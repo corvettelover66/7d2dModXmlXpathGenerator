@@ -22,10 +22,15 @@ namespace SevenDaysToDieModCreator
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MainWindowFileController MainWindowFileController { get; set; }
         private MainWindowViewController MainWindowViewController { get; set; }
+
+        //A dictionary for finding XmlListWrappers by filename
+        //Key file name without .xml i.e. recipes, progressions, items
+        //The corressponding list wrapper
+        public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
         private MyStackPanel NewObjectFormsPanel { get; set; }
         private MyStackPanel SearchTreeFormsPanel { get; set; }
-        private SearchViewCache SearchTreeFormsPanelCache { get; set; }
         public ComboBox LoadedModFilesSearchViewComboBox { get; private set; }
         public Button LoadedModFilesButton { get; private set; }
         public MainWindow()
@@ -41,20 +46,35 @@ namespace SevenDaysToDieModCreator
 
         private void MyWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            this.MainWindowViewController = new MainWindowViewController(this.XmlOutputBox, this.IncludeAllModsInBoxesCheckBox);
+            this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
+            this.MainWindowFileController = new MainWindowFileController(this.LoadedListWrappers);
+            this.MainWindowViewController = new MainWindowViewController();
+            MainWindowViewController.XmlOutputBox = this.XmlOutputBox;
+            MainWindowViewController.LoadedListWrappers = this.LoadedListWrappers;
             SetPanels();
             SetCustomModViewElements();
             SetEvents();
+            MainWindowViewController.IncludeAllModsCheckBox = this.IncludeAllModsInBoxesCheckBox;
             this.IncludeCommentsCheckBox.IsChecked = Properties.Settings.Default.IncludeCommentsSearchTreeTooltip;
             this.IncludeChildrenInOnHoverCheckBox.IsChecked = Properties.Settings.Default.IncludeChildrenSearchTreeTooltip;
             this.IncludeAllModsInBoxesCheckBox.IsChecked = Properties.Settings.Default.IncludeAllModsObjectTreeAttributes;
 
-            MainWindowViewController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModFilesCenterViewComboBox, LoadedModsSearchViewComboBox, CurrentGameFilesCenterViewComboBox);
+            MainWindowFileController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModFilesCenterViewComboBox, LoadedModsSearchViewComboBox, CurrentGameFilesCenterViewComboBox);
             if (Properties.Settings.Default.ModTagSetting.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("", "Input a new tag or select a tag from the list of existing tags", "Set Custom Tag!");
             this.LoadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
             this.LoadedModsCenterViewComboBox.Text = Properties.Settings.Default.ModTagSetting;
             SetMainWindowToolTips();
+        }
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel);
+            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
+            Properties.Settings.Default.IncludeChildrenSearchTreeTooltip = IncludeChildrenInOnHoverCheckBox.IsChecked.Value;
+            Properties.Settings.Default.IncludeCommentsSearchTreeTooltip = IncludeCommentsCheckBox.IsChecked.Value;
+            Properties.Settings.Default.IncludeAllModsObjectTreeAttributes = IncludeAllModsInBoxesCheckBox.IsChecked.Value;
+            Properties.Settings.Default.Save();
+            //SaveExternalXaml();
         }
         private void SetupExceptionHandling()
         {
@@ -111,13 +131,12 @@ namespace SevenDaysToDieModCreator
         }
         private void SetPanels()
         {
-            SearchTreeFormsPanelCache = new SearchViewCache(this.MainWindowViewController);
-            NewObjectFormsPanel = new MyStackPanel(this.MainWindowViewController, SearchTreeFormsPanelCache);
-            this.MainWindowViewController.LeftNewObjectViewController.NewObjectFormViewPanel = NewObjectFormsPanel;
+            NewObjectFormsPanel = new MyStackPanel(this.LoadedListWrappers);
+            MainWindowViewController.NewObjectFormViewPanel = NewObjectFormsPanel;
 
             NewObjectScrollView.Content = NewObjectFormsPanel;
-            SearchTreeFormsPanel = new MyStackPanel(this.MainWindowViewController, SearchTreeFormsPanelCache);
-            this.MainWindowViewController.LeftNewObjectViewController.SearchTreeFormViewPanel = SearchTreeFormsPanel;
+            SearchTreeFormsPanel = new MyStackPanel(this.LoadedListWrappers);
+            MainWindowViewController.SearchTreeFormViewPanel = SearchTreeFormsPanel;
             SearchObjectScrollViewer.Content = SearchTreeFormsPanel;
         }
         private void SetEvents()
@@ -182,14 +201,6 @@ namespace SevenDaysToDieModCreator
                 }
             }
         }
-        private void ResetNewObjectView()
-        {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel);
-            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
-            NewObjectFormsPanel.Children.Clear();
-            NewObjectFormsPanel.LoadedListWrappers.Clear();
-            this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel);
-        }
         private void SearchObjectScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.Modifiers != ModifierKeys.Control) return;
@@ -197,13 +208,13 @@ namespace SevenDaysToDieModCreator
             //User rotated forward
             if (e.Delta > 0)
             {
-                MainWindowViewController.LeftNewObjectViewController.IncreaseSearchTreeFontChange();
+                MainWindowViewController.IncreaseSearchTreeFontChange();
                 MainWindowViewController.ModifySearchViewFont(1, myStackPanel.Children);
             }
             //User rotated backwards
             else if (e.Delta < 0)
             {
-                MainWindowViewController.LeftNewObjectViewController.DecreaseSearchTreeFontChange() ;
+                MainWindowViewController.DecreaseSearchTreeFontChange();
                 MainWindowViewController.ModifySearchViewFont(-1, myStackPanel.Children);
             }
         }
@@ -214,13 +225,13 @@ namespace SevenDaysToDieModCreator
             //User rotated forward
             if (e.Delta > 0)
             {
-                MainWindowViewController.LeftNewObjectViewController.IncreaseObjectTreeFontChange();
+                MainWindowViewController.IncreaseObjectTreeFontChange();
                 MainWindowViewController.ModifySearchViewFont(1, myStackPanel.Children);
             }
             //User rotated backwards
             else if (e.Delta < 0)
             {
-                MainWindowViewController.LeftNewObjectViewController.DereasecObjectTreeFontChange();
+                MainWindowViewController.DereasecObjectTreeFontChange();
                 MainWindowViewController.ModifySearchViewFont(-1, myStackPanel.Children);
             }
         }
@@ -230,9 +241,9 @@ namespace SevenDaysToDieModCreator
             string wrapperKey = senderAsBox.Text;
             if (!String.IsNullOrEmpty(wrapperKey))
             {
-                XmlObjectsListWrapper xmlObjectsListWrapper = this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(wrapperKey);
+                XmlObjectsListWrapper xmlObjectsListWrapper = this.MainWindowFileController.LoadedListWrappers.GetValueOrDefault(wrapperKey);
                 xmlObjectsListWrapper = xmlObjectsListWrapper == null
-                    ? this.MainWindowViewController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + wrapperKey)
+                    ? this.MainWindowFileController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + wrapperKey)
                     : xmlObjectsListWrapper;
                 if (xmlObjectsListWrapper == null)
                 {
@@ -277,7 +288,7 @@ namespace SevenDaysToDieModCreator
         }
         private void LoadedModFilesButton_Click(object sender, RoutedEventArgs e)
         {
-            this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
+            this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
             this.MainWindowViewController.AddSearchTree(SearchTreeFormsPanel, LoadedModFilesSearchViewComboBox, doAddContextMenu: false, includeChildrenInOnHover: IncludeChildrenInOnHoverCheckBox.IsChecked.Value, includeComments: IncludeCommentsCheckBox.IsChecked.Value);
         }
         private void LoadedModsComboBox_DropDownClosed(object sender, EventArgs e)
@@ -293,7 +304,7 @@ namespace SevenDaysToDieModCreator
                     this.SearchViewModSelectionPanel.Children.Add(this.LoadedModFilesButton);
                 }
                 this.LoadedModFilesSearchViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(modToLoad, modToLoad + "_"));
-                this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
+                this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
             }
             else
             {
@@ -301,30 +312,13 @@ namespace SevenDaysToDieModCreator
                 this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesButton);
             }
         }
-        private void MyBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            Application.Current.Dispatcher.Invoke((Action)delegate
-            {
-                SearchTreeFormsPanelCache.LoadCache();
-            });
-        }
         private void XmlOutputBoxGotKeyboardFocus_Handler(object sender, KeyboardFocusChangedEventArgs e)
         {
             this.XmlOutputBox.Text = XmlXpathGenerator.GenerateXmlViewOutput(NewObjectFormsPanel);
         }
-        private void MainWindow_Closing(object sender, CancelEventArgs e)
-        {
-            string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel);
-            if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
-            Properties.Settings.Default.IncludeChildrenSearchTreeTooltip = IncludeChildrenInOnHoverCheckBox.IsChecked.Value;
-            Properties.Settings.Default.IncludeCommentsSearchTreeTooltip = IncludeCommentsCheckBox.IsChecked.Value;
-            Properties.Settings.Default.IncludeAllModsObjectTreeAttributes = IncludeAllModsInBoxesCheckBox.IsChecked.Value;
-            Properties.Settings.Default.Save();
-            //SaveExternalXaml();
-        }
         private void LoadFile_Click(object sender, RoutedEventArgs e)
         {
-            MainWindowViewController.LoadFilesViewControl(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
+            MainWindowFileController.LoadFilesViewControl(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
         }
         private void SaveXmlFile_Click(object sender, RoutedEventArgs e)
         {
@@ -345,70 +339,18 @@ namespace SevenDaysToDieModCreator
                     XmlXpathGenerator.SaveAllGeneratedXmlToPath(NewObjectFormsPanel, XmlFileManager._ModConfigOutputPath, true);
                     if (Properties.Settings.Default.AutoMoveMod) XmlFileManager.CopyAllOutputFiles();
                     string currentLoadedMod = Properties.Settings.Default.ModTagSetting;
-                    this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
+                    this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
                     this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentLoadedMod, Properties.Settings.Default.ModTagSetting + "_"));
-                    break;
-            }
-        }
-        private void CheckAutoMoveProperty(string appendMessage = "")
-        {
-            string currentStatus = Properties.Settings.Default.AutoMoveMod ? "Activated" : "Deactived";
-            MessageBoxResult innerResult = MessageBox.Show("Would you like to change the status of the Auto Move feature?\n\n" +
-                "Current status " + currentStatus + "\n\n" +
-                "When activated, on saving, the application automatically moves all files to the Games Mod Folder chosen as well.\n" +
-                appendMessage,
-                "Auto Move Game Files",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-            switch (innerResult)
-            {
-                case MessageBoxResult.Yes:
-                    Properties.Settings.Default.AutoMoveMod = !Properties.Settings.Default.AutoMoveMod;
-                    break;
-            }
-            //If the AutoMoveMod was turned on and the mod directory is not set
-            if (String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory)
-                && Properties.Settings.Default.AutoMoveMod)
-            {
-                HandleMissingGameModDirectory();
-                if (String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory))
-                {
-                    MessageBox.Show("You need to set the mod directory for this feature to work!");
-                    HandleMissingGameModDirectory();
-                }
-            }
-            if (!Properties.Settings.Default.AutoMoveDecisionMade) Properties.Settings.Default.AutoMoveDecisionMade = true;
-            Properties.Settings.Default.Save();
-        }
-        private void CheckLogTimestampProperty() 
-        {
-            string currentStatus = Properties.Settings.Default.DoLogTimestampOnSave ? "Activated" : "Deactived";
-            MessageBoxResult innerResult = MessageBox.Show("Would you like to change the status writing a timestamp on saving?\n\n" +
-                "Current status " + currentStatus + "\n\n" +
-                "When activated, on saving, the application will write a timestamp above the generated xml.\n",
-                "Timestamp Setting",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-            switch (innerResult)
-            {
-                case MessageBoxResult.Yes:
-                    Properties.Settings.Default.DoLogTimestampOnSave = !Properties.Settings.Default.DoLogTimestampOnSave;
-                    Properties.Settings.Default.Save();
                     break;
             }
         }
         private void AddObjectView_Click(object sender, RoutedEventArgs e)
         {
-            string selectedObject = NewObjectViewLoadedFilesComboBox.Text;
-            if (String.IsNullOrEmpty(selectedObject)) return;
-            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
-            MainWindowViewController.LeftNewObjectViewController.CreateEmptyNewObjectFormTree(selectedWrapper, selectedObject);
+            this.MainWindowViewController.AddObjectTree(this.NewObjectViewLoadedFilesComboBox.Text);
         }
         private void AddNewSearchTreeView_Click(object sender, RoutedEventArgs e)
         {
-            string selectedObject = SearchTreeLoadedFilesComboBox.Text;
-            if (String.IsNullOrEmpty(selectedObject)) return;
-            MainWindowViewController.AddSearchTree(SearchTreeFormsPanel, SearchTreeLoadedFilesComboBox, includeChildrenInOnHover: IncludeChildrenInOnHoverCheckBox.IsChecked.Value, includeComments: IncludeCommentsCheckBox.IsChecked.Value);
+            this.MainWindowViewController.AddSearchTree(SearchTreeFormsPanel, SearchTreeLoadedFilesComboBox, includeChildrenInOnHover: IncludeChildrenInOnHoverCheckBox.IsChecked.Value, includeComments: IncludeCommentsCheckBox.IsChecked.Value);
         }
         private void ClearAllObjectView_Click(object sender, RoutedEventArgs e)
         {
@@ -420,7 +362,7 @@ namespace SevenDaysToDieModCreator
             switch (result)
             {
                 case MessageBoxResult.OK:
-                    this.ResetNewObjectView();
+                    MainWindowViewController.ResetNewObjectView();
                     break;
             }
         }
@@ -430,7 +372,7 @@ namespace SevenDaysToDieModCreator
             switch (result)
             {
                 case MessageBoxResult.OK:
-                    SearchTreeFormsPanel.Children.Clear();
+                    this.SearchTreeFormsPanel.Children.Clear();
                     break;
             }
         }
@@ -442,8 +384,8 @@ namespace SevenDaysToDieModCreator
             {
                 try
                 {
-                    if (isModNameEdit) MainWindowViewController.ChangeCustomTagName(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
-                    else MainWindowViewController.SetNewCustomTag(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox);
+                    if (isModNameEdit) MainWindowFileController.ChangeCustomTagName(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
+                    else MainWindowFileController.SetNewCustomTag(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox);
                 }
                 catch (XmlException)
                 {
@@ -468,12 +410,12 @@ namespace SevenDaysToDieModCreator
             if (String.IsNullOrEmpty(selectedObject)) return;
             string defaultWrapperKey = selectedObject.Replace(Properties.Settings.Default.ModTagSetting + "_", "");
             //Try to grab the default wrapper
-            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(defaultWrapperKey);
+            XmlObjectsListWrapper selectedWrapper = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(defaultWrapperKey);
 
             if (selectedWrapper == null)
             {
                 //Try to load the wrapper from the selected object.
-                selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
+                selectedWrapper = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(selectedObject);
                 //If it is still null there is an xml issue
                 if (selectedWrapper == null)
                 {
@@ -503,20 +445,19 @@ namespace SevenDaysToDieModCreator
         private void DirectEdit_Closed(object sender, EventArgs e)
         {
             string currentLoadedMod = Properties.Settings.Default.ModTagSetting;
-            this.MainWindowViewController.LoadCustomTagWrappers(currentLoadedMod, this.CurrentModFilesCenterViewComboBox);
+            this.MainWindowFileController.LoadCustomTagWrappers(currentLoadedMod, this.CurrentModFilesCenterViewComboBox);
             this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentLoadedMod, currentLoadedMod + "_"));
         }
-
         private void OpenDirectEditGameXmlViewButton_Click(object sender, RoutedEventArgs e)
         {
             string selectedObject = CurrentGameFilesCenterViewComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
             //Try to grab the default wrapper
-            XmlObjectsListWrapper selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(selectedObject);
+            XmlObjectsListWrapper selectedWrapper = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(selectedObject);
             //If it is still null there is an issue with the file and the file has not been loaded.
             if (selectedWrapper == null)
             {
-                selectedWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + selectedObject);
+                selectedWrapper = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + selectedObject);
                 if (selectedWrapper == null)
                 {
                     MessageBox.Show(
@@ -593,6 +534,36 @@ namespace SevenDaysToDieModCreator
         {
             CheckAutoMoveProperty();
         }
+        private void CheckAutoMoveProperty(string appendMessage = "")
+        {
+            string currentStatus = Properties.Settings.Default.AutoMoveMod ? "Activated" : "Deactived";
+            MessageBoxResult innerResult = MessageBox.Show("Would you like to change the status of the Auto Move feature?\n\n" +
+                "Current status " + currentStatus + "\n\n" +
+                "When activated, on saving, the application automatically moves all files to the Games Mod Folder chosen as well.\n" +
+                appendMessage,
+                "Auto Move Game Files",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            switch (innerResult)
+            {
+                case MessageBoxResult.Yes:
+                    Properties.Settings.Default.AutoMoveMod = !Properties.Settings.Default.AutoMoveMod;
+                    break;
+            }
+            //If the AutoMoveMod was turned on and the mod directory is not set
+            if (String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory)
+                && Properties.Settings.Default.AutoMoveMod)
+            {
+                HandleMissingGameModDirectory();
+                if (String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory))
+                {
+                    MessageBox.Show("You need to set the mod directory for this feature to work!");
+                    HandleMissingGameModDirectory();
+                }
+            }
+            if (!Properties.Settings.Default.AutoMoveDecisionMade) Properties.Settings.Default.AutoMoveDecisionMade = true;
+            Properties.Settings.Default.Save();
+        }
         private void CheckAllSettingsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             string currentStatus = Properties.Settings.Default.AutoMoveMod ? "Activated" : "Deactived";
@@ -609,7 +580,7 @@ namespace SevenDaysToDieModCreator
         }
         private void LoadModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            MainWindowViewController.LoadDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.CurrentModFilesCenterViewComboBox);
+            MainWindowFileController.LoadDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.CurrentModFilesCenterViewComboBox);
             this.LoadedModFilesSearchViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
         }
         private void ValidateXmlMenuItem_Click(object sender, RoutedEventArgs e)
@@ -637,7 +608,7 @@ namespace SevenDaysToDieModCreator
             //Remove the trailing newline
             builder.Remove(builder.Length - 2, 2);
             MessageBox.Show(builder.ToString(), "Xml Validation", MessageBoxButton.OK, MessageBoxImage.Information);
-            this.MainWindowViewController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
+            this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
         }
         private void EditTagNameMenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -651,6 +622,24 @@ namespace SevenDaysToDieModCreator
         {
             CheckLogTimestampProperty();
         }
+        private void CheckLogTimestampProperty()
+        {
+            string currentStatus = Properties.Settings.Default.DoLogTimestampOnSave ? "Activated" : "Deactived";
+            MessageBoxResult innerResult = MessageBox.Show("Would you like to change the status writing a timestamp on saving?\n\n" +
+                "Current status " + currentStatus + "\n\n" +
+                "When activated, on saving, the application will write a timestamp above the generated xml.\n",
+                "Timestamp Setting",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            switch (innerResult)
+            {
+                case MessageBoxResult.Yes:
+                    Properties.Settings.Default.DoLogTimestampOnSave = !Properties.Settings.Default.DoLogTimestampOnSave;
+                    Properties.Settings.Default.Save();
+                    break;
+            }
+        }
+
         //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
         //{
         //    MainWindowViewController.LoadGameModDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.CurrentModFilesCenterViewComboBox);
