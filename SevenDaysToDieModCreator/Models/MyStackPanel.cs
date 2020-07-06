@@ -8,19 +8,16 @@ namespace SevenDaysToDieModCreator.Models
 {
     class MyStackPanel : StackPanel
     {
-        private MainWindowViewController MainWindowViewController { get; set; }
-        public SearchViewCache SearchViewCache { get; }
-
+        private MainWindowFileController MainWindowViewController { get; set; }
         //A dictionary for finding XmlListWrappers by filename
         //Key top tag name i.e. recipe, progression, item
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
         private Dictionary<string, int[]> LoadedListWrappersCount { get; set; }
 
-        public MyStackPanel(MainWindowViewController mainWindowViewController, SearchViewCache searchViewCache)
+        public MyStackPanel(MainWindowFileController mainWindowViewController)
         {
             this.MainWindowViewController = mainWindowViewController;
-            this.SearchViewCache = searchViewCache;
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.LoadedListWrappersCount = new Dictionary<string, int[]>();
         }
@@ -54,7 +51,6 @@ namespace SevenDaysToDieModCreator.Models
                         }
                     }
                 }
-                GC.Collect();
             }
         }
         private void HandleVisualChangedAdded(System.Windows.DependencyObject visualAdded)
