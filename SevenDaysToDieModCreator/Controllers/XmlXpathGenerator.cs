@@ -183,8 +183,7 @@ namespace SevenDaysToDieModCreator.Models
         }
         private static string GenerateAppendXmlForObject(XmlObjectsListWrapper xmlObjectsListWrapper, TreeViewItem nextChildAsTree, string nodeName)
         {
-            string nodeToSkip = nodeName;
-            string generatedXml = GenerateXmlForObject(nextChildAsTree, nodeToSkip: nodeToSkip, targetNode: nodeName, level: 1);
+            string generatedXml = GenerateXmlForObject(nextChildAsTree, targetNode: nodeName, level: 1);
             string xmlOut = "";
             if (generatedXml.Length > 0)
             {
@@ -192,6 +191,7 @@ namespace SevenDaysToDieModCreator.Models
             }
             if (xmlObjectsListWrapper.TopTagName == StringConstants.PROGRESSION_TAG_NAME)
             {
+                string nodeToSkip = nodeName;
                 generatedXml = GenerateXmlForObject(nextChildAsTree, nodeToSkip: nodeToSkip, level: 1);
                 if (generatedXml.Length > 0) xmlOut = "\t<append xpath=\"/" + xmlObjectsListWrapper.TopTagName + "/" + nodeName + "\">\n" + generatedXml + "\t</append>\n";
             }
