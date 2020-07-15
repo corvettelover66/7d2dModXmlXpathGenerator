@@ -219,5 +219,21 @@ namespace SevenDaysToDieModCreator.Models
             string newModDirectory = Path.Combine(_fileOutputPath, "Mods", newModName);
             Directory.Move(oldModDirectory, newModDirectory);
         }
+        internal static void DeleteModFile(string modTagSetting, string fileName)
+        {
+            try
+            {
+                string fullPath = Path.Combine(Get_ModOutputPath(modTagSetting), fileName);
+                if (File.Exists(fullPath)) 
+                {
+                    File.Delete(fullPath);
+                    WriteStringToLog("Deleted file " + fullPath);
+                }
+            }
+            catch (IOException e) 
+            {
+                WriteStringToLog(e.Message);
+            }
+        }
     }
 }

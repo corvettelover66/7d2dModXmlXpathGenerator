@@ -338,9 +338,9 @@ namespace SevenDaysToDieModCreator
                 case MessageBoxResult.OK:
                     XmlXpathGenerator.SaveAllGeneratedXmlToPath(NewObjectFormsPanel, XmlFileManager._ModConfigOutputPath, true);
                     if (Properties.Settings.Default.AutoMoveMod) XmlFileManager.CopyAllOutputFiles();
-                    string currentLoadedMod = Properties.Settings.Default.ModTagSetting;
                     this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
-                    this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentLoadedMod, Properties.Settings.Default.ModTagSetting + "_"));
+                    this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesSearchViewComboBox);
+                    this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesButton);
                     break;
             }
         }
@@ -637,6 +637,19 @@ namespace SevenDaysToDieModCreator
                     Properties.Settings.Default.DoLogTimestampOnSave = !Properties.Settings.Default.DoLogTimestampOnSave;
                     Properties.Settings.Default.Save();
                     break;
+            }
+        }
+        private void DeleteModFileXmlViewButton_Click(object sender, RoutedEventArgs e)
+        {
+            string currentModName = Properties.Settings.Default.ModTagSetting;
+            bool didDeleteFile = MainWindowFileController.DeleteModFile(currentModName, this.CurrentModFilesCenterViewComboBox.Text);
+            if (didDeleteFile) 
+            {
+                this.MainWindowFileController.LoadCustomTagWrappers(currentModName, this.CurrentModFilesCenterViewComboBox);
+                this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentModName, currentModName + "_"));
+                //Reset the search view mod UI components as the files have changed.
+                this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesSearchViewComboBox);
+                this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesButton);
             }
         }
 

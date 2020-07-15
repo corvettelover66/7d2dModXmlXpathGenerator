@@ -224,11 +224,11 @@ namespace SevenDaysToDieModCreator.Extensions
             controlObject.ToolTip = newToolTip;
             return isHoverMessageAdded;
         }
-        public static void SetComboBox<T>(this ComboBox comboBox, IList<T> listToUse, string name = null)
+        public static void SetComboBox<T>(this ComboBox comboBox, IList<T> listToUse, bool includeEmptyItem = false,  string name = null)
         {
             if (name != null) comboBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
-            allItems.Add("              ");
+            if(includeEmptyItem)allItems.Add("              ");
             foreach (var nextString in listToUse.OrderBy(i => i)) 
             {
                 allItems.Add(nextString.ToString());
@@ -241,7 +241,7 @@ namespace SevenDaysToDieModCreator.Extensions
             ComboBox newBox = new ComboBox();
             if (forgroundColor != null) newBox.Foreground = forgroundColor;
             newBox.IsEditable = true;
-            newBox.SetComboBox(listToUse, name);
+            newBox.SetComboBox(listToUse, true, name);
             newBox.SelectedIndex = 0;
             return newBox;
         }

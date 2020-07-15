@@ -18,7 +18,7 @@ namespace SevenDaysToDieModCreator.Controllers
         //Key file name without .xml i.e. recipes, progressions, items
         //The corressponding list wrapper
         public Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; private set; }
-        public MainWindowFileController(Dictionary<string, XmlObjectsListWrapper>  loadedListWrappers)
+        public MainWindowFileController(Dictionary<string, XmlObjectsListWrapper> loadedListWrappers)
         {
             this.LoadedListWrappers = loadedListWrappers;
         }
@@ -55,7 +55,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     File.Copy(file, Path.Combine(XmlFileManager._LoadedFilesPath, parentPath, wrapper.xmlFile.FileName));
                 if (wrapper != null)
                 {
-                    string wrapperDictionaryKey = wrapper.GenerateDictionaryKey();;
+                    string wrapperDictionaryKey = wrapper.GenerateDictionaryKey(); ;
 
                     UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
                     searchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
@@ -76,7 +76,7 @@ namespace SevenDaysToDieModCreator.Controllers
 
                 if (hasXmlFiles && !fullSelectedPath.ToLower().Contains("config"))
                 {
-    
+
                     currentModFilesCenterViewComboBox.SetComboBox(new List<string>());
                     Properties.Settings.Default.ModTagSetting = currentModName;
                     Properties.Settings.Default.Save();
@@ -84,7 +84,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     //Copy the files to the output path at Output/Mods/ModName
                     string appOutputPath = Path.Combine(XmlFileManager._fileOutputPath, "Mods", currentModName);
                     bool overwriteLocalAppFiles = false;
-                    if (Directory.Exists(appOutputPath)) 
+                    if (Directory.Exists(appOutputPath))
                     {
                         MessageBoxResult messageBoxResult = MessageBox.Show(
                             "The mod is already loaded. Do you want to OVERWRITE the local, application files?\n\n" +
@@ -92,7 +92,7 @@ namespace SevenDaysToDieModCreator.Controllers
                             "Overwrite Application Mod Files",
                             MessageBoxButton.YesNo,
                             MessageBoxImage.Question);
-                        switch (messageBoxResult) 
+                        switch (messageBoxResult)
                         {
                             case MessageBoxResult.Yes:
                                 overwriteLocalAppFiles = true;
@@ -112,7 +112,7 @@ namespace SevenDaysToDieModCreator.Controllers
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
-                else 
+                else
                 {
                     MessageBox.Show(
                         "The was an error loading the mod at " + openFileDialog.FileName + ". There was no xml found in the Config folder of the mod. Please check the folder for xml files.",
@@ -272,6 +272,37 @@ namespace SevenDaysToDieModCreator.Controllers
             loadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             loadedModsSearchViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             loadedModsCenterViewComboBox.Text = newModName;
+        }
+        internal bool DeleteModFile(string modTagSetting, string comboBoxTextUnparsed)
+        {
+            bool didDelete = false;
+            //Make sure the strings are available.
+            if (String.IsNullOrEmpty(modTagSetting) || String.IsNullOrEmpty(comboBoxTextUnparsed)) 
+            {
+                XmlFileManager.WriteStringToLog("The inputs for the delete setting were incorrect. Did not delete file.");
+                return didDelete;
+            }
+            //Split the string from the box it should be in the form modname_possibledir_filename
+            string fileName = "";
+            string[] comboBoxTextSplit = comboBoxTextUnparsed.Split("_");
+            if (comboBoxTextSplit.Length > 1) 
+            {
+                //Get the very last element, should be the filename without the .xml extention 
+                fileName = comboBoxTextSplit[comboBoxTextSplit.Length - 1] ;
+                //Add the xml extention
+                fileName += ".xml";
+            }
+            string promptMessage = "Are you absolutely sure you want to delete the file " + fileName + " for the mod " + modTagSetting + "?\n\n This cannot be UNDONE!";
+            string promptCaption = "Delete file " + fileName;
+            MessageBoxResult messageBoxResult = MessageBox.Show(promptMessage, promptCaption, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            switch (messageBoxResult) 
+            {
+                case MessageBoxResult.Yes:
+                    XmlFileManager.DeleteModFile(modTagSetting, fileName);
+                    didDelete = true;
+                break;
+            }
+            return didDelete;
         }
     }
 }
