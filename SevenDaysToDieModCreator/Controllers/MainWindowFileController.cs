@@ -252,26 +252,15 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             return wrapper;
         }
-        internal void SetNewCustomTag(Views.CustomDialogBox dialog, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox)
+        internal void FinishModInfoSave(ModInfoDialogBox dialog, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox, ComboBox loadedModsSearchViewComboBox)
         {
-            string name = XmlConvert.VerifyName(dialog.ResponseText.Trim());
-            Properties.Settings.Default.ModTagSetting = name;
-            Properties.Settings.Default.Save();
-            currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(name));
-            loadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
-            loadedModsCenterViewComboBox.Text = name;
-        }
-        internal void ChangeCustomTagName(CustomDialogBox dialog, ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox, ComboBox loadedModsSearchViewComboBox)
-        {
-            string newModName = XmlConvert.VerifyName(dialog.ResponseText.Trim());
-            string oldModName = Properties.Settings.Default.ModTagSetting;
-            XmlFileManager.RenameModDirectory(oldModName, newModName);
-            Properties.Settings.Default.ModTagSetting = newModName;
-            Properties.Settings.Default.Save();
-            currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(newModName));
+            string modInfoXml = dialog.ResponseText.Trim();
+            XmlFileManager.WriteStringToFile(XmlFileManager._ModDirectoryOutputPath, ModInfo.MOD_INFO_FILE_NAME, modInfoXml);
+
+            currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting));
             loadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             loadedModsSearchViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
-            loadedModsCenterViewComboBox.Text = newModName;
+            loadedModsCenterViewComboBox.Text = Properties.Settings.Default.ModTagSetting;
         }
         internal bool DeleteModFile(string modTagSetting, string comboBoxTextUnparsed)
         {

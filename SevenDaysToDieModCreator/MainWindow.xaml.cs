@@ -46,6 +46,8 @@ namespace SevenDaysToDieModCreator
 
         private void MyWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            Properties.Settings.Default.ModTagSetting = "SomethingElse";
+            Properties.Settings.Default.Save();
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.MainWindowFileController = new MainWindowFileController(this.LoadedListWrappers);
             this.MainWindowViewController = new MainWindowViewController();
@@ -60,7 +62,7 @@ namespace SevenDaysToDieModCreator
             this.IncludeAllModsInBoxesCheckBox.IsChecked = Properties.Settings.Default.IncludeAllModsObjectTreeAttributes;
 
             MainWindowFileController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModFilesCenterViewComboBox, LoadedModsSearchViewComboBox, CurrentGameFilesCenterViewComboBox);
-            if (Properties.Settings.Default.ModTagSetting.Equals("ThisNeedsToBeSet")) CustomTagDialogPopUp("", "Input a new tag or select a tag from the list of existing tags", "Set Custom Tag!");
+            if (Properties.Settings.Default.ModTagSetting.Equals("ThisNeedsToBeSet")) ModInfoDialogPopUp("", "Create/Edit a Mod!");
             this.LoadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
             this.LoadedModsCenterViewComboBox.Text = Properties.Settings.Default.ModTagSetting;
@@ -94,14 +96,13 @@ namespace SevenDaysToDieModCreator
             HelpMenuItem.AddToolTip("Click to see more information about the app");
             CheckAllSettingsMenuItem.AddToolTip("Click here to see all the User Settings");
             AutoMoveMenuItem.AddToolTip("Click here to change the Auto Move setting");
-            ChangeCustomTagMenuItem.AddToolTip("Click here to add a new custom tag/mod");
             ChangeModGameDirectoryMenu.AddToolTip("Click here to change the directory for the Auto Move Function");
             MoveFileMenuItem.AddToolTip("Click here to move all mod files from the current selected mod directly to the User Set \"Auto Move\" Directory");
             SaveFileMenuItem.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
             LoadFileMenuItem.AddToolTip("Click to load an xml file or multiple xml files\nThis would typically be a game xml file such as recipes.xml");
             LoadModDirectoryMenuItem.AddToolTip("Click here to load a mod directory\nThis would typically be the main mod folder with the mod name not the Config directory within");
             ValidateXmlMenuItem.AddToolTip("Click here to validate all xml files for the selected tag/mod\nAny xml violations will be displayed");
-            EditTagNameMenuItem.AddToolTip("Click here to change the name of the current tag/mod\nThis will also change the folder name in the Output/Mods/ dir");
+            CreateEditModInfoMenuItem.AddToolTip("Click here to create a new mod or edit the Mod Info for an existing mod");
             ChangeLogTimeStampMenuItem.AddToolTip("Click here to change the Timestamp setting");
             //LoadGameModDirectoryMenuItem.AddToolTip("Click here to load the 7 days to die \"Mods\" directory, to load all mods");
             //Buttons
@@ -376,32 +377,13 @@ namespace SevenDaysToDieModCreator
                     break;
             }
         }
-        private void CustomTagDialogPopUp(string dialogText, string toolTipMessage, string windowTitle, bool isModNameEdit = false)
+        private void ModInfoDialogPopUp(string dialogText, string windowTitle)
         {
-            var dialog = new CustomDialogBox(true, dialogText, toolTipMessage, windowTitle);
+            var dialog = new ModInfoDialogBox(dialogText, windowTitle);
 
             if (dialog.ShowDialog() == true)
             {
-                try
-                {
-                    if (isModNameEdit) MainWindowFileController.ChangeCustomTagName(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
-                    else MainWindowFileController.SetNewCustomTag(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox);
-                }
-                catch (XmlException)
-                {
-                    MessageBox.Show("The format was incorrect, the name must follow xml tag naming rules!\n" +
-                        "Typical errors are spaces in the name, or unusable special characters.",
-                        "Format Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                }
-                catch (ArgumentNullException)
-                {
-                    MessageBox.Show("The format was incorrect, the tag cannot be empty! Please open the settings menu and set your tag.",
-                        "Format Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                }
+                MainWindowFileController.FinishModInfoSave(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
             }
         }
         private void OpenDirectEditModXmlViewButton_Click(object sender, RoutedEventArgs e)
@@ -519,17 +501,6 @@ namespace SevenDaysToDieModCreator
                     break;
             }
         }
-        private void ChangeCustomTagMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            CustomTagDialogPopUp("Please input/select your custom tag.\n\n" +
-                "This will also be used in the File Generation Folder and the Game Output folder with the Auto Move feature.\n\n" +
-                "It is worth noting that the current tag will generate a tag specific folder in the output location.\n" +
-                "You can change this folder directly or use the \"Edit Tag/Mod Name\" menu item to change the name.\n" +
-                " If you want to start a new mod create a new tag, or select an existing tag to continue work on those mod files.\n\n" +
-                "Your current tag is: " + Properties.Settings.Default.ModTagSetting,
-                "Input a new tag or select a tag from the list of existing tags", 
-                "Create/Switch Custom Tag");
-        }
         private void ChangeAutoMoveMenuItem_Click(object sender, RoutedEventArgs e)
         {
             CheckAutoMoveProperty();
@@ -610,13 +581,12 @@ namespace SevenDaysToDieModCreator
             MessageBox.Show(builder.ToString(), "Xml Validation", MessageBoxButton.OK, MessageBoxImage.Information);
             this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
         }
-        private void EditTagNameMenuItem_Click(object sender, RoutedEventArgs e)
+        private void CreateEditModInfoMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            CustomTagDialogPopUp("Please input a new name for the tag.\n\n" +
-                "Note that the mod name you will change is the current selected mod.\n" +
-                "Your current mod to change is: " + Properties.Settings.Default.ModTagSetting, 
-                "Add the new tag name here", 
-                "Edit Tag Name",true);
+            ModInfoDialogPopUp("Please input all of the necessary fields for the ModInfo.xml file here. " +
+                "The ModInfo.xml file is required for every mod and should contain relevant information for the mod.\n\n" +
+                "You can edit existing mods or create new mods here.", 
+                "Create/Edit Mod's ModInfo");
         }
         private void ChangeLogTimeStampMenuItem_Click(object sender, RoutedEventArgs e)
         {

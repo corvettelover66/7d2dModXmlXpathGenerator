@@ -374,11 +374,11 @@ namespace SevenDaysToDieModCreator.Controllers
             {
                 Dictionary<string, List<string>> attributesDictionary = xmlObjectListWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(currentTagName);
                 List<string> attributeCommon = attributesDictionary?.GetValueOrDefault(nextAttribute);
-                newAttributesComboBox = attributeCommon?.CreateComboBoxList(forgroundColor: Brushes.Blue);
+                newAttributesComboBox = attributeCommon?.CreateComboBoxFromList(forgroundColor: Brushes.Blue);
             }
             else 
             {
-                newAttributesComboBox = allCommonAttributes.CreateComboBoxList(forgroundColor: Brushes.Blue);
+                newAttributesComboBox = allCommonAttributes.CreateComboBoxFromList(forgroundColor: Brushes.Blue);
             }
 ;
             if (newAttributesComboBox != null)
@@ -408,7 +408,6 @@ namespace SevenDaysToDieModCreator.Controllers
                 if (senderTreeView.Parent is TreeViewItem parent) parent.Items.Remove(senderTreeView);
                 else
                 {
-                    Label l;
                     MessageBoxResult result = MessageBox.Show(
                         "This will remove the entire object. Are you sure?",
                         "Remove Top Level",
@@ -852,7 +851,7 @@ namespace SevenDaysToDieModCreator.Controllers
             else if (!senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_REMOVE))
             {
                 List<string> attributeCommon = xmlObjectListWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(xmlNode.Name).GetValueOrDefault(xmlAttributeName);
-                ComboBox newAttributesComboBox = attributeCommon != null ? attributeCommon.CreateComboBoxList(forgroundColor: Brushes.Blue) : null;
+                ComboBox newAttributesComboBox = attributeCommon != null ? attributeCommon.CreateComboBoxFromList(forgroundColor: Brushes.Blue) : null;
                 if (newAttributesComboBox != null)
                 {
                     newAttributesComboBox.DropDownClosed += NewAttributesComboBox_DropDownClosed;

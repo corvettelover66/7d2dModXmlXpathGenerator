@@ -38,6 +38,54 @@ namespace SevenDaysToDieModCreator.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ModInfoName {
+            get {
+                return ((string)(this["ModInfoName"]));
+            }
+            set {
+                this["ModInfoName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ModInfoDescription {
+            get {
+                return ((string)(this["ModInfoDescription"]));
+            }
+            set {
+                this["ModInfoDescription"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ModInfoAuthor {
+            get {
+                return ((string)(this["ModInfoAuthor"]));
+            }
+            set {
+                this["ModInfoAuthor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ModInfoVersion {
+            get {
+                return ((string)(this["ModInfoVersion"]));
+            }
+            set {
+                this["ModInfoVersion"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string GameFolderModDirectory {
             get {
                 return ((string)(this["GameFolderModDirectory"]));

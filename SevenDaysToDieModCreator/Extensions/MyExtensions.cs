@@ -236,7 +236,7 @@ namespace SevenDaysToDieModCreator.Extensions
             comboBox.ItemsSource = allItems;
         }
         //Creates a ComboBox using a list object
-        public static ComboBox CreateComboBoxList<T>(this IList<T> listToUse, string name = null, SolidColorBrush forgroundColor = null)
+        public static ComboBox CreateComboBoxFromList<T>(this IList<T> listToUse, string name = null, SolidColorBrush forgroundColor = null)
         {
             ComboBox newBox = new ComboBox();
             if (forgroundColor != null) newBox.Foreground = forgroundColor;

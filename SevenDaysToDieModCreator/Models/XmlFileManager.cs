@@ -215,9 +215,22 @@ namespace SevenDaysToDieModCreator.Models
         }
         internal static void RenameModDirectory(string oldModName, string newModName)
         {
+            string tempDirName = "temp";
             string oldModDirectory = Path.Combine(_fileOutputPath, "Mods", oldModName);
             string newModDirectory = Path.Combine(_fileOutputPath, "Mods", newModName);
-            Directory.Move(oldModDirectory, newModDirectory);
+            string tempModDirectory = Path.Combine(_fileOutputPath, "Mods", tempDirName);
+
+            //Handle edge case where directory names are the same when ignoreing case but they are actually different when taking in Case. Windows ignores the case and I don't want to.
+            if (oldModName.ToLower().Equals(newModName.ToLower())
+                && !oldModName.Equals(newModName))
+            {
+                Directory.Move(oldModDirectory, tempModDirectory);
+                Directory.Move(tempModDirectory, newModDirectory);
+            }
+            else 
+            {
+                Directory.Move(oldModDirectory, newModDirectory);
+            }
         }
         internal static void DeleteModFile(string modTagSetting, string fileName)
         {
