@@ -26,7 +26,7 @@
                     <MenuItem Header="S_ettings">
                         <MenuItem Header="_Auto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
                         <MenuItem Header="_Game Mods Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
-                        <MenuItem Header="Create/Edit _Mod Info" Name="CreateEditModInfoMenuItem" Click="CreateEditModInfoMenuItem_Click" />
+                        <MenuItem Header="C_reate/Edit Mod" Name="CreateEditModInfoMenuItem" Click="CreateEditModInfoMenuItem_Click" />
                         <MenuItem Header="T_imestamp" Name="ChangeLogTimeStampMenuItem"  Click="ChangeLogTimeStampMenuItem_Click" />
                         <MenuItem Header="_Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
                     </MenuItem>

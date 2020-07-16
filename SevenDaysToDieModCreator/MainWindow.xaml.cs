@@ -117,6 +117,7 @@ namespace SevenDaysToDieModCreator
             ClearTreesViewButton.AddToolTip("Click to remove all trees from the view above\nThis action will also free up the used memory instantly.");
             LoadedModFilesButton.AddToolTip("Click to add a search tree for the mod file selected above");
             OpenGameFileDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected game file from the combo box to the left");
+            DeleteModFileDirectEditViewButton.AddToolTip("Click to delete the file from the combo box to the left for the current mod");
             //Combo Boxes
             LoadedModFilesSearchViewComboBox.AddToolTip("Mod file used to generate a search tree when clicking the button below");
             LoadedModsSearchViewComboBox.AddToolTip("Select a mod here to generate search trees for its files");
@@ -543,8 +544,8 @@ namespace SevenDaysToDieModCreator
             string logTimestampStatus = "Write Time Stamp On Save: " + currentStatusTimestampLog + "\n\n";
             string autoMoveDirectory = String.IsNullOrEmpty(Properties.Settings.Default.GameFolderModDirectory) ? "Auto Move Directory: Not Set\n\n" :
                 "Auto Move Directory: " + Properties.Settings.Default.GameFolderModDirectory + "\n\n";
-            string customTag = String.IsNullOrEmpty(Properties.Settings.Default.ModTagSetting) ? "Custom Tag: Not Set\n\n" :
-                "Custom Tag: " + Properties.Settings.Default.ModTagSetting + "\n\n";
+            string customTag = String.IsNullOrEmpty(Properties.Settings.Default.ModTagSetting) ? "Mod Tag: Not Set\n\n" :
+                "Mod Tag: " + Properties.Settings.Default.ModTagSetting + "\n\n";
 
             string messageString = autoMoveStatus + logTimestampStatus + autoMoveDirectory + customTag;
             MessageBox.Show(messageString, "All Settings", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -585,7 +586,7 @@ namespace SevenDaysToDieModCreator
         {
             ModInfoDialogPopUp("Please input all of the necessary fields for the ModInfo.xml file here. " +
                 "The ModInfo.xml file is required for every mod and should contain relevant information for the mod.\n\n" +
-                "You can edit existing mods or create new mods here.", 
+                "You can edit existing mods' ModInfo.xml or create new mods using this window.", 
                 "Create/Edit Mod's ModInfo");
         }
         private void ChangeLogTimeStampMenuItem_Click(object sender, RoutedEventArgs e)
@@ -621,6 +622,11 @@ namespace SevenDaysToDieModCreator
                 this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesSearchViewComboBox);
                 this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesButton);
             }
+        }
+
+        private void CreateNewModMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
         //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)

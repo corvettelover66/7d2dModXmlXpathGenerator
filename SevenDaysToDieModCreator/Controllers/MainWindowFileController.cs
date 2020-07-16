@@ -257,7 +257,7 @@ namespace SevenDaysToDieModCreator.Controllers
             string modInfoXml = dialog.ResponseText.Trim();
             XmlFileManager.WriteStringToFile(XmlFileManager._ModDirectoryOutputPath, ModInfo.MOD_INFO_FILE_NAME, modInfoXml);
 
-            currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting));
+            currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
             loadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             loadedModsSearchViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             loadedModsCenterViewComboBox.Text = Properties.Settings.Default.ModTagSetting;

@@ -5,18 +5,6 @@
     <Setting Name="ModTagSetting" Type="System.String" Scope="User">
       <Value Profile="(Default)">ThisNeedsToBeSet</Value>
     </Setting>
-    <Setting Name="ModInfoName" Type="System.String" Scope="User">
-      <Value Profile="(Default)"></Value>
-    </Setting>
-    <Setting Name="ModInfoDescription" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="ModInfoAuthor" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="ModInfoVersion" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="GameFolderModDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>

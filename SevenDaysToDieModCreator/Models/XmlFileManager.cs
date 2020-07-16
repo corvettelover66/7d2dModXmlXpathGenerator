@@ -20,6 +20,44 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static string _LoadedFilesPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
         public static string Xui_Folder_Name = "XUi";
+
+        internal static void ReplaceTagsInModFiles(string oldCustomTag, string newCustomTag)
+        {
+            string customModFilesInOutputDirectory = Get_ModOutputPath(newCustomTag);
+            Directory.CreateDirectory(customModFilesInOutputDirectory);
+            string[] allXmlsInOutputPath = Directory.GetFiles(customModFilesInOutputDirectory, "*.xml");
+            TraverseFilesForReplace(allXmlsInOutputPath, oldCustomTag, newCustomTag);
+
+            if (Directory.Exists(Path.Combine(customModFilesInOutputDirectory, Xui_Folder_Name)))
+            {
+                string[] xuiFiles = Directory.GetFiles(Path.Combine(customModFilesInOutputDirectory, Xui_Folder_Name));
+                if (xuiFiles.Length > 0) 
+                {
+                    TraverseFilesForReplace(xuiFiles, oldCustomTag, newCustomTag);
+                }
+            }
+            if (Directory.Exists(Path.Combine(customModFilesInOutputDirectory, Xui_Menu_Folder_Name)))
+            {
+                string[] xuiMenuFiles = Directory.GetFiles(Path.Combine(customModFilesInOutputDirectory, Xui_Menu_Folder_Name));
+                if (xuiMenuFiles.Length > 0) 
+                {
+                    TraverseFilesForReplace(xuiMenuFiles, oldCustomTag, newCustomTag);
+                }
+            }
+        }
+
+        private static void TraverseFilesForReplace(string[] allXmlsInOutputPath, string oldCustomTag, string newCustomTag)
+        {
+            foreach (string nextFilePath in allXmlsInOutputPath)
+            {
+                string fileName = Path.GetFileName(nextFilePath);
+                string contents = GetFileContents(nextFilePath.Replace(fileName, ""), fileName);
+                contents = contents.Replace("<" +oldCustomTag +">", "<" + newCustomTag + ">");
+                contents = contents.Replace("</" + oldCustomTag + ">", "</" + newCustomTag + ">");
+                WriteStringToFile(nextFilePath.Replace(fileName, ""), fileName, contents);
+            }
+        }
+
         public static string Xui_Menu_Folder_Name = "XUi_Menu";
         private static readonly string logFileName = "log.txt";
         public static string Get_ModOutputPath(string customTagName)

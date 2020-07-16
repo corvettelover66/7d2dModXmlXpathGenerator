@@ -1,9 +1,12 @@
 ﻿using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Search;
+using SevenDaysToDieModCreator.Controllers;
 using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
@@ -71,13 +74,9 @@ namespace SevenDaysToDieModCreator.Views
             newOptions.EnableTextDragDrop = true;
             newOptions.HighlightCurrentLine = true;
             newOptions.ShowTabs = true;
-            this.XmlOutputBox.ShowLineNumbers = true;
-
             this.XmlOutputBox.TextArea.Options = newOptions;
-
-            this.XmlOutputBox.GotMouseCapture += XmlOutputBox_GotMouseCapture;
-            this.XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
-            this.XmlOutputBox.TextChanged += XmlOutputBox_TextChanged;
+            
+            this.XmlOutputBox.ShowLineNumbers = true;
             //this.XmlOutputBox.PreviewKeyDown += XmlOutputBox_PreviewKeyDown;
 
             this.XmlOutputBox.AddContextMenu(CollapseAllContextMenu_Clicked, 
@@ -87,7 +86,64 @@ namespace SevenDaysToDieModCreator.Views
                 "Expand All",
                 "Click here to expand  all nodes in the document.");
 
+            this.XmlOutputBox.GotMouseCapture += XmlOutputBox_GotMouseCapture;
+            this.XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
+            this.XmlOutputBox.TextChanged += XmlOutputBox_TextChanged;
+            this.XmlOutputBox.TextArea.TextEntering += TextArea_TextEntering; 
+            this.XmlOutputBox.TextArea.TextEntered += TextArea_TextEntered; 
+
             Closing += new CancelEventHandler(DirectEditView_Closing);
+        }
+        CompletionWindow completionWindow;
+        private void TextArea_TextEntered(object sender, TextCompositionEventArgs e)
+        {
+            if (e.Text == "<")
+            {
+                completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
+                IList<ICompletionData> data = CodeCompletionGenerator.GenerateTagList(completionWindow, this.Wrapper);
+                completionWindow.Show();
+                completionWindow.Closed += delegate
+                {
+                    completionWindow = null;
+                };
+            }
+            else if (e.Text == "=")
+            {
+                completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
+                string parentString = Wrapper.xmlFile.ParentPath == null
+                        ? ""
+                        : Wrapper.xmlFile.ParentPath;
+                string fullFilePath = Path.Combine(this.FileLocationPath, parentString, this.Wrapper.xmlFile.FileName);
+                IList<ICompletionData> data = CodeCompletionGenerator.GenerateAttributeList(completionWindow, this.Wrapper, new XmlObjectsListWrapper(new XmlFileObject(fullFilePath)));
+                completionWindow.Show();
+                completionWindow.Closed += delegate
+                {
+                    completionWindow = null;
+                };
+            }
+            else if (e.Text == "/")
+            {
+                completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
+                IList<ICompletionData> data = CodeCompletionGenerator.GenerateTagList(completionWindow, this.Wrapper, true);
+                completionWindow.Show();
+                completionWindow.Closed += delegate
+                {
+                    completionWindow = null;
+                };
+            }
+        }
+
+        private void TextArea_TextEntering(object sender, TextCompositionEventArgs e)
+        {
+            if (e.Text.Length > 0 && completionWindow != null)
+            {
+                if (!char.IsLetterOrDigit(e.Text[0]))
+                {
+                    // Whenever a non-letter is typed while the completion window is open,
+                    // insert the currently selected element.
+                    completionWindow.CompletionList.RequestInsertion(e);
+                }
+            }
         }
 
         private void XmlOutputBox_PreviewKeyDown(object sender, KeyEventArgs e)

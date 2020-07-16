@@ -13,7 +13,7 @@ namespace SevenDaysToDieModCreator.Models
         public XmlFileObject xmlFile { get; private set; }
         //Any Object's Common Attributes Note: Values are unique to the tag
         //Key = "Tag Name" E.G. "recipe or ingredient"
-        //Value = "All attributes for that tag"
+        //Value = "All commmon attributes for that tag"
         public Dictionary<string, List<string>> objectNameToAttributesMap { get; private set; }
         //Any Object's Common Attributes Note: Values are unique to the tag
         //First level Dictionary

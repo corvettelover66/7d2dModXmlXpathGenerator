@@ -11,13 +11,23 @@ namespace SevenDaysToDieModCreator.Views
     public partial class ModInfoDialogBox : Window
     {
         private ComboBox AllTagsComboBox { get; set; }
-        private ModInfo CurrentModInfo { get; set; }
-
-        private string LastTextBoxFiller { get; set; } = "";
         private string StartingModTagSetting { get; set; }
-
-        //Tool Tip for ComboBox
-        //"Input a new tag or select a tag from the list of existing tags"
+        public string ResponseText
+        {
+            get {
+                string newModTagSetting = this.AllTagsComboBox.Text;
+                ModInfo newModIfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
+                if (!this.StartingModTagSetting.Equals(newModTagSetting) && ChangeModTagCheckBox.IsChecked.Value) 
+                {
+                    XmlFileManager.RenameModDirectory(StartingModTagSetting, newModTagSetting);
+                    XmlFileManager.ReplaceTagsInModFiles(StartingModTagSetting, newModTagSetting);
+                }
+                Properties.Settings.Default.ModTagSetting = newModTagSetting;
+                Properties.Settings.Default.Save();
+                return newModIfo.ToString();
+            }
+            set { ResponseText = value; }
+        }
         public ModInfoDialogBox(string textBoxBody = "", string windowTitle = "")
         {
             InitializeComponent();
@@ -26,7 +36,7 @@ namespace SevenDaysToDieModCreator.Views
             this.Title = windowTitle ?? "";
             string defaultText = "Thank you for downloading the 7 days to die Mod Creator! " +
                 "Please input the mod info for your new mod or select a mod using the drop down box above.\n\n" +
-                "It is worth noting that the current tag will be used as the name of the mod folder in the output location and the top tag for every file.\n" +
+                "It is worth noting that the current mod tag will be used as the name of the mod folder in the output location and the top tag for every file.\n" +
                 "You can change this folder directly or use the \"Edit ModInfo\" menu item and change the current tag value.\n" +
                 "IMPORTANT: If you lose work check the log.txt in the Output folder. " +
                 "Any time you close the app or reset the object view, the xml that could be generated is output in that log. " +
@@ -46,7 +56,6 @@ namespace SevenDaysToDieModCreator.Views
             SetTooltips();
             SetTextBoxsWithExistingModInfo();
         }
-
         private void AllTagsComboBox_DropDownClosed(object sender, EventArgs e)
         {
             ComboBox senderAsComboBox = sender as ComboBox;
@@ -69,7 +78,14 @@ namespace SevenDaysToDieModCreator.Views
                 }
             }
         }
-
+        private void AllTagsComboBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ComboBox senderAsComboBox = sender as ComboBox;
+            if (senderAsComboBox != null) 
+            {
+                VerifyTagNameCorrectness(senderAsComboBox);
+            }
+        }
         private void SetTextBoxsWithExistingModInfo()
         {
             ModInfo currentModInfo = new ModInfo();
@@ -79,10 +95,8 @@ namespace SevenDaysToDieModCreator.Views
                 ModInfoDescriptionBox.Text = currentModInfo.Description;
                 ModInfoAuthorBox.Text = currentModInfo.Author;
                 ModInfoVersionBox.Text = currentModInfo.Version;
-                this.CurrentModInfo = currentModInfo;
             }
         }
-
         private bool VerifyTagNameCorrectness(ComboBox allTagsComboBox, bool showMessageBox = true) 
         {
             bool isTagCorrect = true;
@@ -111,15 +125,6 @@ namespace SevenDaysToDieModCreator.Views
             }
             return isTagCorrect;
         }
-        private void AllTagsComboBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ComboBox senderAsComboBox = sender as ComboBox;
-            if (senderAsComboBox != null) 
-            {
-                VerifyTagNameCorrectness(senderAsComboBox);
-            }
-        }
-
         private void SetTooltips()
         {
             AllTagsComboBox.AddToolTip("Mod Tag\nThis is essentially the selected mod. This is also used as the directory and tag for the mod.\nThe mod selected here is what will be updated on save.");
@@ -129,51 +134,11 @@ namespace SevenDaysToDieModCreator.Views
             ModInfoVersionBox.AddToolTip("Version\nThis is the current mod's version used in the ModInfo.xml file and the version seen in game.");
             ChangeModTagCheckBox.AddToolTip("By checking this box, you can MODIFY the value of the existing Mod Tag.\nIf left unchecked, any NEW values put in the input box above will be used to create a new mod.");
         }
-
-        public string ResponseText
-        {
-            get {
-                string newModTagSetting = this.AllTagsComboBox.Text;
-                ModInfo newModIfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
-                if (!this.StartingModTagSetting.Equals(newModTagSetting) && ChangeModTagCheckBox.IsChecked.Value) 
-                {
-                    XmlFileManager.RenameModDirectory(StartingModTagSetting, newModTagSetting);
-                }
-                Properties.Settings.Default.ModTagSetting = newModTagSetting;
-                Properties.Settings.Default.Save();
-                return newModIfo.ToString();
-            }
-            set { ResponseText = value; }
-        }
-
         private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if (VerifyTagNameCorrectness(this.AllTagsComboBox)) 
             {
                 DialogResult = true;
             }
-        }
-
-        private void ModInfoTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            TextBox senderAsTextBox = sender as TextBox;
-            if (senderAsTextBox != null && CurrentModInfo == null) 
-            {
-                LastTextBoxFiller = senderAsTextBox.Text;
-                senderAsTextBox.Text = "";
-            }
-        }
-
-        private void ModInfoTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            TextBox senderAsTextBox = sender as TextBox;
-            if (senderAsTextBox != null && CurrentModInfo == null)
-            {
-                if (String.IsNullOrEmpty(senderAsTextBox.Text)) 
-                {
-                    senderAsTextBox.Text = LastTextBoxFiller;
-                }
-            }
-        }
-    }
+        }   }
 }

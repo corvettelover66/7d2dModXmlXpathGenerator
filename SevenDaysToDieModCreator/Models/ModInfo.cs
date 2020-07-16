@@ -29,7 +29,7 @@ namespace SevenDaysToDieModCreator.Models
                     XmlFileManager.WriteStringToLog("Failed Loading mod info.");
                 }
             }
-            else 
+            else if(Directory.Exists(ModInfoFilePath))
             {
                 File.Create(ModInfoFilePath);
                 ModInfoExists = false;
@@ -47,42 +47,11 @@ namespace SevenDaysToDieModCreator.Models
             }
         }
 
-        public string Name 
-        {
-            get => Properties.Settings.Default.ModInfoName;
-            private set
-            { 
-                Properties.Settings.Default.ModInfoName = value;
-                Properties.Settings.Default.Save();
-            }
-        }
-        public string Description 
-        {
-            get => Properties.Settings.Default.ModInfoDescription;
-            private set
-            {
-                Properties.Settings.Default.ModInfoDescription = value;
-                Properties.Settings.Default.Save();
-            }
-        }
-        public string Author
-        {
-            get => Properties.Settings.Default.ModInfoAuthor;
-            private set
-            {
-                Properties.Settings.Default.ModInfoAuthor = value;
-                Properties.Settings.Default.Save();
-            }
-        }
-        public string Version
-        {
-            get => Properties.Settings.Default.ModInfoVersion;
-            private set
-            {
-                Properties.Settings.Default.ModInfoVersion = value;
-                Properties.Settings.Default.Save();
-            }
-        }
+        public string Name { get; private set; }
+
+        public string Description { get; private set; }
+        public string Author { get; private set; }
+        public string Version { get; private set; }
         public bool LoadSettingsFromFile() 
         {
             bool didSucceed = false;
