@@ -8,10 +8,12 @@ namespace SevenDaysToDieModCreator.Views
 {
     internal class MyCompletionData : ICompletionData
     {
-        public MyCompletionData(string text)
+        public MyCompletionData(string text, string descriptionAddition = "")
         {
             this.Text = text;
+            this.DescriptionAddition = descriptionAddition;
         }
+        public string DescriptionAddition { get; private set; }
 
         public ImageSource Image { get { return null; } }
 
@@ -23,7 +25,7 @@ namespace SevenDaysToDieModCreator.Views
         }
         public object Description
         {
-            get { return "Description for " + this.Text; }
+            get { return this.DescriptionAddition + this.Text; }
         }
 
         public double Priority

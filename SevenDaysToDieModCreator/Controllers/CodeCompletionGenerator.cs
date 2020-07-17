@@ -9,14 +9,17 @@ namespace SevenDaysToDieModCreator.Controllers
 {
     class CodeCompletionGenerator
     {
-        internal static IList<ICompletionData> GenerateTagList(CompletionWindow completionWindow, XmlObjectsListWrapper wrapper, bool includeClosingForTag = false)
+        internal static IList<ICompletionData> GenerateTagList(CompletionWindow completionWindow, XmlObjectsListWrapper wrapper)
         {
             IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
+            data.Add(new MyCompletionData("!-- -->", "Xml Comment: "));
+            data.Add(new MyCompletionData("!-- \n\n -->", "Xml Comment on multiple lines:"));
             foreach (string nextKey in wrapper.objectNameToAttributeValuesMap.Keys) 
             {
-                string completionDataToUse = nextKey;
-                if (includeClosingForTag) completionDataToUse += ">";
-                data.Add(new MyCompletionData(completionDataToUse));
+                string justTag = nextKey;
+                data.Add(new MyCompletionData(justTag, "Xml Node: "));
+                string tagAndClosingTag = nextKey + "></" + nextKey +">";
+                data.Add(new MyCompletionData(tagAndClosingTag, "Xml Node Open and Closing tags: "));
             }
             return data;
         }
@@ -41,7 +44,8 @@ namespace SevenDaysToDieModCreator.Controllers
                         List<string> allAttributesForTag = attributeDictinaryForTag.GetValueOrDefault(attributeKey);
                         foreach (string nextAttribute in allAttributesForTag)
                         {
-                            data.Add(new MyCompletionData("\"" + nextAttribute + "\" "));
+                            MyCompletionData attributeCompletionData = new MyCompletionData("\"" + nextAttribute + "\" "," Xml attribute : ");
+                            data.Add(attributeCompletionData);
                         }
                     }
                 }
@@ -60,6 +64,17 @@ namespace SevenDaysToDieModCreator.Controllers
                         data.Add(new MyCompletionData(attributeKey));
                     }
                 }
+            }
+            return data;
+        }
+
+        internal static IList<ICompletionData> GenerateEndTagList(CompletionWindow completionWindow, XmlObjectsListWrapper wrapper)
+        {
+            IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
+            foreach (string nextKey in wrapper.objectNameToAttributeValuesMap.Keys)
+            {
+                string justClosingTag = "</" + nextKey + ">";
+                data.Add(new MyCompletionData(justClosingTag, "Xml Node Closing tag: "));
             }
             return data;
         }

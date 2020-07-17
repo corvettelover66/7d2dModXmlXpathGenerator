@@ -107,6 +107,16 @@ namespace SevenDaysToDieModCreator.Views
                     completionWindow = null;
                 };
             }
+            else if (e.Text == ">")
+            {
+                completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
+                IList<ICompletionData> data = CodeCompletionGenerator.GenerateEndTagList(completionWindow, this.Wrapper);
+                completionWindow.Show();
+                completionWindow.Closed += delegate
+                {
+                    completionWindow = null;
+                };
+            }
             else if (e.Text == "=")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
@@ -124,7 +134,20 @@ namespace SevenDaysToDieModCreator.Views
             else if (e.Text == "/")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
-                IList<ICompletionData> data = CodeCompletionGenerator.GenerateTagList(completionWindow, this.Wrapper, true);
+                IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
+                data.Add(new MyCompletionData(">", "Single Line tag close"));
+                completionWindow.Show();
+                completionWindow.Closed += delegate
+                {
+                    completionWindow = null;
+                };
+            }
+            else if (e.Text == "!")
+            {
+                completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
+                IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
+                data.Add(new MyCompletionData("-- -->", "Xml Comment: "));
+                data.Add(new MyCompletionData("-- \n\n -->", "Xml Comment on multiple lines"));
                 completionWindow.Show();
                 completionWindow.Closed += delegate
                 {
