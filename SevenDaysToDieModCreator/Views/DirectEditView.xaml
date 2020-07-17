@@ -24,6 +24,7 @@
                     <MenuItem Name="CloseButton" Click="CloseButton_Click" Header="_Close" FontSize="15"/>
                     <MenuItem Name="ValidateXmlButton" Click="ValidateXmlButton_Click" Header="_Validate" FontSize="15"/>
                     <MenuItem Name="CombineTagsXmlButton" Click="CombineTagsXmlButton_Click" Header="Com_bine" FontSize="15"/>
+                    <MenuItem Name="CodeCompletionKeysHelpButton" Click="CodeCompletionKeys_Click" Header="AC _Help" FontSize="15"/>
                 </Menu>
             </DockPanel>
         </Grid>

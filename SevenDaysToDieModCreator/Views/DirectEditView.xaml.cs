@@ -60,8 +60,8 @@ namespace SevenDaysToDieModCreator.Views
             this.ReloadFileXmlButton.AddToolTip("Click here to reload the file from disk");
             this.CloseButton.AddToolTip("Click here to close the window");
             this.ValidateXmlButton.AddToolTip("Click here to validate the xml");
-            UndoAllChangesXmlButton.AddToolTip("Click here to undo any changes made since opening the window");
-
+            this.UndoAllChangesXmlButton.AddToolTip("Click here to undo any changes made since opening the window");
+            this.CodeCompletionKeysHelpButton.AddToolTip("Click here to see the keys used for\nAuto Complete within this window");
             SearchPanel.Install(XmlOutputBox);
 
             FoldingManager = FoldingManager.Install(this.XmlOutputBox.TextArea);
@@ -148,6 +148,16 @@ namespace SevenDaysToDieModCreator.Views
                 IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
                 data.Add(new MyCompletionData("-- -->", "Xml Comment: "));
                 data.Add(new MyCompletionData("-- \n\n -->", "Xml Comment on multiple lines"));
+                completionWindow.Show();
+                completionWindow.Closed += delegate
+                {
+                    completionWindow = null;
+                };
+            }
+            else if (e.Text == " ")
+            {
+                completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
+                IList<ICompletionData> data = CodeCompletionGenerator.GenerateCommonAttributesList(completionWindow, this.Wrapper);
                 completionWindow.Show();
                 completionWindow.Closed += delegate
                 {
@@ -381,6 +391,22 @@ namespace SevenDaysToDieModCreator.Views
         private void UndoAllChangesXmlButton_Click(object sender, RoutedEventArgs e)
         {
             this.XmlOutputBox.Text = this.UnchangedStartingFileContents;
+        }
+
+        private void CodeCompletionKeys_Click(object sender, RoutedEventArgs e)
+        {
+            string message = "This window has many keys that open an auto complete window.\n\n" +
+                "To use this one simply has to type a key and select the desired value from the dropdown box that appears.\n\n" +
+                "Possible keys:\n" +
+                "\"<\": For opening/closing new tags\n" +
+                "\">\": For closing a tag\n" +
+                "\"\\\": For closing a tag on a single line\n" +
+                "\"=\": For attribute values from the game file and current file \n" +
+                "\"!\": For xml comments\n" +
+                "\" \": For attributes from the game file \n";
+            string title = "Auto Complete Help";
+
+            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

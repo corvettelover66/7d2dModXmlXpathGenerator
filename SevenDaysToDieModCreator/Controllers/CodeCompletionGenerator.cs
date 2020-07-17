@@ -44,7 +44,7 @@ namespace SevenDaysToDieModCreator.Controllers
                         List<string> allAttributesForTag = attributeDictinaryForTag.GetValueOrDefault(attributeKey);
                         foreach (string nextAttribute in allAttributesForTag)
                         {
-                            MyCompletionData attributeCompletionData = new MyCompletionData("\"" + nextAttribute + "\" "," Xml attribute : ");
+                            MyCompletionData attributeCompletionData = new MyCompletionData("\"" + nextAttribute + "\" "," Xml Node attribute value : ");
                             data.Add(attributeCompletionData);
                         }
                     }
@@ -54,6 +54,7 @@ namespace SevenDaysToDieModCreator.Controllers
         internal static IList<ICompletionData> GenerateCommonAttributesList(CompletionWindow completionWindow, XmlObjectsListWrapper wrapper)
         {
             IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
+            SortedSet<string> allKeysToAdd = new SortedSet<string>();
             foreach (string nextKey in wrapper.objectNameToAttributeValuesMap.Keys)
             {
                 Dictionary<string, List<string>> attributeDictinaryForTag = wrapper.objectNameToAttributeValuesMap.GetValueOrDefault(nextKey);
@@ -61,10 +62,15 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     foreach (string attributeKey in attributeDictinaryForTag.Keys)
                     {
-                        data.Add(new MyCompletionData(attributeKey));
+                        allKeysToAdd.Add(attributeKey);
                     }
                 }
             }
+            foreach (string nextKeyToAdd in allKeysToAdd) 
+            {
+                data.Add(new MyCompletionData(nextKeyToAdd, "Xml Node Attribute"));
+            }
+
             return data;
         }
 
