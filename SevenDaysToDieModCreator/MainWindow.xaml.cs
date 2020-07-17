@@ -624,11 +624,6 @@ namespace SevenDaysToDieModCreator
             }
         }
 
-        private void CreateNewModMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
         //{
         //    MainWindowViewController.LoadGameModDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.CurrentModFilesCenterViewComboBox);

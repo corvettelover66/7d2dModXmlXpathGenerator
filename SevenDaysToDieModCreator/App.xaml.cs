@@ -17,7 +17,7 @@ namespace SevenDaysToDieModCreator
 
             MainWindow mwd = new MainWindow
             {
-                Title = "7 Days to Die Xml Edit"
+                Title = "7 Days to Die Mod Edit"
             };
             mwd.Show();
         }

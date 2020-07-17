@@ -56,6 +56,7 @@ namespace SevenDaysToDieModCreator.Views
             SetTooltips();
             SetTextBoxsWithExistingModInfo();
         }
+
         private void AllTagsComboBox_DropDownClosed(object sender, EventArgs e)
         {
             ComboBox senderAsComboBox = sender as ComboBox;

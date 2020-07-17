@@ -51,8 +51,8 @@
             <StackPanel Name="CustomDialogStackPanel" VerticalAlignment="Top"  Height="Auto" >
                 <TextBox x:Name="ModInfoNameBox" FontSize="20" Text="Name"/>
                 <TextBox x:Name="ModInfoDescriptionBox" FontSize="20" Text="Description" AcceptsReturn="True" TextWrapping="Wrap"/>
-                <TextBox x:Name="ModInfoAuthorBox" FontSize="20" Text="Author"/>
-                <TextBox x:Name="ModInfoVersionBox" FontSize="20"  Text="Version"/>
+                <TextBox x:Name="ModInfoAuthorBox" FontSize="20" Text="Author" />
+                <TextBox x:Name="ModInfoVersionBox" FontSize="20"  Text="Version" />
             </StackPanel>
         </Grid>
         <Grid Grid.Row="3">
