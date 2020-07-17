@@ -32,7 +32,7 @@ Comes with many features for easier mod development including:
 Getting Started
 A typical program flow:
 - Start the application
-- Set a custom tag
+- Create a New mod and input in all relevant information for the ModInfo.xml file (This is a Popup window on startup and the Menu Item Create/Edit Mod).
 - Load necessary xml files from the Game Config directory. Example: Load the recipes.xml file
 - Add completely new objects using the "Add New Object" button in the left window pane.
 and/or
@@ -42,16 +42,7 @@ and/or
 - When the generated xml looks good click "Save ALL XMLs"
 - If Auto Move is on the files will be instantly copied to the chosen directory.
 - If this is the correct Game Folder "Mods" then the mod should be ready to use in game.
-- You need to add a "ModInfo.xml" file to GameDirectory/7 Days To Die/Mods/{ModName or CustomTagName}/ with your mod information
-contained within that looks something like:
-<xml>
-	<ModInfo>
-		<Name value="MyNewAwesomeMod"/>
-		<Description value="A Kick ass mod developed with ease"/>
-		<Author value="ThatJonesyGuy"/>
-		<Version value="1.0"/>
-	</ModInfo>
-</xml>
+
 
 Dependencies
 Microsoft .NET 3.5 or higher
@@ -79,8 +70,6 @@ TODO
 EASY:
 -Add a setting to change the search box threshold
 +Force on focus when opening a direct edit window
-+When changing the tag name (Edit Custom Mod Name) go through all files and replace the top tag.
-+Add an ordering prefix to a mod. Include an option to remove the mod from the auto move location as well.
 +Add a check to remove object function to check if it is the last in the tree, rather than go off of the first one. That way you can remove unwanted other trees.
 +Add ignore functionality to child trees in new object view.
 +Add logic to auto remove config tags from the files.
@@ -95,10 +84,9 @@ MEDIUM:
 -Finish load Mods Directory Menu Item for loading all mods in the game directory. 
 -Add a popup on edit, to remove the object from the xml or not.
 -When adding a name in the new object view update the button header, essentially use the combo box to update the button name.
++Add an ordering prefix to a mod. Include an option to remove the mod from the auto move location as well.
 +if there a multiple tags of the same name at the same level need to add all attributes when targeting. At the least add a warning to the users to add an extra attribute.
 +Add the ability to add comments in the direct edit view.
-++Add code completion to the direct edit box. http://avalonedit.net/documentation/
-++Add a view to add the mod info.xml file.
 +++Add the ability to move lines in the direct edit view.
 +++Change property tags to use common attributes for the name and not the tag name.
 +++Add comments for every file!
@@ -119,6 +107,10 @@ Version History
  - Refactored xml validation code to XmlXpathGenerator.
  - Completely refectored the code for the controllers. The seperation is better and there is no longer a weird coupling of the controllers.
  - Removed Garbage Collector call. After enough testing I have enough evidence to know that this was not helping. It made removing views incredibly slow. 
+ - Added a delete mod file button to the main UI. 
+ - When changing the tag name (Ceate/Edit Mod) for a mod all files in that mod have the top tags replaced with the new tag name.
+ - Added full ModInfo.xml file support.
+ - Added Added code completion to the direct edit view. Now when typing "<" all possible tags are displayed. When typing "=" all possible attributes are displayed. When typing "/" closing tags are displayed.
 1.6.3 
  - Fixed all issues from 1.6.2
  - Fixed issues:
