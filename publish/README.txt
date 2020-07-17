@@ -1,13 +1,12 @@
-PrProject Title
+Project Title
 7 Days To Die Mod Creator
 
 About Me
 Thanks for downloading my application! A little about me. I developed this application while waiting for my first boy to be born, much to the disdain of my lovely wife :)
-With the new baby on the way we are struggling to make ends meet. If you like the app,
-please don't hesitate to drop us a donation. And know, we really appreciate it!
+It grew much more than expected and has become a full blown Mod Creator for 7d2d that I find very useful for discovery and file management, with so much more. 
 
-Good Luck with you mods and please don't forget to leave an endorsement if you like the app!
-Also, if you use this to create other mods Leave a link to my mod so other people can find it too.
+If you like the app, please don't hesitate to drop an endorsment or maybe even buy my next cup of coffee! Either way I appreciate any support, even a simple, "Nice Work" in the comments is cool with me! 
+Good luck with you mods and if you use this to create a mod posted on the nexus. Leave a link to the application, I think it is super cool that I could help you create more content for everyone to use!
 
 Useful Tips
 The app provides many useful tips to aid the user. 
@@ -110,7 +109,7 @@ Version History
  - Added a delete mod file button to the main UI. 
  - When changing the tag name (Ceate/Edit Mod) for a mod all files in that mod have the top tags replaced with the new tag name.
  - Added full ModInfo.xml file support.
- - Added Added code completion to the direct edit view. Now when typing "<" all possible tags are displayed. When typing "=" all possible attributes are displayed. When typing "/" closing tags are displayed.
+ - Added code completion to the direct edit view. This comes with a help menu item in the window for the keys used. I find it intuative personally. 
 1.6.3 
  - Fixed all issues from 1.6.2
  - Fixed issues:
