@@ -102,6 +102,14 @@ HARD:
 +Add side by side search trees for easier comparison.
 
 Version History
+1.6.5
+ -Changed ModInfo save button to not close the window. This is to easily change and save ModInfo.xml information easily for multiple mods.
+ -Added a close button to the ModInfo view. More for convenience.
+ -Fixed bug. There was test code in the live build (*insert facepalm meme). This was forcing the ModTag to be something else everytime on startup.
+ -Made quite a few improvements to code completion.
+ -Changed two CC commands. Changed " "(Spacebar) to be CTRL+" "(Spacebar). Changed "=" to """(Double Quote)
+ -Added xpath tags to the code completion. I.E. Append, Set, Remove, ect.
+
 1.6.4
  - Refactored xml validation code to XmlXpathGenerator.
  - Completely refectored the code for the controllers. The seperation is better and there is no longer a weird coupling of the controllers.
