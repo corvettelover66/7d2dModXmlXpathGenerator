@@ -65,15 +65,19 @@ namespace SevenDaysToDieModCreator.Views
             SearchPanel.Install(XmlOutputBox);
 
             FoldingManager = FoldingManager.Install(this.XmlOutputBox.TextArea);
-            FoldingStrategy = new XmlFoldingStrategy();
-            FoldingStrategy.ShowAttributesWhenFolded = true;
+            FoldingStrategy = new XmlFoldingStrategy
+            {
+                ShowAttributesWhenFolded = true
+            };
             FoldingStrategy.UpdateFoldings(FoldingManager, this.XmlOutputBox.Document);
 
-            TextEditorOptions newOptions = new TextEditorOptions();
-            newOptions.EnableRectangularSelection = true;
-            newOptions.EnableTextDragDrop = true;
-            newOptions.HighlightCurrentLine = true;
-            newOptions.ShowTabs = true;
+            TextEditorOptions newOptions = new TextEditorOptions
+            {
+                EnableRectangularSelection = true,
+                EnableTextDragDrop = true,
+                HighlightCurrentLine = true,
+                ShowTabs = true
+            };
             this.XmlOutputBox.TextArea.Options = newOptions;
             
             this.XmlOutputBox.ShowLineNumbers = true;
@@ -95,9 +99,10 @@ namespace SevenDaysToDieModCreator.Views
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
         CompletionWindow completionWindow;
-        private void TextArea_TextEntered(object sender, TextCompositionEventArgs e)
+        private void TextArea_TextEntered(object sender, TextCompositionEventArgs textCompositionEvent)
         {
-            if (e.Text == "<")
+            //
+            if (textCompositionEvent.Text == "<")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
                 IList<ICompletionData> data = CodeCompletionGenerator.GenerateTagList(completionWindow, this.Wrapper);
@@ -107,7 +112,7 @@ namespace SevenDaysToDieModCreator.Views
                     completionWindow = null;
                 };
             }
-            else if (e.Text == ">")
+            else if (textCompositionEvent.Text == ">")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
                 IList<ICompletionData> data = CodeCompletionGenerator.GenerateEndTagList(completionWindow, this.Wrapper);
@@ -117,7 +122,7 @@ namespace SevenDaysToDieModCreator.Views
                     completionWindow = null;
                 };
             }
-            else if (e.Text == "=")
+            else if (textCompositionEvent.Text == "\"")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
                 string parentString = Wrapper.xmlFile.ParentPath == null
@@ -131,33 +136,37 @@ namespace SevenDaysToDieModCreator.Views
                     completionWindow = null;
                 };
             }
-            else if (e.Text == "/")
+            else if (textCompositionEvent.Text == "/")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
                 IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
-                data.Add(new MyCompletionData(">", "Single Line tag close"));
+                data.Add(new MyCompletionData(">", "Single Line tag close "));
                 completionWindow.Show();
                 completionWindow.Closed += delegate
                 {
                     completionWindow = null;
                 };
             }
-            else if (e.Text == "!")
+            else if (textCompositionEvent.Text == "!")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
                 IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
                 data.Add(new MyCompletionData("-- -->", "Xml Comment: "));
-                data.Add(new MyCompletionData("-- \n\n -->", "Xml Comment on multiple lines"));
+                data.Add(new MyCompletionData("-- \n\n -->", "Xml Comment on multiple lines: "));
                 completionWindow.Show();
                 completionWindow.Closed += delegate
                 {
                     completionWindow = null;
                 };
             }
-            else if (e.Text == " ")
+            else if (Keyboard.Modifiers == ModifierKeys.Control && textCompositionEvent.Text == " ")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
-                IList<ICompletionData> data = CodeCompletionGenerator.GenerateCommonAttributesList(completionWindow, this.Wrapper);
+                string parentString = Wrapper.xmlFile.ParentPath == null
+                        ? ""
+                        : Wrapper.xmlFile.ParentPath;
+                string fullFilePath = Path.Combine(this.FileLocationPath, parentString, this.Wrapper.xmlFile.FileName);
+                IList<ICompletionData> data = CodeCompletionGenerator.GenerateCommonAttributesList(completionWindow, this.Wrapper, new XmlObjectsListWrapper(new XmlFileObject(fullFilePath)));
                 completionWindow.Show();
                 completionWindow.Closed += delegate
                 {
@@ -398,12 +407,12 @@ namespace SevenDaysToDieModCreator.Views
             string message = "This window has many keys that open an auto complete window.\n\n" +
                 "To use this one simply has to type a key and select the desired value from the dropdown box that appears.\n\n" +
                 "Possible keys:\n" +
-                "\"<\": For opening/closing new tags\n" +
-                "\">\": For closing a tag\n" +
-                "\"\\\": For closing a tag on a single line\n" +
-                "\"=\": For attribute values from the game file and current file \n" +
-                "\"!\": For xml comments\n" +
-                "\" \": For attributes from the game file \n";
+                "\"<\" (Less than): For opening/closing new tags\n" +
+                "\">\" (Greater than): For closing a tag\n" +
+                "\"\\\" (Backslash): For closing a tag on a single line\n" +
+                "\"\"\" (Double Quote): For common attribute values from the game file and current file \n" +
+                "\"!\" (Exclamation Mark): For xml comments\n" +
+                "CTRL+\" \" (Spacebar): For attributes and common attribute values from the game file \n";
             string title = "Auto Complete Help";
 
             MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);

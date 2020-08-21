@@ -2,6 +2,7 @@
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
@@ -40,8 +41,8 @@ namespace SevenDaysToDieModCreator.Views
                 "You can change this folder directly or use the \"Edit ModInfo\" menu item and change the current tag value.\n" +
                 "IMPORTANT: If you lose work check the log.txt in the Output folder. " +
                 "Any time you close the app or reset the object view, the xml that could be generated is output in that log. " +
-                "If you like the mod don't forget to drop an endorsment and tell your friends!\n\n\n\n\n\n";
-            if (!String.IsNullOrEmpty(textBoxBody)) defaultText = textBoxBody + "\n\n\n\n\n\n";
+                "If you like the mod don't forget to drop an endorsment or just leave me a comment!\n";
+            if (!String.IsNullOrEmpty(textBoxBody)) defaultText = textBoxBody + "\n";
             LabelTextBlock.Text = "\n\n" +  defaultText;
 
             List<string> allCustomModsInPath = XmlFileManager.GetCustomModFoldersInOutput();
@@ -55,6 +56,12 @@ namespace SevenDaysToDieModCreator.Views
 
             SetTooltips();
             SetTextBoxsWithExistingModInfo();
+            Closing += new CancelEventHandler(ModInfoDialogBox_Closing);
+        }
+
+        private void ModInfoDialogBox_Closing(object sender, CancelEventArgs e)
+        {
+            this.DialogResult = true;
         }
 
         private void AllTagsComboBox_DropDownClosed(object sender, EventArgs e)
@@ -139,7 +146,15 @@ namespace SevenDaysToDieModCreator.Views
         {
             if (VerifyTagNameCorrectness(this.AllTagsComboBox)) 
             {
-                DialogResult = true;
+                string modInfoXmlOut = this.ResponseText;
+                XmlFileManager.WriteStringToFile(XmlFileManager._ModDirectoryOutputPath, ModInfo.MOD_INFO_FILE_NAME, modInfoXmlOut);
+                MessageBox.Show("Saved mod info for " + this.AllTagsComboBox.Text + ".", "Saving Mod info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-        }   }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+    }
 }

@@ -46,8 +46,6 @@ namespace SevenDaysToDieModCreator
 
         private void MyWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.ModTagSetting = "SomethingElse";
-            Properties.Settings.Default.Save();
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.MainWindowFileController = new MainWindowFileController(this.LoadedListWrappers);
             this.MainWindowViewController = new MainWindowViewController();

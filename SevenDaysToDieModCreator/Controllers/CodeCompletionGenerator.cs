@@ -13,7 +13,8 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
             data.Add(new MyCompletionData("!-- -->", "Xml Comment: "));
-            data.Add(new MyCompletionData("!-- \n\n -->", "Xml Comment on multiple lines:"));
+            data.Add(new MyCompletionData("!-- \n\n -->", "Xml Comment on multiple lines: "));
+            AddXpathCommands(data);
             foreach (string nextKey in wrapper.objectNameToAttributeValuesMap.Keys) 
             {
                 string justTag = nextKey;
@@ -23,6 +24,27 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             return data;
         }
+
+        private static void AddXpathCommands(IList<ICompletionData> data)
+        {
+            List<string> allXpathComands = new List<string> {
+                XmlXpathGenerator.XPATH_ACTION_APPEND,
+                XmlXpathGenerator.XPATH_ACTION_INSERT_AFTER,
+                XmlXpathGenerator.XPATH_ACTION_INSERT_BEFORE,
+                XmlXpathGenerator.XPATH_ACTION_REMOVE,
+                XmlXpathGenerator.XPATH_ACTION_REMOVE_ATTRIBUTE,
+                XmlXpathGenerator.XPATH_ACTION_SET,
+                XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE
+            };
+            foreach (string nextCommand in allXpathComands)
+            {
+                data.Add(new MyCompletionData(nextCommand, "Xml Node Xpath Command: "));
+                string tagAndClosingTag = nextCommand + "></" + nextCommand + ">";
+                data.Add(new MyCompletionData(tagAndClosingTag, "Xml Node Xpath Command Open and Closing tags: "));
+            }
+
+        }
+
         internal static IList<ICompletionData> GenerateAttributeList(CompletionWindow completionWindow, XmlObjectsListWrapper gameFileWrapper, XmlObjectsListWrapper currentFileWrapper)
         {
             IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
@@ -31,7 +53,7 @@ namespace SevenDaysToDieModCreator.Controllers
 
             return data;
         }
-        private static void AddAttributesFromWrapper(XmlObjectsListWrapper wrapper, IList<ICompletionData> data)
+        private static void AddAttributesFromWrapper(XmlObjectsListWrapper wrapper, IList<ICompletionData> data, bool excludeQuotes = false)
         {
             foreach (string nextKey in wrapper.objectNameToAttributeValuesMap.Keys)
             {
@@ -42,22 +64,29 @@ namespace SevenDaysToDieModCreator.Controllers
                     foreach (string attributeKey in attributeDictinaryForTag.Keys)
                     {
                         List<string> allAttributesForTag = attributeDictinaryForTag.GetValueOrDefault(attributeKey);
-                        foreach (string nextAttribute in allAttributesForTag)
+                        SortedSet<string> allKeysToAdd = new SortedSet<string> ();
+                        allKeysToAdd.UnionWith(allAttributesForTag);
+                        foreach (string nextAttribute in allKeysToAdd)
                         {
-                            MyCompletionData attributeCompletionData = new MyCompletionData("\"" + nextAttribute + "\" "," Xml Node attribute value : ");
-                            data.Add(attributeCompletionData);
+                            MyCompletionData attributeCompletionDataNoQuotes = new MyCompletionData(nextAttribute, "Xml Node Attribute value: ");
+                            data.Add(attributeCompletionDataNoQuotes);
+                            if (!excludeQuotes)
+                            {
+                                MyCompletionData attributeCompletionDataJustEndQuote = new MyCompletionData(nextAttribute + "\" ", "Xml Node Attribute value: ");
+                                data.Add(attributeCompletionDataJustEndQuote);
+                            }
                         }
                     }
                 }
             }
         }
-        internal static IList<ICompletionData> GenerateCommonAttributesList(CompletionWindow completionWindow, XmlObjectsListWrapper wrapper)
+        internal static IList<ICompletionData> GenerateCommonAttributesList(CompletionWindow completionWindow, XmlObjectsListWrapper gameFileWrapper, XmlObjectsListWrapper currentFileWrapper)
         {
             IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
             SortedSet<string> allKeysToAdd = new SortedSet<string>();
-            foreach (string nextKey in wrapper.objectNameToAttributeValuesMap.Keys)
+            foreach (string nextKey in gameFileWrapper.objectNameToAttributeValuesMap.Keys)
             {
-                Dictionary<string, List<string>> attributeDictinaryForTag = wrapper.objectNameToAttributeValuesMap.GetValueOrDefault(nextKey);
+                Dictionary<string, List<string>> attributeDictinaryForTag = gameFileWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(nextKey);
                 if (attributeDictinaryForTag != null)
                 {
                     foreach (string attributeKey in attributeDictinaryForTag.Keys)
@@ -68,9 +97,10 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             foreach (string nextKeyToAdd in allKeysToAdd) 
             {
-                data.Add(new MyCompletionData(nextKeyToAdd, "Xml Node Attribute"));
+                data.Add(new MyCompletionData(nextKeyToAdd, "Xml Node Attribute: "));
             }
-
+            AddAttributesFromWrapper(gameFileWrapper, data, true);
+            AddAttributesFromWrapper(currentFileWrapper, data, true);
             return data;
         }
 

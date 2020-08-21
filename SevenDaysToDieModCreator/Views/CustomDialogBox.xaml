@@ -4,12 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SevenDaysToDieModCreator.Views"
-        Height="Auto" Width="Auto">
+        Height="Auto">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
@@ -56,7 +56,18 @@
             </StackPanel>
         </Grid>
         <Grid Grid.Row="3">
-            <Button Name="OkButton" FontFamily="Arial" Content="Save"  FontSize="22"  Click="OKButton_Click" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Button Name="OkButton" FontFamily="Arial" Content="_Save"  FontSize="22"  Click="OKButton_Click" />
+                </Grid>
+                <Grid Grid.Column="1">
+                    <Button Name="CloseButton" FontFamily="Arial" Content="_Close"  FontSize="22"  Click="CloseButton_Click" />
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
