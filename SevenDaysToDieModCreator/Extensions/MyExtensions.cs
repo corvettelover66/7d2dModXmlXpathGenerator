@@ -13,6 +13,23 @@ namespace SevenDaysToDieModCreator.Extensions
 {
     static class MyExtensions
     {
+        public static string GetGridAsCSV(this Grid gridToTraverse) 
+        {
+            string csvToReturn = "";
+            int rowCount = 0;
+            foreach (UIElement element in gridToTraverse.Children)
+            {
+                int columnCount = 0;
+                TextBox textbox = element as TextBox;
+                if (textbox != null)
+                {
+                    if (textbox.Text.Contains(",")) csvToReturn += "\"" + textbox.Text.Replace("\"", "") + "\"" + textbox.Tag;
+                    else csvToReturn += textbox.Text.Replace("\"", "") + textbox.Tag;
+                }
+                columnCount++;
+            }
+            return csvToReturn;
+        }
         public static List<TreeViewItem> GetTreeViewChildren(this ItemsControl parent)
         {
             List<TreeViewItem> children = new List<TreeViewItem>();

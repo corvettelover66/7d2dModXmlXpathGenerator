@@ -28,7 +28,7 @@ namespace SevenDaysToDieModCreator.Controllers
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Menu_Folder_Name));
             //Check normal files
-            string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath);
+            string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath, ".xml");
             LoadFilesPathWrappers(files, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
             //Check for Xui files
             string[] xuiFiles = Directory.GetFiles(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));

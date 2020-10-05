@@ -20,11 +20,32 @@ namespace SevenDaysToDieModCreator.Views
                 ModInfo newModIfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
                 if (!this.StartingModTagSetting.Equals(newModTagSetting) && ChangeModTagCheckBox.IsChecked.Value) 
                 {
-                    XmlFileManager.RenameModDirectory(StartingModTagSetting, newModTagSetting);
-                    XmlFileManager.ReplaceTagsInModFiles(StartingModTagSetting, newModTagSetting);
+                    MessageBoxResult result = MessageBoxResult.None;
+                    try
+                    {
+                        XmlFileManager.RenameModDirectory(StartingModTagSetting, newModTagSetting);
+                        //Set the result to yes so the tags are automatcally auto replaced as we knw the application has succeeded in renamng the directory 
+                        result = MessageBoxResult.Yes;
+                        Properties.Settings.Default.ModTagSetting = newModTagSetting;
+                        Properties.Settings.Default.Save();
+                    }
+                    catch (Exception e)
+                    {
+                        XmlFileManager.WriteStringToLog("ERROR renaming directory. Exception:\n " + e.ToString() + " \nMessage: " + e.Message);
+                        string message = "Error attempting to rename directory for mod " + StartingModTagSetting 
+                            + ". To fix this you could open the output folder and give the directory " + StartingModTagSetting
+                            + " correct permissions, alternatively you can manually rename the mod folder in the output directory.\n\n" +
+                            " The application can still perform a find and replace on top tag names in every xml for the mod to replace the old mod name with the new mod name you have chosen.\n" +
+                            "Would you like to run that feature to change your top tags from " + StartingModTagSetting + " to " + newModTagSetting + " in all xml files for the mod?";
+                        result = MessageBox.Show(message, "Rename Mod Directory Error", MessageBoxButton.YesNo, MessageBoxImage.Error);
+                    }
+                    switch (result) 
+                    {
+                        case MessageBoxResult.Yes:
+                            XmlFileManager.ReplaceTagsInModFiles(StartingModTagSetting, newModTagSetting);
+                            break;
+                    } 
                 }
-                Properties.Settings.Default.ModTagSetting = newModTagSetting;
-                Properties.Settings.Default.Save();
                 return newModIfo.ToString();
             }
             set { ResponseText = value; }

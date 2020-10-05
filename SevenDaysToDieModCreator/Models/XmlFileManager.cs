@@ -148,17 +148,29 @@ namespace SevenDaysToDieModCreator.Models
         }
         private static void ReadFile(string path)
         {
+            FileInfo fileInfo = null;
+            StreamReader streamReader =null;
             string line = null;
             try
             {
-                using StreamReader sr = new StreamReader(@path);
-                line = sr.ReadToEnd();
+                fileInfo = new FileInfo(path);
+                streamReader = fileInfo.OpenText();
+                line = streamReader.ReadToEnd();
                 if (line.Length < 1) line = null;
             }
             catch (FileNotFoundException)
             {
+                WriteStringToLog("File not found ERROR Reading file @" + @path);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                WriteStringToLog("Unauthorized access ERROR Reading file @" + @path);
+            }
+            catch (Exception) 
+            {
                 WriteStringToLog("ERROR Reading file @" + @path);
             }
+            if(streamReader != null) streamReader.Close();
             ReadFileContents = line;
         }
         private static void CreateFilePath(string path, string fileName)
@@ -257,7 +269,6 @@ namespace SevenDaysToDieModCreator.Models
             string oldModDirectory = Path.Combine(_fileOutputPath, "Mods", oldModName);
             string newModDirectory = Path.Combine(_fileOutputPath, "Mods", newModName);
             string tempModDirectory = Path.Combine(_fileOutputPath, "Mods", tempDirName);
-
             //Handle edge case where directory names are the same when ignoreing case but they are actually different when taking in Case. Windows ignores the case and I don't want to.
             if (oldModName.ToLower().Equals(newModName.ToLower())
                 && !oldModName.Equals(newModName))

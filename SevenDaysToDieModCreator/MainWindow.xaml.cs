@@ -622,6 +622,12 @@ namespace SevenDaysToDieModCreator
             }
         }
 
+        private void OpenLocalizationMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            LocalizationSettingWindow localizationView = new LocalizationSettingWindow();
+            localizationView.Show();
+        }
+
         //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
         //{
         //    MainWindowViewController.LoadGameModDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.CurrentModFilesCenterViewComboBox);
