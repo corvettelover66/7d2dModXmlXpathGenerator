@@ -42,6 +42,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
                         <avalonedit:TextEditor SyntaxHighlighting="CSV" x:Name="GameRecordOutputBox" FontSize="20">
@@ -51,7 +52,10 @@
                         <StackPanel>
                             <ComboBox Name="GameKeySelectionComboBox" FontSize="20"></ComboBox>
                             <Button x:Name="CopyGameRecord" Content="Copy Record"  FontSize="20" Click="CopyGameRecord_Click"></Button>
-                        </StackPanel>
+                        </Grid>
+                        <Grid Grid.Column="1">
+                            <CheckBox Content="Lock Grid" x:Name="LockGridChangesCheckBox" FontSize="20"></CheckBox>
+                        </Grid>
                     </Grid>
                 </Grid>
             </Grid>
