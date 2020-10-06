@@ -49,20 +49,22 @@
                     </Grid>
                     <Grid Grid.Row="1">
                         <StackPanel>
-                            <ComboBox Name="ModSelectionComboBox"></ComboBox>
-                            <ComboBox Name="GameKeySelectionComboBox"></ComboBox>
+                            <ComboBox Name="GameKeySelectionComboBox" FontSize="20"></ComboBox>
                             <Button x:Name="CopyGameRecord" Content="Copy Record"  FontSize="20" Click="CopyGameRecord_Click"></Button>
                         </StackPanel>
                     </Grid>
                 </Grid>
             </Grid>
             <Grid Grid.Row="1">
-                <Button x:Name="SaveLocalizationTableButton" Content="Save" FontSize="20" Click="SaveLocalizationTableButton_Click"></Button>
+                <StackPanel>
+                    <ComboBox Name="ModSelectionComboBox" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
+                    <Button x:Name="SaveLocalizationTableButton" Content="Save" FontSize="20" Click="SaveLocalizationTableButton_Click"></Button>
+                </StackPanel>
             </Grid>
         </Grid>
         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
         <Grid Grid.Row="2">
-            <ScrollViewer x:Name="MainLocalStackPanel" HorizontalScrollBarVisibility="Auto">
+            <ScrollViewer x:Name="ModLocalizationScrollViewer" HorizontalScrollBarVisibility="Auto">
             </ScrollViewer>
         </Grid>
     </Grid>

@@ -23,7 +23,6 @@ namespace SevenDaysToDieModCreator.Views
     {
         private LocalizationFileObject LocalizationFileObject;
         public Grid Maingrid { get; private set; }
-
         private Dictionary<int, List<TextBox>> TextBoxRowDictionary;
         public LocalizationView(string pathToFile)
         {
@@ -33,7 +32,6 @@ namespace SevenDaysToDieModCreator.Views
             GenerateLocalizationGrid();
             this.Maingrid = topGrid;
         }
-
         private void GenerateLocalizationGrid()
         {
             topGrid.HorizontalAlignment = HorizontalAlignment.Left;
@@ -42,7 +40,6 @@ namespace SevenDaysToDieModCreator.Views
             CreateHeaderRow();
             CreateLocalizationRecordsGrid();
         }
-
         private void CreateLocalizationRecordsGrid()
         {
             //Set row to one as first row is taken by the headers
