@@ -16,7 +16,6 @@ namespace SevenDaysToDieModCreator.Extensions
         public static string GridAsCSV(this Grid gridToTraverse) 
         {
             string csvToReturn = "";
-            int rowCount = 0;
             foreach (UIElement element in gridToTraverse.Children)
             {
                 int columnCount = 0;
@@ -25,6 +24,11 @@ namespace SevenDaysToDieModCreator.Extensions
                 {
                     if (textbox.Text.Contains(",")) csvToReturn += "\"" + textbox.Text + "\"" + textbox.Tag;
                     else csvToReturn += textbox.Text + textbox.Tag;
+                }
+                ComboBox comboBox = element as ComboBox;
+                if (comboBox != null) 
+                {
+                    csvToReturn += comboBox.Text + comboBox.Tag;
                 }
                 columnCount++;
             }

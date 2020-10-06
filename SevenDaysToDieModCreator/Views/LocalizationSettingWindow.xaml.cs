@@ -20,16 +20,23 @@ namespace SevenDaysToDieModCreator.Views
     public partial class LocalizationSettingWindow : Window
     {
         private LocalizationView ModLocalizationGrid { get; set; }
-            
+
+        //Reference to the loaded list warppers in the main window
+        private Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; set; }
+
         private string GridAsCSVOnStart { get; set; }
+        private string GridAsCSVAfterUpdate { get; set; }
+
 
         private string StartingMod { get; set; }
-        public LocalizationSettingWindow()
+        public LocalizationSettingWindow(Dictionary<string, XmlObjectsListWrapper> loadedListWrappers)
         {
-            InitializeComponent(); 
+            InitializeComponent();
+            this.LoadedListWrappers = loadedListWrappers;
             string pathToModLocalizationFile = XmlFileManager._ModConfigOutputPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
             ModLocalizationGrid = new LocalizationView(pathToModLocalizationFile);
             GridAsCSVOnStart = ModLocalizationGrid.Maingrid.GridAsCSV();
+            GridAsCSVAfterUpdate = GridAsCSVOnStart;
             List<string> allCustomTagDirectories = XmlFileManager.GetCustomModFoldersInOutput();
             foreach (string nextModTag in allCustomTagDirectories)
             {
@@ -62,18 +69,18 @@ namespace SevenDaysToDieModCreator.Views
         {
             if (HasLocalizatioWindowChanged())
             {
-                string localizationPath = XmlFileManager.Get_ModOutputPath(ModSelectionComboBox.SelectedItem.ToString()) + LocalizationFileObject.LOCALIZATION_FILE_NAME;
                 string message = "You have modified the localization directly in the output window.\n" +
-                     "Would you like to save those changes and update the grid?\n\n" +
-                     "WARNING: This will overwrite the file at \n\n" + localizationPath +"\nand cannot be undone!";
-                string caption = "Save Localization and Update Grid";
+                     "Would you like to update the grid below with those changes?\n\n" +
+                     "if you don't these changes will be lost.";
+                string caption = "Update Grid";
 
                 MessageBoxResult results = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Question);
                 switch (results)
                 {
                     case MessageBoxResult.Yes:
-                        SaveLocalization();
-                        ReloadModLocalizationGrid(ModSelectionComboBox);
+                        string pathToTempFile = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "TMP_" + LocalizationFileObject.LOCALIZATION_FILE_NAME);
+                        XmlFileManager.WriteStringToFile(Directory.GetCurrentDirectory(), "TMP_" + LocalizationFileObject.LOCALIZATION_FILE_NAME, LocalizationPreviewBox.Text);
+                        ReloadModLocalizationGrid(pathToTempFile);
                         break;
                 }
             }
@@ -81,6 +88,7 @@ namespace SevenDaysToDieModCreator.Views
         private void SaveLocalization()
         {
             XmlFileManager.WriteStringToFile(XmlFileManager.Get_ModOutputPath(ModSelectionComboBox.SelectedItem.ToString()), LocalizationFileObject.LOCALIZATION_FILE_NAME, LocalizationPreviewBox.Text);
+            GridAsCSVOnStart = ModLocalizationGrid.Maingrid.GridAsCSV();
         }
         public bool HasGridChanged() 
         {
@@ -88,7 +96,7 @@ namespace SevenDaysToDieModCreator.Views
         }
         public bool HasLocalizatioWindowChanged()
         {
-            return !LocalizationPreviewBox.Text.Equals(GridAsCSVOnStart);
+            return !LocalizationPreviewBox.Text.Equals(GridAsCSVAfterUpdate);
         }
         private void ModSelectionComboBox_DropDownClosed(object sender, EventArgs e)
         {
@@ -116,10 +124,14 @@ namespace SevenDaysToDieModCreator.Views
                 {
                     ReloadModLocalizationGrid(modSelectionComboBox);
                 }
-
             }
         }
-
+        private void ReloadModLocalizationGrid(string pathToLocalizatioFile, bool deleteFileAfterLoadingGrid = true)
+        {
+            ModLocalizationGrid = new LocalizationView(pathToLocalizatioFile);
+            ModLocalizationScrollViewer.Content = ModLocalizationGrid;
+            if(deleteFileAfterLoadingGrid) File.Delete(pathToLocalizatioFile);
+        }
         private void ReloadModLocalizationGrid(ComboBox modSelectionComboBox)
         {
             string modOutptPath = XmlFileManager.Get_ModOutputPath(modSelectionComboBox.SelectedItem.ToString());
@@ -127,13 +139,13 @@ namespace SevenDaysToDieModCreator.Views
             ModLocalizationGrid = new LocalizationView(pathToModLocalizationFile);
             ModLocalizationScrollViewer.Content = ModLocalizationGrid;
             GridAsCSVOnStart = ModLocalizationGrid.Maingrid.GridAsCSV();
+            LocalizationPreviewBox.Text = GridAsCSVOnStart;
             StartingMod = ModSelectionComboBox.SelectedItem.ToString();
         }
-
         private void Maingrid_GotFocus(object sender, RoutedEventArgs e)
         {
             LocalizationPreviewBox.Text = ModLocalizationGrid.Maingrid.GridAsCSV();
-            GridAsCSVOnStart = LocalizationPreviewBox.Text;
+            GridAsCSVAfterUpdate = LocalizationPreviewBox.Text;
         }
         private void CopyGameRecord_Click(object sender, RoutedEventArgs e)
         {
@@ -142,6 +154,19 @@ namespace SevenDaysToDieModCreator.Views
         private void SaveLocalizationTableButton_Click(object sender, RoutedEventArgs e)
         {
             SaveLocalization();
+            string message = "Successfully saved changes to: \n\n " + XmlFileManager.Get_ModOutputPath(ModSelectionComboBox.SelectedItem.ToString()) + LocalizationFileObject.LOCALIZATION_FILE_NAME;
+            string caption = "Save Grid to Localization.txt";
+            MessageBox.Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void AddEmptyRow_Click(object sender, RoutedEventArgs e)
+        {
+            //Hard code the wrapper to the items.xml for the mod
+            XmlObjectsListWrapper selectedModItemsWrapper = LoadedListWrappers.GetValueOrDefault(ModSelectionComboBox.SelectedItem.ToString() + "_items");
+            //Hard code the wrapper to the blocks.xml for the mod
+            XmlObjectsListWrapper selectedModBlocksWrapper = LoadedListWrappers.GetValueOrDefault(ModSelectionComboBox.SelectedItem.ToString() + "_blocks");
+
+            ModLocalizationGrid.AddEmptyRow(selectedModItemsWrapper, selectedModBlocksWrapper);
         }
     }
 }

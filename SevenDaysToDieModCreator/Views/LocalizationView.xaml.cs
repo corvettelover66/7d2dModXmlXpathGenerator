@@ -32,6 +32,60 @@ namespace SevenDaysToDieModCreator.Views
             GenerateLocalizationGrid();
             this.Maingrid = topGrid;
         }
+        public void AddEmptyRow(XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper) 
+        {
+            int lastRowPlusOne = TextBoxRowDictionary.Keys.Count + 1;
+            List<TextBox> rowToMimic = TextBoxRowDictionary.GetValueOrDefault(TextBoxRowDictionary.Keys.Count - 1);
+
+            RowDefinition rowDefinition = new RowDefinition();
+            topGrid.RowDefinitions.Add(rowDefinition);
+            int columnCount = 0;
+            AddNumberColumn(lastRowPlusOne, columnCount);
+            columnCount++;
+            AddClearButton(lastRowPlusOne, columnCount);
+            columnCount++;
+            AddModKeysColumn(lastRowPlusOne, columnCount, selectedModItemsWrapper, selectedModBlocksWrapper);
+            //Remove the keys column from the row to mimic as we are filling that in with a special combo box
+            rowToMimic.RemoveAt(rowToMimic.Count - 1);
+            columnCount++;
+            List<string> emptyRecord = new List<string>();
+            for(int textBoxCount = 0; textBoxCount < rowToMimic.Count; textBoxCount++) 
+            {
+                emptyRecord.Add("");
+            }
+            AddFieldColumns(lastRowPlusOne, columnCount, emptyRecord);
+        }
+
+        private void AddModKeysColumn(int lastRowPlusOne, int columnCount, XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper)
+        {
+            topGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            ComboBox newCommonValuesBox = new ComboBox();
+            newCommonValuesBox.FontSize = 18;
+            newCommonValuesBox.Tag = ",";
+            if (selectedModItemsWrapper != null) 
+            {
+                Dictionary<string, List<string>> attributeDictinaryForItems = selectedModItemsWrapper.objectNameToAttributeValuesMap.GetValueOrDefault("item");
+                if (attributeDictinaryForItems != null) 
+                {
+                    List<string> commonAttributes = attributeDictinaryForItems.GetValueOrDefault("name");
+                    commonAttributes.Insert(0, "");
+                    newCommonValuesBox.SetComboBox(commonAttributes);
+                }            
+            }
+            if (selectedModBlocksWrapper != null) 
+            { 
+                Dictionary<string, List<string>> attributeDictinaryForBlocks = selectedModBlocksWrapper.objectNameToAttributeValuesMap.GetValueOrDefault("block");
+                if (attributeDictinaryForBlocks != null)
+                {
+                    List<string> commonAttributes = attributeDictinaryForBlocks.GetValueOrDefault("name");
+                    newCommonValuesBox.SetComboBox(commonAttributes);
+                }
+            }
+            Grid.SetRow(newCommonValuesBox, lastRowPlusOne);
+            Grid.SetColumn(newCommonValuesBox, columnCount);
+            topGrid.Children.Add(newCommonValuesBox);
+        }
+
         private void GenerateLocalizationGrid()
         {
             topGrid.HorizontalAlignment = HorizontalAlignment.Left;
@@ -78,7 +132,7 @@ namespace SevenDaysToDieModCreator.Views
                 newRecordTextbox = new TextBox()
                 {
                     Text = nextRecordField,
-                    FontSize = 16
+                    FontSize = 18
                 };
                 newRecordTextbox.Tag = ",";
                 Grid.SetRow(newRecordTextbox, rowCount);

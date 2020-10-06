@@ -64,8 +64,17 @@
         </Grid>
         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
         <Grid Grid.Row="2">
-            <ScrollViewer x:Name="ModLocalizationScrollViewer" HorizontalScrollBarVisibility="Auto">
-            </ScrollViewer>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <ScrollViewer x:Name="ModLocalizationScrollViewer" HorizontalScrollBarVisibility="Auto">
+                </ScrollViewer>
+            </Grid>
+            <Grid Grid.Row="1">
+                <Button x:Name="AddEmptyRow" Content="Add Row" FontSize="20" Click="AddEmptyRow_Click"></Button>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
