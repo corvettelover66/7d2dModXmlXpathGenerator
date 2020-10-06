@@ -12,6 +12,7 @@
     <StartupObject>SevenDaysToDieModCreator.App</StartupObject>
     <Authors>wrathmaniac</Authors>
     <Product>7d2d Mod Editor</Product>
+    <Company>7d2dModEditor</Company>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.0.1" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
 

@@ -12,12 +12,24 @@
     <Compile Update="Views\CustomDialogBox.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\LocalizationSettingWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\LocalizationView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\CustomDialogBox.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\LocalizationSettingWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\LocalizationView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
