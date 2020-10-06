@@ -33,7 +33,7 @@
                         <Label Content="Localization Output" FontSize="22"></Label>
                     </Grid>
                     <Grid Grid.Row="1">
-                        <avalonedit:TextEditor SyntaxHighlighting="CSV" x:Name="LocalizationPreviewBox" FontSize="20">
+                        <avalonedit:TextEditor x:Name="LocalizationPreviewBox" FontSize="20">
                         </avalonedit:TextEditor>
                     </Grid>
                 </Grid>
@@ -44,7 +44,7 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        <avalonedit:TextEditor SyntaxHighlighting="CSV" x:Name="GameRecordOutputBox" FontSize="20">
+                        <avalonedit:TextEditor x:Name="GameRecordOutputBox" FontSize="20">
                         </avalonedit:TextEditor>
                     </Grid>
                     <Grid Grid.Row="1">

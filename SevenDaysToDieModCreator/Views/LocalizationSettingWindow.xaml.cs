@@ -19,22 +19,30 @@ namespace SevenDaysToDieModCreator.Views
 {
     public partial class LocalizationSettingWindow : Window
     {
-        private LocalizationView ModLocalizationGrid { get; set; }
+        private LocalizationGridUserControl ModLocalizationGrid { get; set; }
 
         //Reference to the loaded list warppers in the main window
         private Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; set; }
 
         private string GridAsCSVOnStart { get; set; }
         private string GridAsCSVAfterUpdate { get; set; }
-
-
+        private const string TITLE_POSTPEND_MESSAGE = "_" + LocalizationFileObject.LOCALIZATION_FILE_NAME;
+        private string WindowTitle { get; set; }
+        private string GetTitleForWindow() 
+        {
+            return WindowTitle + TITLE_POSTPEND_MESSAGE;
+        }
         private string StartingMod { get; set; }
         public LocalizationSettingWindow(Dictionary<string, XmlObjectsListWrapper> loadedListWrappers)
         {
             InitializeComponent();
+            StartingMod = Properties.Settings.Default.ModTagSetting;
+            WindowTitle = StartingMod.ToString();
+            this.Title = GetTitleForWindow();
             this.LoadedListWrappers = loadedListWrappers;
+
             string pathToModLocalizationFile = XmlFileManager._ModConfigOutputPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
-            ModLocalizationGrid = new LocalizationView(pathToModLocalizationFile);
+            ModLocalizationGrid = new LocalizationGridUserControl(pathToModLocalizationFile);
             GridAsCSVOnStart = ModLocalizationGrid.Maingrid.GridAsCSV();
             GridAsCSVAfterUpdate = GridAsCSVOnStart;
             List<string> allCustomTagDirectories = XmlFileManager.GetCustomModFoldersInOutput();
@@ -43,7 +51,7 @@ namespace SevenDaysToDieModCreator.Views
                 ModSelectionComboBox.AddUniqueValueTo(nextModTag);
             }
             ModSelectionComboBox.SelectedItem = Properties.Settings.Default.ModTagSetting;
-            StartingMod = Properties.Settings.Default.ModTagSetting;
+            
             ModSelectionComboBox.DropDownClosed += ModSelectionComboBox_DropDownClosed;
             ModLocalizationScrollViewer.Content = ModLocalizationGrid;
 
@@ -81,6 +89,7 @@ namespace SevenDaysToDieModCreator.Views
                         string pathToTempFile = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "TMP_" + LocalizationFileObject.LOCALIZATION_FILE_NAME);
                         XmlFileManager.WriteStringToFile(Directory.GetCurrentDirectory(), "TMP_" + LocalizationFileObject.LOCALIZATION_FILE_NAME, LocalizationPreviewBox.Text);
                         ReloadModLocalizationGrid(pathToTempFile);
+                        GridAsCSVAfterUpdate = LocalizationPreviewBox.Text;
                         break;
                 }
             }
@@ -128,7 +137,7 @@ namespace SevenDaysToDieModCreator.Views
         }
         private void ReloadModLocalizationGrid(string pathToLocalizatioFile, bool deleteFileAfterLoadingGrid = true)
         {
-            ModLocalizationGrid = new LocalizationView(pathToLocalizatioFile);
+            ModLocalizationGrid = new LocalizationGridUserControl(pathToLocalizatioFile);
             ModLocalizationScrollViewer.Content = ModLocalizationGrid;
             if(deleteFileAfterLoadingGrid) File.Delete(pathToLocalizatioFile);
         }
@@ -136,11 +145,13 @@ namespace SevenDaysToDieModCreator.Views
         {
             string modOutptPath = XmlFileManager.Get_ModOutputPath(modSelectionComboBox.SelectedItem.ToString());
             string pathToModLocalizationFile = modOutptPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
-            ModLocalizationGrid = new LocalizationView(pathToModLocalizationFile);
+            ModLocalizationGrid = new LocalizationGridUserControl(pathToModLocalizationFile);
             ModLocalizationScrollViewer.Content = ModLocalizationGrid;
             GridAsCSVOnStart = ModLocalizationGrid.Maingrid.GridAsCSV();
             LocalizationPreviewBox.Text = GridAsCSVOnStart;
             StartingMod = ModSelectionComboBox.SelectedItem.ToString();
+            WindowTitle = StartingMod.ToString();
+            this.Title = GetTitleForWindow();
         }
         private void Maingrid_GotFocus(object sender, RoutedEventArgs e)
         {

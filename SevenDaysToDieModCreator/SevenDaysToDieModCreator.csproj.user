@@ -15,7 +15,7 @@
     <Compile Update="Views\LocalizationSettingWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\LocalizationView.xaml.cs">
+    <Compile Update="Views\LocalizationGridUserControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <Page Update="Views\LocalizationSettingWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\LocalizationView.xaml">
+    <Page Update="Views\LocalizationGridUserControl.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

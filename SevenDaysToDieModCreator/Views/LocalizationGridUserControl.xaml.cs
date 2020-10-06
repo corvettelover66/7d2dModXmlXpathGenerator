@@ -19,12 +19,12 @@ namespace SevenDaysToDieModCreator.Views
     /// <summary>
     /// Interaction logic for LocalizationView.xaml
     /// </summary>
-    public partial class LocalizationView : UserControl
+    public partial class LocalizationGridUserControl : UserControl
     {
         private LocalizationFileObject LocalizationFileObject;
         public Grid Maingrid { get; private set; }
         private Dictionary<int, List<TextBox>> TextBoxRowDictionary;
-        public LocalizationView(string pathToFile)
+        public LocalizationGridUserControl(string pathToFile)
         {
             InitializeComponent();
             LocalizationFileObject = new LocalizationFileObject(pathToFile);
@@ -46,7 +46,7 @@ namespace SevenDaysToDieModCreator.Views
             columnCount++;
             AddModKeysColumn(lastRowPlusOne, columnCount, selectedModItemsWrapper, selectedModBlocksWrapper);
             //Remove the keys column from the row to mimic as we are filling that in with a special combo box
-            rowToMimic.RemoveAt(rowToMimic.Count - 1);
+            if(rowToMimic.Count >0)rowToMimic.RemoveAt(rowToMimic.Count - 1);
             columnCount++;
             List<string> emptyRecord = new List<string>();
             for(int textBoxCount = 0; textBoxCount < rowToMimic.Count; textBoxCount++) 
