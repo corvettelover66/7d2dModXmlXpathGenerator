@@ -13,7 +13,7 @@ namespace SevenDaysToDieModCreator.Extensions
 {
     static class MyExtensions
     {
-        public static string GetGridAsCSV(this Grid gridToTraverse) 
+        public static string GridAsCSV(this Grid gridToTraverse) 
         {
             string csvToReturn = "";
             int rowCount = 0;
@@ -21,10 +21,10 @@ namespace SevenDaysToDieModCreator.Extensions
             {
                 int columnCount = 0;
                 TextBox textbox = element as TextBox;
-                if (textbox != null)
+                if (textbox != null && textbox.Tag != null)
                 {
-                    if (textbox.Text.Contains(",")) csvToReturn += "\"" + textbox.Text.Replace("\"", "") + "\"" + textbox.Tag;
-                    else csvToReturn += textbox.Text.Replace("\"", "") + textbox.Tag;
+                    if (textbox.Text.Contains(",")) csvToReturn += "\"" + textbox.Text + "\"" + textbox.Tag;
+                    else csvToReturn += textbox.Text + textbox.Tag;
                 }
                 columnCount++;
             }

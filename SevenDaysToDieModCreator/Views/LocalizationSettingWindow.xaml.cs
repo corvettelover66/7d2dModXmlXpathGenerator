@@ -1,4 +1,6 @@
-﻿using SevenDaysToDieModCreator.Extensions;
+﻿using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Search;
+using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
@@ -19,27 +21,40 @@ namespace SevenDaysToDieModCreator.Views
     /// </summary>
     public partial class LocalizationSettingWindow : Window
     {
+        private LocalizationView ModLocalizationGrid { get; set; }
         public LocalizationSettingWindow()
         {
             InitializeComponent(); 
             string pathToModLocalizationFile = XmlFileManager._ModConfigOutputPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
-            MainLocalStackPanel.Content = new LocalizationView(pathToModLocalizationFile);
+            ModLocalizationGrid = new LocalizationView(pathToModLocalizationFile);
+            MainLocalStackPanel.Content = ModLocalizationGrid;
 
-            //GridRow0
+            string pathToGameLocalizationFile = XmlFileManager._LoadedFilesPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
+            LocalizationFileObject gameLocalizationFile = new LocalizationFileObject(pathToGameLocalizationFile);
+            
+            LocalizationPreviewBox.ShowLineNumbers = true;
+            SearchPanel.Install(LocalizationPreviewBox);
+            TextEditorOptions newOptions = new TextEditorOptions
+            {
+                EnableRectangularSelection = true,
+                EnableTextDragDrop = true,
+                HighlightCurrentLine = true,
+                ShowTabs = true
+            };
+            this.LocalizationPreviewBox.TextArea.Options = newOptions;
+            LocalizationPreviewBox.Text = ModLocalizationGrid.Maingrid.GridAsCSV();
 
-            //string pathToGameLocalizationFile = XmlFileManager._LoadedFilesPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
-            //LocalizationFileObject localizationFileObject = new LocalizationFileObject(pathToGameLocalizationFile);
-            //foreach (string headerField in localizationFileObject.HeaderValuesMap.Keys) 
-            //{
-            //    List<string> commonValues = localizationFileObject.HeaderValuesMap.GetValueOrDefault(headerField);
-            //    ComboBox gameValues = commonValues.CreateComboBoxFromList();
-            //    GameValuesSP.Children.Add(gameValues);
-            //}
+            ModLocalizationGrid.Maingrid.GotFocus += Maingrid_GotFocus;
+        }
+
+        private void Maingrid_GotFocus(object sender, RoutedEventArgs e)
+        {
+            LocalizationPreviewBox.Text = ModLocalizationGrid.Maingrid.GridAsCSV();
         }
 
         private void CopyGameRecord_Click(object sender, RoutedEventArgs e)
         {
-
+            LocalizationPreviewBox.Text = ModLocalizationGrid.Maingrid.GridAsCSV();
         }
 
         private void SaveLocalizationTableButton_Click(object sender, RoutedEventArgs e)

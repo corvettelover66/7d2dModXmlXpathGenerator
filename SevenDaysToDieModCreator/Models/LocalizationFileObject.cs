@@ -58,7 +58,7 @@ namespace SevenDaysToDieModCreator.Models
                     columnCount++;
                 }
                 //Add the new record to the list
-                RecordList.Add(newRecord);
+                if(newRecord.Count > 0) RecordList.Add(newRecord);
                 rowCount++;
             }
         }

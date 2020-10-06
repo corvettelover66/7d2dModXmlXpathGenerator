@@ -22,13 +22,20 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition Width="5"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition Width="5"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0">
-                    <avalonedit:TextEditor SyntaxHighlighting="CSV" x:Name="GameRecordOutputBox" FontSize="20">
-                    </avalonedit:TextEditor>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Label Content="Localization Output" FontSize="22"></Label>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <avalonedit:TextEditor SyntaxHighlighting="CSV" x:Name="LocalizationPreviewBox" FontSize="20">
+                        </avalonedit:TextEditor>
+                    </Grid>
                 </Grid>
                 <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
                 <Grid Grid.Column="2">
@@ -37,6 +44,8 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
+                        <avalonedit:TextEditor SyntaxHighlighting="CSV" x:Name="GameRecordOutputBox" FontSize="20">
+                        </avalonedit:TextEditor>
                     </Grid>
                     <Grid Grid.Row="1">
                         <StackPanel>
@@ -46,11 +55,6 @@
                         </StackPanel>
                     </Grid>
                 </Grid>
-                <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
-                <Grid Grid.Column="4">
-                    <avalonedit:TextEditor SyntaxHighlighting="CSV" x:Name="LocalizationPreviewBox" FontSize="20">
-                    </avalonedit:TextEditor>
-                </Grid>
             </Grid>
             <Grid Grid.Row="1">
                 <Button x:Name="SaveLocalizationTableButton" Content="Save" FontSize="20" Click="SaveLocalizationTableButton_Click"></Button>
@@ -59,7 +63,6 @@
         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
         <Grid Grid.Row="2">
             <ScrollViewer x:Name="MainLocalStackPanel" HorizontalScrollBarVisibility="Auto">
-
             </ScrollViewer>
         </Grid>
     </Grid>
