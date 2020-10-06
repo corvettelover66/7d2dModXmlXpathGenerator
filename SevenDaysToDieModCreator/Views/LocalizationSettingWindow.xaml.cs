@@ -57,9 +57,7 @@ namespace SevenDaysToDieModCreator.Views
 
             string pathToGameLocalizationFile = XmlFileManager._LoadedFilesPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
             LocalizationFileObject gameLocalizationFile = new LocalizationFileObject(pathToGameLocalizationFile);
-            
-            LocalizationPreviewBox.ShowLineNumbers = true;
-            SearchPanel.Install(LocalizationPreviewBox);
+
             TextEditorOptions newOptions = new TextEditorOptions
             {
                 EnableRectangularSelection = true,
@@ -67,9 +65,14 @@ namespace SevenDaysToDieModCreator.Views
                 HighlightCurrentLine = true,
                 ShowTabs = true
             };
+
+            GameRecordOutputBox.ShowLineNumbers = true;
+            GameRecordOutputBox.TextArea.Options = newOptions;
+            LocalizationPreviewBox.ShowLineNumbers = true;
             LocalizationPreviewBox.TextArea.Options = newOptions;
             LocalizationPreviewBox.Text = ModLocalizationGrid.Maingrid.GridAsCSV();
             LocalizationPreviewBox.LostFocus += LocalizationPreviewBox_LostFocus;
+            SearchPanel.Install(LocalizationPreviewBox);
             ModLocalizationScrollViewer.GotFocus += Maingrid_GotFocus;
             ModLocalizationScrollViewer.LostFocus += Maingrid_GotFocus;
         }
