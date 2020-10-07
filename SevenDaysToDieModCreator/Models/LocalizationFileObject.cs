@@ -6,23 +6,39 @@ using System.Text;
 
 namespace SevenDaysToDieModCreator.Models
 {
-    class LocalizationFileObject
+    public class LocalizationFileObject
     {
         public bool LOCALIZATION_EXIST { get; private set; }
         public const string LOCALIZATION_FILE_NAME = "Localization.txt";
+        public string KeyColumn { get; set; }
+        private string[] DefaultHeaderColumns = new string[]{ "Key", "Source", "Context", "Changes", "English" };
+
         private string[] HeaderValues { get; set; }
         //A dictionary of all value columns by the header as the key
         //Key: Header from the CSV
         //Value: A list of all values from the file for that header.
         public Dictionary<string, List<string>> HeaderValuesMap { get; private set; }
+        //A dictionary of each record in the localization file that is found using the Key column.
+        //Key: The "Key" column in the Localizationtxt file
+        //Value: The record of the key.
+        public Dictionary<string, List<string>> KeyToRecordMap { get; private set; }
+
         //A list of each record in the CSV, the records are stored individually as another list.
         public List<List<string>> RecordList { get; private set; }
         public LocalizationFileObject(string pathToFile)
         {
             HeaderValuesMap = new Dictionary<string, List<string>>();
+            KeyToRecordMap = new Dictionary<string, List<string>>();
             RecordList = new List<List<string>>();
             LOCALIZATION_EXIST = File.Exists(pathToFile);
             if (LOCALIZATION_EXIST) TraverseLocalizatonFile(pathToFile);
+            else 
+            {
+                foreach (string header in DefaultHeaderColumns) 
+                {
+                    HeaderValuesMap.Add(header, new List<string>());
+                }
+            }
         }
         //THROWS Index OUTOFRnge EXception if the ROW count does not match the Header count
         private void TraverseLocalizatonFile(string pathToFile)
@@ -43,12 +59,15 @@ namespace SevenDaysToDieModCreator.Models
                     //Set new lists for the HeaderValuesMap as we're going through all the keys on the first pass.
                     if (rowCount == 0)
                     {
+                        //Get the first column to ensure there is no funny buisness
+                        if (columnCount == 0) this.KeyColumn = field;
                         HeaderValues[columnCount] = field;
                         HeaderValuesMap.Add(field, new List<string>());
                     }
                     //Set the record list
                     else
                     {
+                        if (columnCount == 0 && !KeyToRecordMap.ContainsKey(field)) KeyToRecordMap.Add(field, newRecord);
                         //Add the field to the new record 
                         newRecord.Add(field);
                         //Add the field value to the appropriate list in the header map.

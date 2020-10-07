@@ -19,7 +19,9 @@ namespace SevenDaysToDieModCreator.Views
 {
     public partial class LocalizationSettingWindow : Window
     {
-        private LocalizationGridUserControl ModLocalizationGrid { get; set; }
+        private LocalizationGridUserControl ModLocalizationGridUserControl { get; set; }
+
+        private LocalizationFileObject GameLocalizationFile { get; set; }
 
         //Reference to the loaded list warppers in the main window
         private Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; set; }
@@ -42,8 +44,8 @@ namespace SevenDaysToDieModCreator.Views
             this.LoadedListWrappers = loadedListWrappers;
 
             string pathToModLocalizationFile = XmlFileManager._ModConfigOutputPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
-            ModLocalizationGrid = new LocalizationGridUserControl(pathToModLocalizationFile);
-            GridAsCSVOnStart = ModLocalizationGrid.Maingrid.GridAsCSV();
+            ModLocalizationGridUserControl = new LocalizationGridUserControl(pathToModLocalizationFile);
+            GridAsCSVOnStart = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
             GridAsCSVAfterUpdate = GridAsCSVOnStart;
             List<string> allCustomTagDirectories = XmlFileManager.GetCustomModFoldersInOutput();
             foreach (string nextModTag in allCustomTagDirectories)
@@ -53,10 +55,10 @@ namespace SevenDaysToDieModCreator.Views
             ModSelectionComboBox.SelectedItem = Properties.Settings.Default.ModTagSetting;
             
             ModSelectionComboBox.DropDownClosed += ModSelectionComboBox_DropDownClosed;
-            ModLocalizationScrollViewer.Content = ModLocalizationGrid;
+            ModLocalizationScrollViewer.Content = ModLocalizationGridUserControl;
 
             string pathToGameLocalizationFile = XmlFileManager._LoadedFilesPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
-            LocalizationFileObject gameLocalizationFile = new LocalizationFileObject(pathToGameLocalizationFile);
+            GameLocalizationFile = new LocalizationFileObject(pathToGameLocalizationFile);
 
             TextEditorOptions newOptions = new TextEditorOptions
             {
@@ -70,11 +72,47 @@ namespace SevenDaysToDieModCreator.Views
             GameRecordOutputBox.TextArea.Options = newOptions;
             LocalizationPreviewBox.ShowLineNumbers = true;
             LocalizationPreviewBox.TextArea.Options = newOptions;
-            LocalizationPreviewBox.Text = ModLocalizationGrid.Maingrid.GridAsCSV();
+            LocalizationPreviewBox.Text = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
             LocalizationPreviewBox.LostFocus += LocalizationPreviewBox_LostFocus;
             SearchPanel.Install(LocalizationPreviewBox);
             ModLocalizationScrollViewer.GotFocus += Maingrid_GotFocus;
             ModLocalizationScrollViewer.LostFocus += Maingrid_GotFocus;
+
+            List<string> gameFileKeys = GameLocalizationFile.HeaderValuesMap.GetValueOrDefault(GameLocalizationFile.KeyColumn);
+            GameKeySelectionComboBox.SetComboBox(gameFileKeys);
+            GameKeySelectionComboBox.IsEditable = true;
+            GameKeySelectionComboBox.DropDownClosed += GameKeySelectionComboBox_DropDownClosed;
+            GameKeySelectionComboBox.LostFocus += GameKeySelectionComboBox_LostFocus;
+        }
+
+        private void GameKeySelectionComboBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is ComboBox gameKeySelectionBox) 
+            {
+                LoadGameKeyRecord(gameKeySelectionBox);
+            }
+        }
+        private void GameKeySelectionComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            if (sender is ComboBox gameKeySelectionBox)
+            {
+                LoadGameKeyRecord(gameKeySelectionBox);
+            }
+        }
+        private void LoadGameKeyRecord(ComboBox gameKeySelectionBox)
+        {
+            List<string> record = GameLocalizationFile.KeyToRecordMap.GetValueOrDefault(gameKeySelectionBox.Text);
+            if(record != null && record.Count > 0)
+            {
+                int count = 0;
+                StringBuilder recordOutputBuilder = new StringBuilder();
+                foreach (string key in GameLocalizationFile.HeaderValuesMap.Keys) 
+                {
+                    recordOutputBuilder.AppendLine(key + ": " + record[count]);
+                    count++;
+                }
+                GameRecordOutputBox.Text = recordOutputBuilder.ToString();
+            }
         }
         private void LocalizationPreviewBox_LostFocus(object sender, RoutedEventArgs e)
         {
@@ -100,11 +138,11 @@ namespace SevenDaysToDieModCreator.Views
         private void SaveLocalization()
         {
             XmlFileManager.WriteStringToFile(XmlFileManager.Get_ModOutputPath(ModSelectionComboBox.SelectedItem.ToString()), LocalizationFileObject.LOCALIZATION_FILE_NAME, LocalizationPreviewBox.Text);
-            GridAsCSVOnStart = ModLocalizationGrid.Maingrid.GridAsCSV();
+            GridAsCSVOnStart = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
         }
         public bool HasGridChanged() 
         {
-            return !ModLocalizationGrid.Maingrid.GridAsCSV().Equals(GridAsCSVOnStart);
+            return !ModLocalizationGridUserControl.Maingrid.GridAsCSV().Equals(GridAsCSVOnStart);
         }
         public bool HasLocalizatioWindowChanged()
         {
@@ -140,17 +178,17 @@ namespace SevenDaysToDieModCreator.Views
         }
         private void ReloadModLocalizationGrid(string pathToLocalizatioFile, bool deleteFileAfterLoadingGrid = true)
         {
-            ModLocalizationGrid = new LocalizationGridUserControl(pathToLocalizatioFile);
-            ModLocalizationScrollViewer.Content = ModLocalizationGrid;
+            ModLocalizationGridUserControl = new LocalizationGridUserControl(pathToLocalizatioFile);
+            ModLocalizationScrollViewer.Content = ModLocalizationGridUserControl;
             if(deleteFileAfterLoadingGrid) File.Delete(pathToLocalizatioFile);
         }
         private void ReloadModLocalizationGrid(ComboBox modSelectionComboBox)
         {
             string modOutptPath = XmlFileManager.Get_ModOutputPath(modSelectionComboBox.SelectedItem.ToString());
             string pathToModLocalizationFile = modOutptPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
-            ModLocalizationGrid = new LocalizationGridUserControl(pathToModLocalizationFile);
-            ModLocalizationScrollViewer.Content = ModLocalizationGrid;
-            GridAsCSVOnStart = ModLocalizationGrid.Maingrid.GridAsCSV();
+            ModLocalizationGridUserControl = new LocalizationGridUserControl(pathToModLocalizationFile);
+            ModLocalizationScrollViewer.Content = ModLocalizationGridUserControl;
+            GridAsCSVOnStart = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
             LocalizationPreviewBox.Text = GridAsCSVOnStart;
             StartingMod = ModSelectionComboBox.SelectedItem.ToString();
             WindowTitle = StartingMod.ToString();
@@ -158,12 +196,12 @@ namespace SevenDaysToDieModCreator.Views
         }
         private void Maingrid_GotFocus(object sender, RoutedEventArgs e)
         {
-            LocalizationPreviewBox.Text = ModLocalizationGrid.Maingrid.GridAsCSV();
+            LocalizationPreviewBox.Text = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
             GridAsCSVAfterUpdate = LocalizationPreviewBox.Text;
         }
         private void CopyGameRecord_Click(object sender, RoutedEventArgs e)
         {
-            LocalizationPreviewBox.Text = ModLocalizationGrid.Maingrid.GridAsCSV();
+            LocalizationPreviewBox.Text = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
         }
         private void SaveLocalizationTableButton_Click(object sender, RoutedEventArgs e)
         {
@@ -172,7 +210,6 @@ namespace SevenDaysToDieModCreator.Views
             string caption = "Save Grid to Localization.txt";
             MessageBox.Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
         private void AddEmptyRow_Click(object sender, RoutedEventArgs e)
         {
             //Hard code the wrapper to the items.xml for the mod
@@ -180,7 +217,7 @@ namespace SevenDaysToDieModCreator.Views
             //Hard code the wrapper to the blocks.xml for the mod
             XmlObjectsListWrapper selectedModBlocksWrapper = LoadedListWrappers.GetValueOrDefault(ModSelectionComboBox.SelectedItem.ToString() + "_blocks");
 
-            ModLocalizationGrid.AddEmptyRow(selectedModItemsWrapper, selectedModBlocksWrapper);
+            ModLocalizationGridUserControl.AddEmptyRow(selectedModItemsWrapper, selectedModBlocksWrapper);
         }
     }
 }

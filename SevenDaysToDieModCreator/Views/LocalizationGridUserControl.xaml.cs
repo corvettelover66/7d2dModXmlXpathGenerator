@@ -21,7 +21,7 @@ namespace SevenDaysToDieModCreator.Views
     /// </summary>
     public partial class LocalizationGridUserControl : UserControl
     {
-        private LocalizationFileObject LocalizationFileObject;
+        public LocalizationFileObject LocalizationFileObject { get; private set; }
         public Grid Maingrid { get; private set; }
         private Dictionary<int, List<TextBox>> TextBoxRowDictionary;
         public LocalizationGridUserControl(string pathToFile)
@@ -46,22 +46,24 @@ namespace SevenDaysToDieModCreator.Views
             columnCount++;
             AddModKeysColumn(lastRowPlusOne, columnCount, selectedModItemsWrapper, selectedModBlocksWrapper);
             //Remove the keys column from the row to mimic as we are filling that in with a special combo box
-            if(rowToMimic.Count >0)rowToMimic.RemoveAt(rowToMimic.Count - 1);
+            if(rowToMimic != null && rowToMimic.Count >0)rowToMimic.RemoveAt(rowToMimic.Count - 1);
             columnCount++;
             List<string> emptyRecord = new List<string>();
-            for(int textBoxCount = 0; textBoxCount < rowToMimic.Count; textBoxCount++) 
+            for(int textBoxCount = 0; textBoxCount < LocalizationFileObject.HeaderValuesMap.Keys.Count; textBoxCount++) 
             {
+                //This means there was not a row to mimic, increase the count by one to avoid that.
+                if (rowToMimic == null && textBoxCount == 0) textBoxCount++;
                 emptyRecord.Add("");
             }
             AddFieldColumns(lastRowPlusOne, columnCount, emptyRecord);
         }
-
         private void AddModKeysColumn(int lastRowPlusOne, int columnCount, XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper)
         {
             topGrid.ColumnDefinitions.Add(new ColumnDefinition());
             ComboBox newCommonValuesBox = new ComboBox();
             newCommonValuesBox.FontSize = 18;
             newCommonValuesBox.Tag = ",";
+            newCommonValuesBox.IsEditable = true;
             if (selectedModItemsWrapper != null) 
             {
                 Dictionary<string, List<string>> attributeDictinaryForItems = selectedModItemsWrapper.objectNameToAttributeValuesMap.GetValueOrDefault("item");
@@ -85,7 +87,6 @@ namespace SevenDaysToDieModCreator.Views
             Grid.SetColumn(newCommonValuesBox, columnCount);
             topGrid.Children.Add(newCommonValuesBox);
         }
-
         private void GenerateLocalizationGrid()
         {
             topGrid.HorizontalAlignment = HorizontalAlignment.Left;
