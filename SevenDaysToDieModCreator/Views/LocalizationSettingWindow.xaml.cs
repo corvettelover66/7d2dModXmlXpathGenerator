@@ -305,7 +305,8 @@ namespace SevenDaysToDieModCreator.Views
                     if (!nextModHeader.Contains("key") && allGameRecordHeaders.Contains(nextModHeader)) 
                     {
                         int indexToUse = allGameRecordHeaders.IndexOf(nextModHeader);
-                        recordToCopyBuilder.Append(record[indexToUse] + ",");
+                        if(record[indexToUse].Contains(",")) recordToCopyBuilder.Append("\"" + record[indexToUse] + "\",");
+                        else recordToCopyBuilder.Append(record[indexToUse] + ",");
                     }
                 }
                 //REmove trailing comma

@@ -28,7 +28,7 @@ namespace SevenDaysToDieModCreator.Controllers
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Menu_Folder_Name));
             //Check normal files
-            string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath, "*.xml");
+            string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath);
             LoadFilesPathWrappers(files, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
             //Check for Xui files
             string[] xuiFiles = Directory.GetFiles(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));
@@ -152,13 +152,13 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     foreach (string nextFileName in openFileDialog.FileNames)
                     {
-                        if (nextFileName.EndsWith(".xml")) AddWrapperDataToUI(nextFileName, unloadedFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, currentGameFilesCenterViewComboBox);
+                        if (nextFileName.EndsWith(".xml")) AddWrapperDataToUIAndCopyFiles(nextFileName, unloadedFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, currentGameFilesCenterViewComboBox);
                         else if (nextFileName.EndsWith(".txt")) CopyFileToLoadedFilesPath(nextFileName);
                     }
                 }
                 else
                 {
-                    if (openFileDialog.FileName.EndsWith(".xml")) AddWrapperDataToUI(openFileDialog.FileName, unloadedFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, currentGameFilesCenterViewComboBox);
+                    if (openFileDialog.FileName.EndsWith(".xml")) AddWrapperDataToUIAndCopyFiles(openFileDialog.FileName, unloadedFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, currentGameFilesCenterViewComboBox);
                     else if (openFileDialog.FileName.EndsWith(".txt")) CopyFileToLoadedFilesPath(openFileDialog.FileName);
 
                 }
@@ -169,7 +169,7 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             string loadedFilesPathWithFile = Path.Combine(XmlFileManager._LoadedFilesPath, Path.GetFileName(originalFilePath));
             if (File.Exists(loadedFilesPathWithFile)) OverwriteFilePrompt(loadedFilesPathWithFile, originalFilePath);
-            else File.Copy(originalFilePath, Path.Combine(XmlFileManager._LoadedFilesPath, originalFilePath));
+            else File.Copy(originalFilePath, loadedFilesPathWithFile);
         }
         private void OverwriteFilePrompt(string loadedFilesPathWithFile, string originalFilePath) 
         {
@@ -186,7 +186,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     break;
             }
         }
-        private void AddWrapperDataToUI(string nextFileName, List<string> unloadedFiles, ComboBox searchTreeLoadedFilesComboBox, ComboBox newObjectViewLoadedFilesComboBox, ComboBox currentGameFilesCenterViewComboBox)
+        private void AddWrapperDataToUIAndCopyFiles(string nextFileName, List<string> unloadedFiles, ComboBox searchTreeLoadedFilesComboBox, ComboBox newObjectViewLoadedFilesComboBox, ComboBox currentGameFilesCenterViewComboBox)
         {
             XmlObjectsListWrapper wrapper = LoadWrapperFromFile(nextFileName);
             string parentPath = wrapper.xmlFile.ParentPath == null ? "" : wrapper.xmlFile.ParentPath;
