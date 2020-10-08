@@ -624,8 +624,7 @@ namespace SevenDaysToDieModCreator
 
         private void OpenLocalizationMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            LocalizationSettingWindow localizationView = new LocalizationSettingWindow(this.LoadedListWrappers);
-            localizationView.Show();
+            this.MainWindowFileController.HandleLocalizationFile();
         }
 
         //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)

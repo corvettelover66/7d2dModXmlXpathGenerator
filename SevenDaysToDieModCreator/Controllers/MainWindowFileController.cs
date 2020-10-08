@@ -28,7 +28,7 @@ namespace SevenDaysToDieModCreator.Controllers
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Menu_Folder_Name));
             //Check normal files
-            string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath, ".xml");
+            string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath, "*.xml");
             LoadFilesPathWrappers(files, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
             //Check for Xui files
             string[] xuiFiles = Directory.GetFiles(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));
@@ -55,7 +55,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     File.Copy(file, Path.Combine(XmlFileManager._LoadedFilesPath, parentPath, wrapper.xmlFile.FileName));
                 if (wrapper != null)
                 {
-                    string wrapperDictionaryKey = wrapper.GenerateDictionaryKey(); ;
+                    string wrapperDictionaryKey = wrapper.GenerateDictionaryKey(); 
 
                     UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
                     searchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
@@ -139,7 +139,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 MessageBox.Show(messageBoxText, caption, button, icon);
             }
         }
-        public void LoadFilesViewControl(ComboBox SearchTreeLoadedFilesComboBox, ComboBox NewObjectViewLoadedFilesComboBox, ComboBox currentGameFilesCenterViewComboBox)
+        public void LoadFilesViewControl(ComboBox searchTreeLoadedFilesComboBox, ComboBox newObjectViewLoadedFilesComboBox, ComboBox currentGameFilesCenterViewComboBox)
         {
             List<string> unloadedFiles = new List<string>();
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -152,42 +152,59 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     foreach (string nextFileName in openFileDialog.FileNames)
                     {
-                        XmlObjectsListWrapper wrapper = LoadWrapperFromFile(nextFileName);
-                        string parentPath = wrapper.xmlFile.ParentPath == null ? "" : wrapper.xmlFile.ParentPath;
-                        if (wrapper == null) unloadedFiles.Add(nextFileName);
-                        else if (!File.Exists(Path.Combine(XmlFileManager._LoadedFilesPath, parentPath, wrapper.xmlFile.FileName)))
-                            File.Copy(nextFileName, Path.Combine(XmlFileManager._LoadedFilesPath, parentPath, wrapper.xmlFile.FileName));
-
-                        if (wrapper != null)
-                        {
-                            string wrapperDictionaryKey = wrapper.GenerateDictionaryKey();
-                            UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
-                            SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
-                            NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
-                            currentGameFilesCenterViewComboBox.AddUniqueValueTo(wrapperDictionaryKey);
-                        }
+                        if (nextFileName.EndsWith(".xml")) AddWrapperDataToUI(nextFileName, unloadedFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, currentGameFilesCenterViewComboBox);
+                        else if (nextFileName.EndsWith(".txt")) CopyFileToLoadedFilesPath(nextFileName);
                     }
                 }
                 else
                 {
-                    XmlObjectsListWrapper wrapper = LoadWrapperFromFile(openFileDialog.FileName);
-                    string parentPath = wrapper.xmlFile.ParentPath == null ? "" : wrapper.xmlFile.ParentPath;
-                    if (wrapper == null) unloadedFiles.Add(openFileDialog.FileName);
-                    else if (!File.Exists(Path.Combine(XmlFileManager._LoadedFilesPath, parentPath, wrapper.xmlFile.FileName)))
-                        File.Copy(openFileDialog.FileName, Path.Combine(XmlFileManager._LoadedFilesPath, parentPath, wrapper.xmlFile.FileName));
+                    if (openFileDialog.FileName.EndsWith(".xml")) AddWrapperDataToUI(openFileDialog.FileName, unloadedFiles, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, currentGameFilesCenterViewComboBox);
+                    else if (openFileDialog.FileName.EndsWith(".txt")) CopyFileToLoadedFilesPath(openFileDialog.FileName);
 
-                    if (wrapper != null)
-                    {
-                        string wrapperDictionaryKey = wrapper.GenerateDictionaryKey();
-                        UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
-                        SearchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
-                        NewObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
-                        currentGameFilesCenterViewComboBox.AddUniqueValueTo(wrapperDictionaryKey);
-                    }
                 }
             }
             HandleFilesWithProblems(unloadedFiles);
         }
+        private void CopyFileToLoadedFilesPath(string originalFilePath)
+        {
+            string loadedFilesPathWithFile = Path.Combine(XmlFileManager._LoadedFilesPath, Path.GetFileName(originalFilePath));
+            if (File.Exists(loadedFilesPathWithFile)) OverwriteFilePrompt(loadedFilesPathWithFile, originalFilePath);
+            else File.Copy(originalFilePath, Path.Combine(XmlFileManager._LoadedFilesPath, originalFilePath));
+        }
+        private void OverwriteFilePrompt(string loadedFilesPathWithFile, string originalFilePath) 
+        {
+            string message = "You have already loaded the file: \n\n " 
+                + Path.GetFileName(loadedFilesPathWithFile) + "\n\n" +
+                "Would you like to reload the current file with this one?";
+            string caption = "Overwrite Loaded File";
+            MessageBoxResult results = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Question);
+            switch ( results) 
+            {
+                case MessageBoxResult.Yes:
+                    File.Delete(loadedFilesPathWithFile);
+                    File.Copy(originalFilePath, loadedFilesPathWithFile);
+                    break;
+            }
+        }
+        private void AddWrapperDataToUI(string nextFileName, List<string> unloadedFiles, ComboBox searchTreeLoadedFilesComboBox, ComboBox newObjectViewLoadedFilesComboBox, ComboBox currentGameFilesCenterViewComboBox)
+        {
+            XmlObjectsListWrapper wrapper = LoadWrapperFromFile(nextFileName);
+            string parentPath = wrapper.xmlFile.ParentPath == null ? "" : wrapper.xmlFile.ParentPath;
+            string loadedFilePathToFile =  Path.Combine(XmlFileManager._LoadedFilesPath, parentPath, wrapper.xmlFile.FileName);
+            if (wrapper == null) unloadedFiles.Add(nextFileName);
+            else if (File.Exists(loadedFilePathToFile)) OverwriteFilePrompt(loadedFilePathToFile, nextFileName);
+            else File.Copy(nextFileName, Path.Combine(XmlFileManager._LoadedFilesPath, parentPath, wrapper.xmlFile.FileName));
+
+            if (wrapper != null)
+            {
+                string wrapperDictionaryKey = wrapper.GenerateDictionaryKey();
+                UpdateWrapperInDictionary(wrapperDictionaryKey, wrapper);
+                searchTreeLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                newObjectViewLoadedFilesComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+                currentGameFilesCenterViewComboBox.AddUniqueValueTo(wrapperDictionaryKey);
+            }
+        }
+
         public void LoadCustomTagWrappers(string nextModTag, ComboBox currentModLoadedFilesCenterViewComboBox)
         {
             string modOutputPath = XmlFileManager.Get_ModOutputPath(nextModTag);
@@ -289,6 +306,28 @@ namespace SevenDaysToDieModCreator.Controllers
                 break;
             }
             return didDelete;
+        }
+        public void HandleLocalizationFile() 
+        {
+            string pathToLocalization = XmlFileManager._LoadedFilesPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
+
+            if (File.Exists(pathToLocalization))
+            {
+                LocalizationSettingWindow localizationView = new LocalizationSettingWindow(this.LoadedListWrappers);
+                localizationView.Show();
+            }
+            else 
+            {
+                string message = "You cannot use this feature without the Localization.txt file loaded. To do this, in the main application, " +
+                    "go File -> Load Game File(s) and select the Localizaton.txt file from the 7d2d main Game Directory Config folder.";
+                string caption = "Missing Game Localization File";
+                MessageBox.Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Error);
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    Multiselect = true
+                };
+                //if (openFileDialog.ShowDialog() == true)
+            }
         }
     }
 }

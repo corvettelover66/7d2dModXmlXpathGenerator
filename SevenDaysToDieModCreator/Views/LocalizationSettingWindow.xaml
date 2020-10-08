@@ -30,7 +30,7 @@
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        <Label Content="Localization Output" FontSize="22"></Label>
+                        <Label Name="LocalizationOutputLabel" Content="Localization Output" FontSize="22"></Label>
                     </Grid>
                     <Grid Grid.Row="1">
                         <avalonedit:TextEditor x:Name="LocalizationPreviewBox" FontSize="20">
@@ -44,13 +44,22 @@
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        <avalonedit:TextEditor x:Name="GameRecordOutputBox" FontSize="20">
-                        </avalonedit:TextEditor>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Label Name="GameLocalizationRecordOutputLabel" Content="Game Localization Record" FontSize="22"></Label>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <ScrollViewer x:Name="GameRecordScrollViewer" HorizontalScrollBarVisibility="Auto">
+                            </ScrollViewer>
+                        </Grid>
                     </Grid>
                     <Grid Grid.Row="1">
                         <StackPanel>
                             <ComboBox Name="GameKeySelectionComboBox" FontSize="20"></ComboBox>
-                            <Button x:Name="CopyGameRecord" Content="Copy Record"  FontSize="20" Click="CopyGameRecord_Click"></Button>
+                            <Button x:Name="CopyGameRecordButton" Content="Copy Record"  FontSize="20" Click="CopyGameRecord_Click"></Button>
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -73,7 +82,7 @@
                 </ScrollViewer>
             </Grid>
             <Grid Grid.Row="1">
-                <Button x:Name="AddEmptyRow" Content="Add Row" FontSize="20" Click="AddEmptyRow_Click"></Button>
+                <Button x:Name="AddEmptyRowButton" Content="Add Row" FontSize="20" Click="AddEmptyRow_Click"></Button>
             </Grid>
         </Grid>
     </Grid>

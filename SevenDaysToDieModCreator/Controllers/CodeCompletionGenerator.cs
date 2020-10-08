@@ -1,9 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit.CodeCompletion;
 using SevenDaysToDieModCreator.Models;
 using SevenDaysToDieModCreator.Views;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SevenDaysToDieModCreator.Controllers
 {

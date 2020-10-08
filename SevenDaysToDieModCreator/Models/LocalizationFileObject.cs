@@ -11,9 +11,10 @@ namespace SevenDaysToDieModCreator.Models
         public bool LOCALIZATION_EXIST { get; private set; }
         public const string LOCALIZATION_FILE_NAME = "Localization.txt";
         public string KeyColumn { get; set; }
-        private string[] DefaultHeaderColumns = new string[]{ "Key", "Source", "Context", "Changes", "English" };
+        
+        private string[] DefaultHeaderColumns = new string[]{ "Key", "Source", "Context", "Changes", "english", "german", "latam", "french", "italian", "japanese", "koreana", "polish", "brazilian", "russian", "turkish", "schinese", "tchinese", "spanish" };
 
-        private string[] HeaderValues { get; set; }
+        public string[] HeaderValues { get; private set; }
         //A dictionary of all value columns by the header as the key
         //Key: Header from the CSV
         //Value: A list of all values from the file for that header.
@@ -21,14 +22,15 @@ namespace SevenDaysToDieModCreator.Models
         //A dictionary of each record in the localization file that is found using the Key column.
         //Key: The "Key" column in the Localizationtxt file
         //Value: The record of the key.
-        public Dictionary<string, List<string>> KeyToRecordMap { get; private set; }
+        public Dictionary<string, List<string>> KeyValueToRecordMap { get; private set; }
+
 
         //A list of each record in the CSV, the records are stored individually as another list.
         public List<List<string>> RecordList { get; private set; }
         public LocalizationFileObject(string pathToFile)
         {
             HeaderValuesMap = new Dictionary<string, List<string>>();
-            KeyToRecordMap = new Dictionary<string, List<string>>();
+            KeyValueToRecordMap = new Dictionary<string, List<string>>();
             RecordList = new List<List<string>>();
             LOCALIZATION_EXIST = File.Exists(pathToFile);
             if (LOCALIZATION_EXIST) TraverseLocalizatonFile(pathToFile);
@@ -60,14 +62,15 @@ namespace SevenDaysToDieModCreator.Models
                     if (rowCount == 0)
                     {
                         //Get the first column to ensure there is no funny buisness
-                        if (columnCount == 0) this.KeyColumn = field;
-                        HeaderValues[columnCount] = field;
-                        HeaderValuesMap.Add(field, new List<string>());
+                        if (columnCount == 0) this.KeyColumn = field.ToLower();
+                        HeaderValues[columnCount] = field.ToLower();
+                        HeaderValuesMap.Add(field.ToLower(), new List<string>());
                     }
                     //Set the record list
                     else
                     {
-                        if (columnCount == 0 && !KeyToRecordMap.ContainsKey(field)) KeyToRecordMap.Add(field, newRecord);
+                        if (columnCount == 0 && !KeyValueToRecordMap.ContainsKey(field)) KeyValueToRecordMap.Add(field, newRecord);
+                        //Add 
                         //Add the field to the new record 
                         newRecord.Add(field);
                         //Add the field value to the appropriate list in the header map.

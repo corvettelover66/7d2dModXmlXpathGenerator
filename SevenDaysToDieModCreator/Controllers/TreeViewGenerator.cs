@@ -1,5 +1,4 @@
-﻿using ICSharpCode.AvalonEdit.Folding;
-using SevenDaysToDieModCreator.Extensions;
+﻿using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
