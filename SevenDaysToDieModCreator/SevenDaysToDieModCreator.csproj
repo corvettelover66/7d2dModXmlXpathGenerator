@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>7dtd_icon.ico</ApplicationIcon>
     <Win32Resource />
-    <Version>1.6.5</Version>
+    <Version>1.6.6</Version>
     <NeutralLanguage></NeutralLanguage>
     <PackageId>7d2dModEdit</PackageId>
     <StartupObject>SevenDaysToDieModCreator.App</StartupObject>
@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.0.1" />
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
 
