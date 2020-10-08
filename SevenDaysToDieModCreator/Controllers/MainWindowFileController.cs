@@ -28,7 +28,7 @@ namespace SevenDaysToDieModCreator.Controllers
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));
             Directory.CreateDirectory(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Menu_Folder_Name));
             //Check normal files
-            string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath);
+            string[] files = Directory.GetFiles(XmlFileManager._LoadedFilesPath, "*.xml");
             LoadFilesPathWrappers(files, searchTreeLoadedFilesComboBox, newObjectViewLoadedFilesComboBox, CurrentGameFilesCenterViewComboBox);
             //Check for Xui files
             string[] xuiFiles = Directory.GetFiles(Path.Combine(XmlFileManager._LoadedFilesPath, XmlFileManager.Xui_Folder_Name));
@@ -318,15 +318,10 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             else 
             {
-                string message = "You cannot use this feature without the Localization.txt file loaded. To do this, in the main application, " +
-                    "go File -> Load Game File(s) and select the Localizaton.txt file from the 7d2d main Game Directory Config folder.";
+                string message = "You cannot use this feature without the 7d2d Game Localization.txt file loaded. To do this, in the main application, " +
+                    "go File -> Load Game File(s) and select the Localizaton.txt file from the 7d2d main Game Directory Data/Config folder.";
                 string caption = "Missing Game Localization File";
                 MessageBox.Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Error);
-                OpenFileDialog openFileDialog = new OpenFileDialog
-                {
-                    Multiselect = true
-                };
-                //if (openFileDialog.ShowDialog() == true)
             }
         }
     }

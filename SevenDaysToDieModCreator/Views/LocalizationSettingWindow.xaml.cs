@@ -79,7 +79,8 @@ namespace SevenDaysToDieModCreator.Views
             ModLocalizationScrollViewer.GotFocus += Maingrid_GotOrLostFocus;
             ModLocalizationScrollViewer.LostFocus += Maingrid_GotOrLostFocus;
 
-            List<string> gameFileKeys = GameLocalizationFile.HeaderValuesMap.GetValueOrDefault(GameLocalizationFile.KeyColumn);
+            SortedSet<string> gameFileKeysSorted = GameLocalizationFile.HeaderKeyToCommonValuesMap.GetValueOrDefault(GameLocalizationFile.KeyColumn);
+            List<string> gameFileKeys = new List<string>(gameFileKeysSorted);
             GameKeySelectionComboBox.SetComboBox(gameFileKeys);
             GameKeySelectionComboBox.IsEditable = true;
             GameKeySelectionComboBox.DropDownClosed += GameKeySelectionComboBox_DropDownClosed;
@@ -156,7 +157,7 @@ namespace SevenDaysToDieModCreator.Views
             {
                 int count = 0;
                 //This uses the keys of the header map t determine which column we have for the record.
-                foreach (string key in GameLocalizationFile.HeaderValuesMap.Keys) 
+                foreach (string key in GameLocalizationFile.HeaderKeyToCommonValuesMap.Keys) 
                 {
                     if(addHeaders)headerBuilder.Append(key + ",");
                     string nextFieldInRecord = record[count];
@@ -330,7 +331,7 @@ namespace SevenDaysToDieModCreator.Views
             //Hard code the wrapper to the blocks.xml for the mod
             XmlObjectsListWrapper selectedModBlocksWrapper = LoadedListWrappers.GetValueOrDefault(ModSelectionComboBox.SelectedItem.ToString() + "_blocks");
 
-            ModLocalizationGridUserControl.AddEmptyRow(selectedModItemsWrapper, selectedModBlocksWrapper);
+            ModLocalizationGridUserControl.AddEmptyRow(selectedModItemsWrapper, selectedModBlocksWrapper, GameLocalizationFile);
         }
     }
 }

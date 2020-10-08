@@ -32,12 +32,13 @@ namespace SevenDaysToDieModCreator.Views
         {
             this.GridHasChanged = true;
         }
-        private Dictionary<int, List<TextBox>> TextBoxRowDictionary;
+        
+        private Dictionary<int, List<Control>> TextBoxRowDictionary;
         public LocalizationGridUserControl(string pathToFile, bool IsSingleRecord = false) 
         {
             InitializeComponent();
             LocalizationFileObject = new LocalizationFileObject(pathToFile);
-            TextBoxRowDictionary = new Dictionary<int, List<TextBox>>();
+            TextBoxRowDictionary = new Dictionary<int, List<Control>>();
             if (IsSingleRecord) GenerateSigleRecordGrid();
             else GenerateLocalizationGrid();
             this.Maingrid = topGrid;
@@ -65,7 +66,7 @@ namespace SevenDaysToDieModCreator.Views
             List<string> record = null;
             if(this.LocalizationFileObject.RecordList.Count > 0 ) record = this.LocalizationFileObject.RecordList[0];
             TextBox nextHeaderTextBox = null;
-            foreach (string headerField in LocalizationFileObject.HeaderValuesMap.Keys)
+            foreach (string headerField in LocalizationFileObject.HeaderKeyToCommonValuesMap.Keys)
             {
                 columnCount = 0;
                 //Go throh the keys for the header row
@@ -92,11 +93,10 @@ namespace SevenDaysToDieModCreator.Views
             }
             if (nextHeaderTextBox != null) nextHeaderTextBox.Tag = "\n";
         }
-        public void AddEmptyRow(XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper) 
+        public void AddEmptyRow(XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper, LocalizationFileObject gameLocalizationFile) 
         {
             int lastRowPlusOne = TextBoxRowDictionary.Keys.Count + 1;
-            List<TextBox> rowToMimic = TextBoxRowDictionary.GetValueOrDefault(TextBoxRowDictionary.Keys.Count - 1);
-
+            List<Control> controlsAddedInRow = new List<Control>();
             RowDefinition rowDefinition = new RowDefinition();
             topGrid.RowDefinitions.Add(rowDefinition);
             int columnCount = 0;
@@ -105,18 +105,26 @@ namespace SevenDaysToDieModCreator.Views
             AddClearButton(lastRowPlusOne, columnCount);
             columnCount++;
             AddModKeysColumn(lastRowPlusOne, columnCount, selectedModItemsWrapper, selectedModBlocksWrapper);
-            //Remove the keys column from the row to mimic as we are filling that in with a special combo box
-            if(rowToMimic != null && rowToMimic.Count >0)rowToMimic.RemoveAt(rowToMimic.Count - 1);
+            columnCount++;
+            //In the game file it is file, in the mod file it is source
+            string headerKey = "file";
+            controlsAddedInRow.Add( AddGameFileColumn(lastRowPlusOne, columnCount, headerKey, gameLocalizationFile));
+            columnCount++;
+            headerKey = "type";
+            controlsAddedInRow.Add(AddGameFileColumn(lastRowPlusOne, columnCount, headerKey, gameLocalizationFile));
+            columnCount++;
+            controlsAddedInRow.Add(AddChangesColumn(lastRowPlusOne, columnCount));
             columnCount++;
             List<string> emptyRecord = new List<string>();
-            for(int textBoxCount = 0; textBoxCount < LocalizationFileObject.HeaderValuesMap.Keys.Count; textBoxCount++) 
+            for(int textBoxCount = 0; textBoxCount < LocalizationFileObject.HeaderKeyToCommonValuesMap.Keys.Count; textBoxCount++) 
             {
                 //This means there was not a row to mimic, increase the count by one to avoid that.
-                if (rowToMimic == null && textBoxCount == 0) textBoxCount++;
                 emptyRecord.Add("");
             }
-            AddFieldColumns(lastRowPlusOne, columnCount, emptyRecord);
+            int skipHeadersCount = 4;
+            AddFieldColumns(lastRowPlusOne, columnCount, emptyRecord, controlsAddedInRow, skipHeadersCount);
         }
+
         private void GenerateLocalizationGrid()
         {
             topGrid.HorizontalAlignment = HorizontalAlignment.Left;
@@ -156,7 +164,7 @@ namespace SevenDaysToDieModCreator.Views
             AddDummyColumn(row, columnCount);
             columnCount++;
             TextBox nextHeaderTextBox = null;
-            foreach (string headerField in LocalizationFileObject.HeaderValuesMap.Keys)
+            foreach (string headerField in LocalizationFileObject.HeaderKeyToCommonValuesMap.Keys)
             {
                 //Set the Headers
                 topGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
@@ -203,24 +211,37 @@ namespace SevenDaysToDieModCreator.Views
             if (sender is Button clearRowButtonSender)
             {
                 int row = Int32.Parse(clearRowButtonSender.Tag.ToString());
-                List<TextBox> textBoxRow = TextBoxRowDictionary.GetValueOrDefault(row);
-                TextBox lastBox = null;
-                foreach (TextBox nextBox in textBoxRow)
+                List<Control> textBoxRow = TextBoxRowDictionary.GetValueOrDefault(row);
+                foreach (Control nextControl in textBoxRow)
                 {
-                    nextBox.Text = "";
-                    nextBox.Tag = "";
-                    lastBox = nextBox;
+                    if (nextControl is ComboBox controlAsCombobox) 
+                    {
+                        controlAsCombobox.Text = "";
+                        controlAsCombobox.Tag = "";
+                    }
+                    if (nextControl is TextBox controlAsTextBox) 
+                    {
+                        controlAsTextBox.Text = "";
+                        controlAsTextBox.Tag = "";
+                    }
                 }
-                if (lastBox != null) lastBox.Tag = "\n";
+                Control lastControl = textBoxRow[textBoxRow.Count -1];
+                if (lastControl is ComboBox lastControlAsCombobox)
+                {
+                    lastControlAsCombobox.Tag = "\n";
+                }
+                if (lastControl is TextBox lastControlAsTextBox)
+                {
+                    lastControlAsTextBox.Tag = "\n";
+                }
             }
         }
-        private void AddFieldColumns(int rowCount, int startingColumn, List<string> record)
+        private void AddFieldColumns(int rowCount, int startingColumn, List<string> record, List<Control> allBoxesInRow = null, int skipHeadersCount = 0)
         {
-            List<TextBox> allBoxesInRow = new List<TextBox>();
+            if(allBoxesInRow == null)allBoxesInRow = new List<Control>();
             int columnCount = startingColumn;
             //Each field
             TextBox newRecordTextbox = null;
-            int count = 0;
             foreach (string nextRecordField in record)
             {
                 topGrid.ColumnDefinitions.Add(new ColumnDefinition());
@@ -230,7 +251,7 @@ namespace SevenDaysToDieModCreator.Views
                     Tag = ",",
                     FontSize = 18
                 };
-                if(count < this.LocalizationFileObject.HeaderValues.Length) newRecordTextbox.AddToolTip(this.LocalizationFileObject.HeaderValues[count]);
+                if(skipHeadersCount < this.LocalizationFileObject.HeaderValues.Length) newRecordTextbox.AddToolTip(this.LocalizationFileObject.HeaderValues[skipHeadersCount]);
                 newRecordTextbox.TextChanged += NewRecordTextbox_TextChanged;
                 newRecordTextbox.LostFocus += NewRecordTextbox_LostFocus;
                 Grid.SetRow(newRecordTextbox, rowCount);
@@ -238,7 +259,7 @@ namespace SevenDaysToDieModCreator.Views
                 topGrid.Children.Add(newRecordTextbox);
                 allBoxesInRow.Add(newRecordTextbox);
                 columnCount++;
-                count++;
+                skipHeadersCount++;
             }
             if(newRecordTextbox != null)newRecordTextbox.Tag = "\n";
             if (allBoxesInRow.Count > 0) TextBoxRowDictionary.Add(rowCount, allBoxesInRow);
@@ -257,7 +278,7 @@ namespace SevenDaysToDieModCreator.Views
         {
             this.GridHasChanged = true;
         }
-        private void AddModKeysColumn(int lastRowPlusOne, int columnCount, XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper)
+        private Control AddModKeysColumn(int lastRowPlusOne, int columnCount, XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper)
         {
             topGrid.ColumnDefinitions.Add(new ColumnDefinition());
             ComboBox newCommonValuesBox = new ComboBox();
@@ -288,8 +309,43 @@ namespace SevenDaysToDieModCreator.Views
             Grid.SetRow(newCommonValuesBox, lastRowPlusOne);
             Grid.SetColumn(newCommonValuesBox, columnCount);
             topGrid.Children.Add(newCommonValuesBox);
+            return newCommonValuesBox;
         }
+        private Control AddGameFileColumn(int lastRowPlusOne, int columnCount, string headerKey, LocalizationFileObject gameLocalizationFile)
+        {
+            SortedSet<string> allCommonValuesSorted = gameLocalizationFile.HeaderKeyToCommonValuesMap.GetValueOrDefault(headerKey);
+            List<string> allCommonValues = new List<string>(allCommonValuesSorted);
 
+            if (allCommonValues == null) allCommonValues = new List<string>();
+            topGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            ComboBox newCommonValuesBox = new ComboBox();
+            newCommonValuesBox.FontSize = 18;
+            newCommonValuesBox.IsEditable = true;
+            newCommonValuesBox.AddToolTip(headerKey);
+            newCommonValuesBox.DropDownClosed += NewCommonValuesBox_DropDownClosed;
+            newCommonValuesBox.LostFocus += NewCommonValuesBox_LostFocus;
+            newCommonValuesBox.SetComboBox(allCommonValues);
+            Grid.SetRow(newCommonValuesBox, lastRowPlusOne);
+            Grid.SetColumn(newCommonValuesBox, columnCount);
+            topGrid.Children.Add(newCommonValuesBox);
+            return newCommonValuesBox;
+        }
+        private Control AddChangesColumn(int lastRowPlusOne, int columnCount)
+        {
+            List<string> changesColumn = new List<string>() { "", "New" }; 
+            topGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            ComboBox newCommonValuesBox = new ComboBox();
+            newCommonValuesBox.FontSize = 18;
+            newCommonValuesBox.IsEditable = true;
+            newCommonValuesBox.AddToolTip("changes");
+            newCommonValuesBox.DropDownClosed += NewCommonValuesBox_DropDownClosed;
+            newCommonValuesBox.LostFocus += NewCommonValuesBox_LostFocus;
+            newCommonValuesBox.SetComboBox(changesColumn);
+            Grid.SetRow(newCommonValuesBox, lastRowPlusOne);
+            Grid.SetColumn(newCommonValuesBox, columnCount);
+            topGrid.Children.Add(newCommonValuesBox);
+            return newCommonValuesBox;
+        }
         private void NewCommonValuesBox_DropDownClosed(object sender, EventArgs e)
         {
             if (sender is ComboBox modKeyComboBox) 

@@ -18,7 +18,7 @@ namespace SevenDaysToDieModCreator.Models
         //A dictionary of all value columns by the header as the key
         //Key: Header from the CSV
         //Value: A list of all values from the file for that header.
-        public Dictionary<string, List<string>> HeaderValuesMap { get; private set; }
+        public Dictionary<string, SortedSet<string>> HeaderKeyToCommonValuesMap { get; private set; }
         //A dictionary of each record in the localization file that is found using the Key column.
         //Key: The "Key" column in the Localizationtxt file
         //Value: The record of the key.
@@ -29,7 +29,7 @@ namespace SevenDaysToDieModCreator.Models
         public List<List<string>> RecordList { get; private set; }
         public LocalizationFileObject(string pathToFile)
         {
-            HeaderValuesMap = new Dictionary<string, List<string>>();
+            HeaderKeyToCommonValuesMap = new Dictionary<string, SortedSet<string>>();
             KeyValueToRecordMap = new Dictionary<string, List<string>>();
             RecordList = new List<List<string>>();
             LOCALIZATION_EXIST = File.Exists(pathToFile);
@@ -38,7 +38,7 @@ namespace SevenDaysToDieModCreator.Models
             {
                 foreach (string header in DefaultHeaderColumns) 
                 {
-                    HeaderValuesMap.Add(header, new List<string>());
+                    HeaderKeyToCommonValuesMap.Add(header, new SortedSet<string>());
                 }
             }
         }
@@ -64,7 +64,7 @@ namespace SevenDaysToDieModCreator.Models
                         //Get the first column to ensure there is no funny buisness
                         if (columnCount == 0) this.KeyColumn = field.ToLower();
                         HeaderValues[columnCount] = field.ToLower();
-                        HeaderValuesMap.Add(field.ToLower(), new List<string>());
+                        HeaderKeyToCommonValuesMap.Add(field.ToLower(), new SortedSet<string>());
                     }
                     //Set the record list
                     else
@@ -74,7 +74,7 @@ namespace SevenDaysToDieModCreator.Models
                         //Add the field to the new record 
                         newRecord.Add(field);
                         //Add the field value to the appropriate list in the header map.
-                        if(columnCount < HeaderValues.Length) HeaderValuesMap.GetValueOrDefault(HeaderValues[columnCount]).Add(field);
+                        if(columnCount < HeaderValues.Length) HeaderKeyToCommonValuesMap.GetValueOrDefault(HeaderValues[columnCount]).Add(field);
                     }
                     columnCount++;
                 }
