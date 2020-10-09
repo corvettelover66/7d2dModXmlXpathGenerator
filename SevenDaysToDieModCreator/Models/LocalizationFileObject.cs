@@ -9,6 +9,9 @@ namespace SevenDaysToDieModCreator.Models
     public class LocalizationFileObject
     {
         public bool LOCALIZATION_EXIST { get; private set; }
+        public bool PARSING_ERROR { get; private set; } = false;
+
+
         public const string LOCALIZATION_FILE_NAME = "Localization.txt";
         public string KeyColumn { get; set; }
         
@@ -33,10 +36,21 @@ namespace SevenDaysToDieModCreator.Models
             KeyValueToRecordMap = new Dictionary<string, List<string>>();
             RecordList = new List<List<string>>();
             LOCALIZATION_EXIST = File.Exists(pathToFile);
-            if (LOCALIZATION_EXIST) TraverseLocalizatonFile(pathToFile);
-            else 
+            if (LOCALIZATION_EXIST)
             {
-                foreach (string header in DefaultHeaderColumns) 
+                try
+                {
+                    TraverseLocalizatonFile(pathToFile);
+                }
+                catch (Exception e) 
+                {
+                    XmlFileManager.WriteStringToLog("Localization parsing error: \n\n" + e.StackTrace);
+                    PARSING_ERROR = true;
+                }
+            }
+            else
+            {
+                foreach (string header in DefaultHeaderColumns)
                 {
                     HeaderKeyToCommonValuesMap.Add(header, new SortedSet<string>());
                 }

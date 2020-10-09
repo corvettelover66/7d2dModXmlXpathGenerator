@@ -63,7 +63,6 @@ namespace SevenDaysToDieModCreator.Views
 
             string pathToGameLocalizationFile = XmlFileManager._LoadedFilesPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
             GameLocalizationFile = new LocalizationFileObject(pathToGameLocalizationFile);
-
             TextEditorOptions newOptions = new TextEditorOptions
             {
                 EnableRectangularSelection = true,
@@ -202,8 +201,7 @@ namespace SevenDaysToDieModCreator.Views
             string pathToTempFile = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "TMP_" + LocalizationFileObject.LOCALIZATION_FILE_NAME);
             XmlFileManager.WriteStringToFile(Directory.GetCurrentDirectory(), "TMP_" + LocalizationFileObject.LOCALIZATION_FILE_NAME, csvStringUsedToUpdateGrid);
             ReloadModLocalizationGrid(pathToTempFile);
-            GridAsCSVAfterUpdate = LocalizationPreviewBox.Text;
-            ModLocalizationGridUserControl.SetGridChangedToTrue();
+
         }
 
         private void SaveLocalization()
@@ -249,24 +247,51 @@ namespace SevenDaysToDieModCreator.Views
         }
         private void ReloadModLocalizationGrid(string pathToLocalizatioFile, bool deleteFileAfterLoadingGrid = true)
         {
-            ModLocalizationGridUserControl = new LocalizationGridUserControl(pathToLocalizatioFile);
-            ModLocalizationScrollViewer.Content = ModLocalizationGridUserControl;
-            string currentGridAsCSV = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
-            LocalizationPreviewBox.Text = currentGridAsCSV;
-            if (deleteFileAfterLoadingGrid) File.Delete(pathToLocalizatioFile);
+            LocalizationFileObject testParse = new LocalizationFileObject(pathToLocalizatioFile);
+            if (testParse.PARSING_ERROR)
+            {
+                ShowLocalizationParsingError();
+            }
+            else 
+            {
+                ModLocalizationGridUserControl = new LocalizationGridUserControl(pathToLocalizatioFile);
+                ModLocalizationScrollViewer.Content = ModLocalizationGridUserControl;
+                string currentGridAsCSV = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
+                LocalizationPreviewBox.Text = currentGridAsCSV;
+                if (deleteFileAfterLoadingGrid) File.Delete(pathToLocalizatioFile);
+                GridAsCSVAfterUpdate = LocalizationPreviewBox.Text;
+                ModLocalizationGridUserControl.SetGridChangedToTrue();            
+            }
         }
+
+        private void ShowLocalizationParsingError()
+        {
+            string message = "There was a fatal exception when parsing the current localization. \n" +
+                "You may need to manually fix this file for this window to function properly.\n"+
+                "More details can be found in output/log.txt";
+            string caption = "";
+            MessageBox.Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
         private void ReloadModLocalizationGrid(ComboBox modSelectionComboBox)
         {
             string modOutptPath = XmlFileManager.Get_ModOutputPath(modSelectionComboBox.SelectedItem.ToString());
             string pathToModLocalizationFile = modOutptPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
-
-            ModLocalizationGridUserControl = new LocalizationGridUserControl(pathToModLocalizationFile);
-            ModLocalizationScrollViewer.Content = ModLocalizationGridUserControl;
-            string currentGridAsCSV = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
-            LocalizationPreviewBox.Text = currentGridAsCSV;
-            StartingMod = ModSelectionComboBox.SelectedItem.ToString();
-            WindowTitle = StartingMod.ToString();
-            this.Title = GetTitleForWindow();
+            LocalizationFileObject testParse = new LocalizationFileObject(pathToModLocalizationFile);
+            if (testParse.PARSING_ERROR)
+            {
+                ShowLocalizationParsingError();
+            }
+            else 
+            {
+                ModLocalizationGridUserControl = new LocalizationGridUserControl(pathToModLocalizationFile);
+                ModLocalizationScrollViewer.Content = ModLocalizationGridUserControl;
+                string currentGridAsCSV = ModLocalizationGridUserControl.Maingrid.GridAsCSV();
+                LocalizationPreviewBox.Text = currentGridAsCSV;
+                StartingMod = ModSelectionComboBox.SelectedItem.ToString();
+                WindowTitle = StartingMod.ToString();
+                this.Title = GetTitleForWindow();
+            }
         }
         private void Maingrid_GotOrLostFocus(object sender, RoutedEventArgs e)
         {

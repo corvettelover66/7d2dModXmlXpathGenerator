@@ -77,7 +77,7 @@ namespace SevenDaysToDieModCreator.Models
             else if (nextChildAsTree.Header.GetType() == typeof(Button))
             {
                 Button headerAsButton = nextChildAsTree.Header as Button;
-                if (headerAsButton != null && !headerAsButton.Content.ToString().Contains(IGNORE_STRING))
+                if (headerAsButton != null )
                 {
                     xmlOut += GenerateObjectTreeXml(nextChildAsTree, xmlObjectsListWrapper, headerAsButton);
                 }
@@ -86,7 +86,7 @@ namespace SevenDaysToDieModCreator.Models
             else 
             {
                 Button nextChildTreeButton = (Button)nextChildAsTree.Header;
-                if (nextChildTreeButton != null && !nextChildTreeButton.Content.ToString().Contains(IGNORE_STRING))
+                if (nextChildTreeButton != null )
                 {
                     xmlOut += GenerateObjectTreeXml(nextChildAsTree, xmlObjectsListWrapper, nextChildTreeButton);
                 }
@@ -120,7 +120,7 @@ namespace SevenDaysToDieModCreator.Models
                 {
                     if (!nextString.Equals(xPathAction)) attributeInAction += nextString + "_";
                 }
-                //Trim trailing _
+                //Trim trailing underscore
                 attributeInAction = attributeInAction.Substring(0, attributeInAction.Length - 1);
             }
 
@@ -215,6 +215,7 @@ namespace SevenDaysToDieModCreator.Models
 
 
             Button headerAsButton = nextTreeItem.Header as Button;
+            if (headerAsButton != null && headerAsButton.Content.ToString().Contains(IGNORE_STRING)) return "";
             //If the target node is null use the treeitem header 
             string targetNodeContent = targetNode ?? headerAsButton.Uid;
             if (nextTreeItem.ChildIsCheckBox())

@@ -16,15 +16,16 @@ namespace SevenDaysToDieModCreator.Controllers
     {
         public static int SEARCH_VIEW_SEARCH_BOX_CREATION_THRESHOLD { get; private set; } = 15;
 
+        private const string HIDE_TREEVIEW_ATTRIBUTE_BOXES = "Hide Attributes";
+        private const string UNHIDE_TREEVIEW_ATTRIBUTE_BOXES = "Unhide Attributes";
+
         //A dictionary for getting a list of hidden comboboxes
         //Key The tree view with hidden boxes
         //Value Stack of hidden combo boxes
         private static Dictionary<TreeViewItem, Stack<Tuple<Label, ComboBox, ComboBox>>> HiddenSearchTreeComboBoxDictionary { get; } = new Dictionary<TreeViewItem, Stack<Tuple<Label, ComboBox, ComboBox>>>();
         private static ContextMenu RemoveContextMenu { get; set; }
         private static ContextMenu GameFileXpathContextMenuWithCopy { get; set; }
-        private static ContextMenu GameFileXpathContextMenuNoCopy { get; set; }
         private static ContextMenu ModFileXpathContextMenuWithCopy { get; set; }
-        private static ContextMenu ModFileXpathContextMenuNoCopy { get; set; }
         private static ContextMenu XmlAttributeContextMenu { get; set; }
         public static void CreateEmptyNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey)
         {
@@ -43,7 +44,6 @@ namespace SevenDaysToDieModCreator.Controllers
             foreach (string topTag in xmlObjectListWrapper.allTopLevelTags)
             {
                 TreeViewItem returnedTree = GetEmptyNewObjectFormTree(xmlObjectListWrapper, topTag, wrapperKey);                
-                returnedTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
                 MainWindowViewController.NewObjectFormViewPanel.Children.Add(returnedTree);
             }
         }
@@ -117,12 +117,11 @@ namespace SevenDaysToDieModCreator.Controllers
                 addNewObjectButton.AddToolTip("Click to add another " + currentTagName + " object\n(*) means there are hidden attributes");
                 addNewObjectButton.Click += AddNewObjectButton_Click;
                 topTreeView.Header = addNewObjectButton;
-                topTreeView.AddContextMenu(AddHideAttributesFlagContextMenu_Click, "Hide Unused Attributes", "Click here to hide all unused attributes in the tree");
-                if (xmlObjectListWrapper.allTopLevelTags.Contains(currentTagName))
-                {
-                    topTreeView.Tag = false;
-                    topTreeView.AddContextMenu(AddIgnoreFlagToTreeContextMenu_Click, "Toggle Ignore", "Click here to flag the tree for ignore when clicking Save All XML ");
-                }
+                topTreeView.AddContextMenu(AddHideAllAttributesFlagContextMenu_Click, "Toggle Hide/Unhide All", "Click here to hide/unhide all unused attributes in the entire tree");
+                topTreeView.AddContextMenu(AddHideAttributesFlagContextMenu_Click, HIDE_TREEVIEW_ATTRIBUTE_BOXES, "Click here to hide/unhide all unused attributes in the current tag");
+                topTreeView.Tag = false;
+                topTreeView.AddContextMenu(AddIgnoreFlagToTreeContextMenu_Click, "Toggle Ignore", "Click here to flag the tree for ignore when clicking Save All XML ");
+                topTreeView.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object", "Click here to remove this tag from the tree");
             }
             bool hasChildren = SetNextEmptyNewObjectFormChildren(xmlObjectListWrapper, wrapperKey, topTreeView, currentTagName, childrenDictionary, alreadyAddedChildNodes);
             //If there is a top tree with no children and no attributes that means it's an empty tag.
@@ -142,7 +141,6 @@ namespace SevenDaysToDieModCreator.Controllers
             string startingNodeName = senderAsButton.Uid;
             TreeViewItem newObjectFormTreeView = TreeViewGenerator.GetNewObjectFormTreeAddButton(xmlObjectsListWrapper, sendersParent.Uid, startingNodeName);
             newObjectFormTreeView.Uid = sendersParent.Uid.ToString();
-            newObjectFormTreeView.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
 
             if (sendersParent.Parent.GetType() == typeof(MyStackPanel))
             {
@@ -155,27 +153,36 @@ namespace SevenDaysToDieModCreator.Controllers
                 ((TreeViewItem)sendersParent.Parent).Items.Insert(indexToInsert, newObjectFormTreeView);
             }
         }
-        private static void AddHideAttributesFlagContextMenu_Click(object sender, RoutedEventArgs e)
+        private static void AddHideAllAttributesFlagContextMenu_Click(object sender, RoutedEventArgs e)
         {
-            const string hideString = "Hide Unused Attributes";
-            const string unhideString = "Unhide Unused Attributes";
-
             MenuItem senderAsMenuItem = (MenuItem)sender;
-            bool isHidden = senderAsMenuItem.Header.ToString().Equals(unhideString);
             ContextMenu parentMenu = senderAsMenuItem.Parent as ContextMenu;
             TreeViewItem senderTreeView = parentMenu.PlacementTarget as TreeViewItem;
+            SetAllTreeViewAttributesToHidden(senderTreeView);
+        }
+        private static void AddHideAttributesFlagContextMenu_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem senderAsMenuItem = (MenuItem)sender;
+            ContextMenu parentMenu = senderAsMenuItem.Parent as ContextMenu;
+            TreeViewItem senderTreeView = parentMenu.PlacementTarget as TreeViewItem;
+            SetTreeViewAttributeBoxesToHidden(senderTreeView, senderAsMenuItem);
+        }
+
+        private static void SetTreeViewAttributeBoxesToHidden(TreeViewItem senderTreeView, MenuItem senderAsMenuItem)
+        {
+            bool isHidden = senderAsMenuItem.Header.ToString().Equals(UNHIDE_TREEVIEW_ATTRIBUTE_BOXES);
             if (isHidden)
             {
                 //We want to unhide the attributes
-                if (senderTreeView.Header.GetType() == typeof(string)) 
+                if (senderTreeView.Header.GetType() == typeof(string))
                 {
                     senderTreeView.Header = senderTreeView.Header.ToString().Replace(XmlXpathGenerator.HEADER_UNUSED_ATTRIBUTES_STRING, "");
                 }
-                else if (senderTreeView.Header is Button senderTreeViewHeaderButton) 
+                else if (senderTreeView.Header is Button senderTreeViewHeaderButton)
                 {
                     senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString().Replace(XmlXpathGenerator.HEADER_UNUSED_ATTRIBUTES_STRING, "");
                 }
-                senderAsMenuItem.Header = hideString;
+                senderAsMenuItem.Header = HIDE_TREEVIEW_ATTRIBUTE_BOXES;
                 AddAllRemovedAttributeBoxes(senderTreeView);
             }
             else
@@ -189,10 +196,11 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     senderTreeViewHeaderButton.Content = senderTreeViewHeaderButton.Content.ToString() + XmlXpathGenerator.HEADER_UNUSED_ATTRIBUTES_STRING;
                 }
-                senderAsMenuItem.Header = unhideString;
+                senderAsMenuItem.Header = UNHIDE_TREEVIEW_ATTRIBUTE_BOXES;
                 RemoveUnusedAttributeComboBoxes(senderTreeView);
             }
         }
+
         private static void AddAllRemovedAttributeBoxes(TreeViewItem senderTreeView)
         {
             Stack<Tuple<Label, ComboBox, ComboBox>> hiddenBoxes = HiddenSearchTreeComboBoxDictionary.GetValueOrDefault(senderTreeView);
@@ -264,8 +272,6 @@ namespace SevenDaysToDieModCreator.Controllers
                 Uid = wrapperKey,
                 FontSize = MainWindowViewController.ObjectTreeFontChange + 4,
             };
-            newTopTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
-
             return SetEmptyNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newTopTree, startingXmlTagName, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue(), doSkipFirstAttributes);
         }
         private static bool SetNextEmptyNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, string tagName, Dictionary<string, Queue<string>> allChildrenDictionary, HashSet<string> alreadyAddedChildNodes = null)
@@ -457,11 +463,12 @@ namespace SevenDaysToDieModCreator.Controllers
                 addNewObjectButton.AddToolTip("Click to add another " + nodeNameToUse + " object\n(*) means there are hidden attributes");
                 addNewObjectButton.Click += AddNewObjectButton_Click;
                 newTreeView.Header = addNewObjectButton;
-                newTreeView.AddContextMenu(AddHideAttributesFlagContextMenu_Click, "Hide Unused Attributes", "Click here to hide all unused attributes in the tree");
-                if (xmlObjectListWrapper.allTopLevelTags.Contains(nodeNameToUse))
-                {
-                    newTreeView.AddContextMenu(AddIgnoreFlagToTreeContextMenu_Click, "Toggle Ignore", "Click here to flag the tree for ignore when clicking Save All XML ");
-                }
+                newTreeView.AddContextMenu(AddHideAllAttributesFlagContextMenu_Click, "Toggle Hide/Unhide All", "Click here to hide/unhide all unused attributes in the entire tree");
+                newTreeView.AddContextMenu(AddHideAttributesFlagContextMenu_Click, HIDE_TREEVIEW_ATTRIBUTE_BOXES, "Click here to hide all unused attributes in the tree");
+                newTreeView.Tag = false;
+                newTreeView.AddContextMenu(AddIgnoreFlagToTreeContextMenu_Click, "Toggle Ignore", "Click here to flag the tree for ignore when clicking Save All XML ");
+                newTreeView.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object", "Click here to remove this tag from the tree");
+
                 newTreeView.Uid = wrapperKey;
             }
             return newTreeView;
@@ -518,7 +525,6 @@ namespace SevenDaysToDieModCreator.Controllers
                         newObjectFormTree.Tag = false;
                         newObjectFormTree.Foreground = Brushes.Purple;
                         newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
-                        newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
 
                         MainWindowViewController.NewObjectFormViewPanel.Children.Add(newObjectFormTree);
                         didSetTree = true;
@@ -611,67 +617,29 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         private static void AddSearchTreeContextMenu(TreeViewItem nextNewTreeViewItem, XmlObjectsListWrapper xmlObjectListWrapper, string nextObjectNodeName, bool isGameFileTree)
         {
-            bool doAddCopyContextMenu = false;
-            XmlObjectsListWrapper standardFileWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(xmlObjectListWrapper.GenerateDictionaryKey());
-            if (standardFileWrapper != null && standardFileWrapper.allTopLevelTags.Contains(nextObjectNodeName))
-            {
-                doAddCopyContextMenu = true;
-            }
-            else if (standardFileWrapper == null && !ShowEditLoadError)
-            {
-                MessageBox.Show(
-                    "Failed loading the copy object functionality for the mod file. That means you will be unable to copy objects using the search tree.\n\n" +
-                    "To fix this you need to load the game xml file " + xmlObjectListWrapper.xmlFile.FileName + ".",
-                    "Failed Loading Edit Functionality",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                ShowEditLoadError = true;
-            }
-
-            doAddCopyContextMenu = true;
             if (isGameFileTree)
             {
-
-                if (doAddCopyContextMenu)
+                if (GameFileXpathContextMenuWithCopy == null)
                 {
-                    if (GameFileXpathContextMenuWithCopy == null)
-                    {
-                        AddTargetContextMenuToControl(nextNewTreeViewItem, xmlObjectListWrapper);
-                        GameFileXpathContextMenuWithCopy = nextNewTreeViewItem.AddContextMenu(CopyObject_ContextMenuClick,
-                            "Copy Object",
-                            "Click here to copy the object to left panel to make edits.");
-                    }
-                    else nextNewTreeViewItem.ContextMenu = GameFileXpathContextMenuWithCopy;
+                    AddTargetContextMenuToControl(nextNewTreeViewItem, xmlObjectListWrapper);
+                    GameFileXpathContextMenuWithCopy = nextNewTreeViewItem.AddContextMenu(CopyObject_ContextMenuClick,
+                        "Copy Object",
+                        "Click here to copy the object to left panel to make edits.");
                 }
-                else
-                {
-                    if (GameFileXpathContextMenuNoCopy == null) GameFileXpathContextMenuNoCopy = AddTargetContextMenuToControl(nextNewTreeViewItem, xmlObjectListWrapper);
-                    else nextNewTreeViewItem.ContextMenu = GameFileXpathContextMenuNoCopy;
-                }
+                else nextNewTreeViewItem.ContextMenu = GameFileXpathContextMenuWithCopy;
             }
             else 
             {
                 ContextMenu collapseParentMenu = nextNewTreeViewItem.AddContextMenu(CollapseParentContextMenu_ClickFunction,
                     "Collapse Parent",
                     "Click here to collapse the parent tree");
-                if (doAddCopyContextMenu)
+                if (ModFileXpathContextMenuWithCopy == null)
                 {
-                    if (ModFileXpathContextMenuWithCopy == null)
-                    {
-                        ModFileXpathContextMenuWithCopy = nextNewTreeViewItem.AddContextMenu(CopyObject_ContextMenuClick,
-                            "Copy Object",
-                            "Click here to copy the object to left panel to make edits.");
-                    }
-                    else nextNewTreeViewItem.ContextMenu = ModFileXpathContextMenuWithCopy;
+                    ModFileXpathContextMenuWithCopy = nextNewTreeViewItem.AddContextMenu(CopyObject_ContextMenuClick,
+                        "Copy Object",
+                        "Click here to copy the object to left panel to make edits.");
                 }
-                else 
-                {
-                    if (ModFileXpathContextMenuNoCopy == null)
-                    {
-                        ModFileXpathContextMenuNoCopy = collapseParentMenu;
-                    }
-                    else nextNewTreeViewItem.ContextMenu = ModFileXpathContextMenuNoCopy;
-                }
+                else nextNewTreeViewItem.ContextMenu = ModFileXpathContextMenuWithCopy;
             }
         }
         public static ContextMenu AddTargetContextMenuToControl(Control controlToAddMenu, XmlObjectsListWrapper modListWrapper = null, bool isAttributeControl = false)
@@ -721,7 +689,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 else if (standardFileWrapper == null && !ShowEditLoadError)
                 {
                     MessageBox.Show(
-                        "Failed loading the edit functionality for the mod file. That means you will be unable to copy objects using the search tree.\n\n" +
+                        "Failed loading the copy functionality for the mod file. That means you will be unable to copy objects using the search tree.\n\n" +
                         "To fix this you need to load the game xml file " + modListWrapper.xmlFile.FileName + ".",
                         "Failed Loading Edit Functionality",
                         MessageBoxButton.OK,
@@ -764,8 +732,10 @@ namespace SevenDaysToDieModCreator.Controllers
                 XmlObjectsListWrapper wrapperToUse = MainWindowViewController.SearchTreeFormViewPanel.StackPanelLoadedListWrappers.GetValueOrDefault(senderTreeView.Uid.ToString());
                 XmlNode xmlNode = senderTreeView.Tag as XmlNode;
                 string attributeNameForAction = "";
-                TreeViewItem newObjectFormTree;
+                TreeViewItem newObjectFormTree; 
                 //If there is an attribute Create a Special Object View with just the box for the attribute or a holder for the xml to generate.
+                
+                //Target attrbute
                 if (senderTreeView.Name.Equals(XmlXpathGenerator.ATTRIBUTE_NAME))
                 {
                     string attributeName = senderTreeView.Header.ToString().Trim();
@@ -774,6 +744,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     attributeNameForAction = "_" + attributeName;
                     newObjectFormTree = GenerateNewObjectAttributeTree(senderAsMenuItem, wrapperToUse, xmlNode, attributeName, attributeValue);
                 }
+                //Set attribute
                 else if (xPathAction.Equals(XmlXpathGenerator.XPATH_ACTION_SET_ATTRIBUTE))
                 {
                     XmlAttribute avaliableAttribute = xmlNode.GetAvailableAttribute();
@@ -781,6 +752,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     string attributeValue = avaliableAttribute == null ? "" : avaliableAttribute.Value;
                     newObjectFormTree = GenerateNewObjectAttributeTree(senderAsMenuItem, wrapperToUse, xmlNode, attributeName, attributeValue);
                 }
+                //Target a node with insertBefore/after, append
                 else if (!xPathAction.Equals(XmlXpathGenerator.XPATH_ACTION_REMOVE))
                 {
                     string nodeName = xmlNode.Name;
@@ -795,6 +767,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     string attributeValue = avalailableAttribute == null ? "" : ": " + avalailableAttribute.Name + "=" + avalailableAttribute.Value;
                     newObjectFormTree.Header = xmlNode.Name + attributeValue + " (" + xPathAction + ") ";
                 }
+                //Target remove
                 else
                 {
                     newObjectFormTree = new TreeViewItem { FontSize = MainWindowViewController.ObjectTreeFontChange + 4 };
@@ -807,13 +780,37 @@ namespace SevenDaysToDieModCreator.Controllers
                 //Set the xmlNode that was included with the object into the top tree view
                 newObjectFormTree.Tag = xmlNode;
                 //Set the newObjectFormTree uuid to the XmlXpathAction_AttributeName that is set on the menu item name
+
                 newObjectFormTree.Name = xPathAction + attributeNameForAction;
                 newObjectFormTree.Foreground = Brushes.Purple;
                 newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
-                newObjectFormTree.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
+                SetAllTreeViewAttributesToHidden(newObjectFormTree);
                 MainWindowViewController.NewObjectFormViewPanel.Children.Add(newObjectFormTree);
             }
         }
+
+        private static void SetAllTreeViewAttributesToHidden(TreeViewItem newObjectFormTree)
+        {
+            ContextMenu newObjectFormTreeMenu = newObjectFormTree.ContextMenu;
+            MenuItem newObjectFormTreeMenuItem = null;
+            //Need menu item
+            foreach (MenuItem nextMenuItem in newObjectFormTreeMenu.Items)
+            {
+                if (nextMenuItem.Header.ToString().Equals(HIDE_TREEVIEW_ATTRIBUTE_BOXES) || nextMenuItem.Header.ToString().Equals(UNHIDE_TREEVIEW_ATTRIBUTE_BOXES))
+                {
+                    newObjectFormTreeMenuItem = nextMenuItem;
+                }
+            }
+            SetTreeViewAttributeBoxesToHidden(newObjectFormTree, newObjectFormTreeMenuItem);
+            if (newObjectFormTree.HasItems) 
+            {
+                foreach (TreeViewItem nextTreeView in newObjectFormTree.GetTreeViewChildren())
+                {
+                    SetAllTreeViewAttributesToHidden(nextTreeView);
+                }
+            }
+        }
+
         private static TreeViewItem GenerateNewObjectAttributeTree(MenuItem senderAsMenuItem, XmlObjectsListWrapper xmlObjectListWrapper, XmlNode xmlNode, string xmlAttributeName, string xmlAttributeValue)
         {
             TreeViewItem newObjectFormTree = new TreeViewItem
