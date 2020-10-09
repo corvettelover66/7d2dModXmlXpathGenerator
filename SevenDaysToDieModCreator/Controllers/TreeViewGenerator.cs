@@ -167,7 +167,6 @@ namespace SevenDaysToDieModCreator.Controllers
             TreeViewItem senderTreeView = parentMenu.PlacementTarget as TreeViewItem;
             SetTreeViewAttributeBoxesToHidden(senderTreeView, senderAsMenuItem);
         }
-
         private static void SetTreeViewAttributeBoxesToHidden(TreeViewItem senderTreeView, MenuItem senderAsMenuItem)
         {
             bool isHidden = senderAsMenuItem.Header.ToString().Equals(UNHIDE_TREEVIEW_ATTRIBUTE_BOXES);
@@ -200,7 +199,6 @@ namespace SevenDaysToDieModCreator.Controllers
                 RemoveUnusedAttributeComboBoxes(senderTreeView);
             }
         }
-
         private static void AddAllRemovedAttributeBoxes(TreeViewItem senderTreeView)
         {
             Stack<Tuple<Label, ComboBox, ComboBox>> hiddenBoxes = HiddenSearchTreeComboBoxDictionary.GetValueOrDefault(senderTreeView);
@@ -553,6 +551,10 @@ namespace SevenDaysToDieModCreator.Controllers
                         newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
 
                         MainWindowViewController.NewObjectFormViewPanel.Children.Add(newObjectFormTree);
+                        if (Properties.Settings.Default.IgnoreAllAttributesCheckbox) 
+                        {
+                            SetAllTreeViewAttributesToHidden(newObjectFormTree);
+                        }
                         didSetTree = true;
                     }             
                 }

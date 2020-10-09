@@ -9,7 +9,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="DoLogTimestampOnSave" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)" >False</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="AutoMoveMod" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -24,6 +24,9 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="IncludeAllModsObjectTreeAttributes" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="IgnoreAllAttributesCheckbox" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>

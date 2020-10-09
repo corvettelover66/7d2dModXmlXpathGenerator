@@ -64,7 +64,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
         }
-        public void AddObjectTree(string newObjectViewLoadedFilesComboBoxText) 
+        public void AddObjectTree(string newObjectViewLoadedFilesComboBoxText)
         {
             if (String.IsNullOrEmpty(newObjectViewLoadedFilesComboBoxText)) return;
             XmlObjectsListWrapper selectedWrapper = LoadedListWrappers.GetValueOrDefault(newObjectViewLoadedFilesComboBoxText);

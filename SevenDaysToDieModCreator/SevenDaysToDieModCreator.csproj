@@ -32,6 +32,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Properties\Backup\Properties.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Properties.settings</DependentUpon>
+    </Compile>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
@@ -45,6 +50,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Properties\Backup\Properties.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Properties.Designer.cs</LastGenOutput>
+    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Properties.Designer.cs</LastGenOutput>

@@ -179,12 +179,16 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition></RowDefinition>
                                     <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
                                     <CheckBox x:Name="IncludeChildrenInOnHoverCheckBox" Content="Include Children" IsChecked="False" FontSize="16" />
                                 </Grid>
                                 <Grid Grid.Row="1">
                                     <CheckBox x:Name="IncludeCommentsCheckBox" Content="Include Comments" IsChecked="False" FontSize="16"  />
+                                </Grid>
+                                <Grid Grid.Row="2">
+                                    <CheckBox x:Name="IgnoreAllAttributesCheckBox" Content="Ignore All on Copy" IsChecked="False" FontSize="16"  />
                                 </Grid>
                             </Grid>
                         </Grid>
