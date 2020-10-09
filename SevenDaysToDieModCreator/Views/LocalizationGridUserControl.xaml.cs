@@ -251,7 +251,7 @@ namespace SevenDaysToDieModCreator.Views
                     Tag = ",",
                     FontSize = 18
                 };
-                if(skipHeadersCount < this.LocalizationFileObject.HeaderValues.Length) newRecordTextbox.AddToolTip(this.LocalizationFileObject.HeaderValues[skipHeadersCount]);
+                if(skipHeadersCount < this.LocalizationFileObject.HeaderValues.Length) newRecordTextbox.AddToolTip((rowCount +1) + " : " +this.LocalizationFileObject.HeaderValues[skipHeadersCount]);
                 newRecordTextbox.TextChanged += NewRecordTextbox_TextChanged;
                 newRecordTextbox.LostFocus += NewRecordTextbox_LostFocus;
                 Grid.SetRow(newRecordTextbox, rowCount);

@@ -59,7 +59,7 @@
                     <Grid Grid.Row="1">
                         <StackPanel>
                             <ComboBox Name="GameKeySelectionComboBox" FontSize="20"></ComboBox>
-                            <Button x:Name="CopyGameRecordButton" Content="Copy Record"  FontSize="20" Click="CopyGameRecord_Click"></Button>
+                            <Button x:Name="CopyGameRecordButton" Content="_Copy Record"  FontSize="20" Click="CopyGameRecord_Click"></Button>
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -67,7 +67,7 @@
             <Grid Grid.Row="1">
                 <StackPanel>
                     <ComboBox Name="ModSelectionComboBox" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
-                    <Button x:Name="SaveLocalizationTableButton" Content="Save" FontSize="20" Click="SaveLocalizationTableButton_Click"></Button>
+                    <Button x:Name="SaveLocalizationTableButton" Content="_Save" FontSize="20" Click="SaveLocalizationTableButton_Click"></Button>
                 </StackPanel>
             </Grid>
         </Grid>
@@ -82,7 +82,7 @@
                 </ScrollViewer>
             </Grid>
             <Grid Grid.Row="1">
-                <Button x:Name="AddEmptyRowButton" Content="Add Row" FontSize="20" Click="AddEmptyRow_Click"></Button>
+                <Button x:Name="AddEmptyRowButton" Content="_Add Row" FontSize="20" Click="AddEmptyRow_Click"></Button>
             </Grid>
         </Grid>
     </Grid>
