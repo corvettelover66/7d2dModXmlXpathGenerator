@@ -220,8 +220,8 @@ namespace SevenDaysToDieModCreator.Controllers
                 int indexToInsert = indexOfFirstChildTree;
                 Tuple<Label, ComboBox, ComboBox> boxTuple = hiddenBoxes.Pop();
                 if(boxTuple.Item3 != null)senderTreeView.Items.Insert(indexToInsert, boxTuple.Item3);
-                senderTreeView.Items.Insert(indexToInsert, boxTuple.Item2);
-                senderTreeView.Items.Insert(indexToInsert, boxTuple.Item1);
+                if (boxTuple.Item2 != null) senderTreeView.Items.Insert(indexToInsert, boxTuple.Item2);
+                if (boxTuple.Item1 != null) senderTreeView.Items.Insert(indexToInsert, boxTuple.Item1);
             }
         }
         private static void RemoveUnusedAttributeComboBoxes(TreeViewItem senderTreeView)
@@ -234,31 +234,57 @@ namespace SevenDaysToDieModCreator.Controllers
                 hiddenBoxes = HiddenSearchTreeComboBoxDictionary.GetValueOrDefault(senderTreeView);
             }
             bool previousWasLabel = false;
-            foreach (Control nextControl in senderTreeView.Items)
+            int count = 0;
+            foreach (Control currentControl in senderTreeView.Items)
             {
-                if (nextControl is Label) 
+                if (currentControl is ComboBox && previousWasLabel)
+                {
+                    ComboBox currentControlAsComboBox = currentControl as ComboBox;
+                    //If the current box is not empty make it null
+                    if (!String.IsNullOrEmpty(currentControlAsComboBox.Text.Trim()))
+                    {
+                        previousWasLabel = false;
+                        count++;
+                        continue;
+                    }
+                    ComboBox modControlComboBoxBox = null;
+
+                    //if the next control is a combobox 
+                    int nextControlIndex = count + 1;
+                    if (nextControlIndex < senderTreeView.Items.Count)
+                    {
+                        modControlComboBoxBox = senderTreeView.Items[nextControlIndex] as ComboBox;
+                        //and check to see if a mod box even exists
+                        if (modControlComboBoxBox != null)
+                        {
+                            //If the mod box string is not empty we set it to null so it isn't removed.
+                            if (!String.IsNullOrEmpty(modControlComboBoxBox.Text.Trim()))
+                            {
+                                previousWasLabel = false;
+                                count++;
+                                continue;
+                            }
+                        }
+                    }
+                    Label attributeLabel = null;
+                    int prevControlIndex = count - 1;
+                    attributeLabel = senderTreeView.Items[prevControlIndex] as Label;
+                    boxesToRemove.Add(new Tuple<Label, ComboBox, ComboBox>(attributeLabel, currentControlAsComboBox, modControlComboBoxBox));
+                }
+                previousWasLabel = false;
+                if (currentControl is Label)
                 {
                     previousWasLabel = true;
                 }
-                if (nextControl is ComboBox controlAsComboBox && previousWasLabel)
-                {
-                    if (String.IsNullOrEmpty(controlAsComboBox.Text.Trim()))
-                    {
-                        int labelIndex = senderTreeView.Items.IndexOf(controlAsComboBox) - 1;
-                        int modBoxIndex = senderTreeView.Items.IndexOf(controlAsComboBox) + 1;
-                        ComboBox modBox = modBoxIndex < senderTreeView.Items.Count ? senderTreeView.Items[modBoxIndex] as ComboBox : null;
-                        boxesToRemove.Add(new Tuple<Label, ComboBox, ComboBox>(senderTreeView.Items[labelIndex] as Label, controlAsComboBox, modBox));
-                    }
-                    previousWasLabel = false;
-                }
+                count++;
             }
             if (boxesToRemove.Count > 0)
             {
                 foreach (Tuple<Label, ComboBox, ComboBox> boxToRemove in boxesToRemove)
                 {
                     hiddenBoxes.Push(boxToRemove);
-                    senderTreeView.Items.Remove(boxToRemove.Item1);
-                    senderTreeView.Items.Remove(boxToRemove.Item2);
+                    if (boxToRemove.Item1 != null) senderTreeView.Items.Remove(boxToRemove.Item1);
+                    if (boxToRemove.Item2 != null) senderTreeView.Items.Remove(boxToRemove.Item2);
                     if(boxToRemove.Item3 != null) senderTreeView.Items.Remove(boxToRemove.Item3);
                 }
             }
@@ -788,7 +814,6 @@ namespace SevenDaysToDieModCreator.Controllers
                 MainWindowViewController.NewObjectFormViewPanel.Children.Add(newObjectFormTree);
             }
         }
-
         private static void SetAllTreeViewAttributesToHidden(TreeViewItem newObjectFormTree)
         {
             ContextMenu newObjectFormTreeMenu = newObjectFormTree.ContextMenu;
@@ -799,6 +824,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 if (nextMenuItem.Header.ToString().Equals(HIDE_TREEVIEW_ATTRIBUTE_BOXES) || nextMenuItem.Header.ToString().Equals(UNHIDE_TREEVIEW_ATTRIBUTE_BOXES))
                 {
                     newObjectFormTreeMenuItem = nextMenuItem;
+                    break;
                 }
             }
             SetTreeViewAttributeBoxesToHidden(newObjectFormTree, newObjectFormTreeMenuItem);
@@ -810,7 +836,6 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
         }
-
         private static TreeViewItem GenerateNewObjectAttributeTree(MenuItem senderAsMenuItem, XmlObjectsListWrapper xmlObjectListWrapper, XmlNode xmlNode, string xmlAttributeName, string xmlAttributeValue)
         {
             TreeViewItem newObjectFormTree = new TreeViewItem
