@@ -812,7 +812,6 @@ namespace SevenDaysToDieModCreator.Controllers
                 newObjectFormTree.Name = xPathAction + attributeNameForAction;
                 newObjectFormTree.Foreground = Brushes.Purple;
                 newObjectFormTree.AddToolTip("Object tree for the " + senderAsMenuItem.Name + " action");
-                SetAllTreeViewAttributesToHidden(newObjectFormTree);
                 MainWindowViewController.NewObjectFormViewPanel.Children.Add(newObjectFormTree);
             }
         }
@@ -821,20 +820,23 @@ namespace SevenDaysToDieModCreator.Controllers
             ContextMenu newObjectFormTreeMenu = newObjectFormTree.ContextMenu;
             MenuItem newObjectFormTreeMenuItem = null;
             //Need menu item
-            foreach (MenuItem nextMenuItem in newObjectFormTreeMenu.Items)
+            if (newObjectFormTreeMenu != null) 
             {
-                if (nextMenuItem.Header.ToString().Equals(HIDE_TREEVIEW_ATTRIBUTE_BOXES) || nextMenuItem.Header.ToString().Equals(UNHIDE_TREEVIEW_ATTRIBUTE_BOXES))
+                foreach (MenuItem nextMenuItem in newObjectFormTreeMenu.Items)
                 {
-                    newObjectFormTreeMenuItem = nextMenuItem;
-                    break;
+                    if (nextMenuItem.Header.ToString().Equals(HIDE_TREEVIEW_ATTRIBUTE_BOXES) || nextMenuItem.Header.ToString().Equals(UNHIDE_TREEVIEW_ATTRIBUTE_BOXES))
+                    {
+                        newObjectFormTreeMenuItem = nextMenuItem;
+                        break;
+                    }
                 }
-            }
-            SetTreeViewAttributeBoxesToHidden(newObjectFormTree, newObjectFormTreeMenuItem);
-            if (newObjectFormTree.HasItems) 
-            {
-                foreach (TreeViewItem nextTreeView in newObjectFormTree.GetTreeViewChildren())
+                SetTreeViewAttributeBoxesToHidden(newObjectFormTree, newObjectFormTreeMenuItem);
+                if (newObjectFormTree.HasItems)
                 {
-                    SetAllTreeViewAttributesToHidden(nextTreeView);
+                    foreach (TreeViewItem nextTreeView in newObjectFormTree.GetTreeViewChildren())
+                    {
+                        SetAllTreeViewAttributesToHidden(nextTreeView);
+                    }
                 }
             }
         }

@@ -102,6 +102,10 @@ HARD:
 +Add side by side search trees for easier comparison.
 
 Version History
+1.6.7
+-Fixed small bugs from 1.6.6
+	-Set command was broken, and would crash the app.
+	-Other xpath comnds were auto hiding attributes. This is undesired behavior.
 1.6.6
  -Added full Localization support! Open the settings menu -> Open Localization
 	- This opens up a new window spit in 3 parts.
