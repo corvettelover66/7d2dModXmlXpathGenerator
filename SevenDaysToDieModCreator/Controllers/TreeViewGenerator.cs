@@ -90,7 +90,8 @@ namespace SevenDaysToDieModCreator.Controllers
             {
                 FontSize = MainWindowViewController.ObjectTreeFontChange + 6,
                 Uid = wrapperKey,
-                IsExpanded = true
+                IsExpanded = true,
+                Background = BackgroundColorController.GetBackgroundColor()
             };
             newObjectFormTree.AddToolTip("Here you can create new " + tagName + " tags");
 
@@ -112,7 +113,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     Uid = currentTagName,
                     FontSize = MainWindowViewController.ObjectTreeFontChange + 4,
                     Foreground = Brushes.Purple,
-                    Background = Brushes.White
+                    Background = BackgroundColorController.GetBackgroundColor()
                 };
                 addNewObjectButton.AddToolTip("Click to add another " + currentTagName + " object\n(*) means there are hidden attributes");
                 addNewObjectButton.Click += AddNewObjectButton_Click;
@@ -335,11 +336,12 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     Content = nextAttribute.Replace("_", "__"),
                     FontSize = MainWindowViewController.ObjectTreeFontChange,
-                    Foreground = Brushes.Red
+                    Foreground = Brushes.Red,
+                    Background = BackgroundColorController.GetBackgroundColor()
                 };
                 newAttributesViewItem.Items.Add(newLabel);
                 ComboBox newAttributesComboBox = SetAttributesComboBox(xmlObjectListWrapper, currentTagName, nextAttribute);
-
+                newAttributesComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
                 if (newAttributesComboBox != null)
                 {
                     if (currentNode != null)
@@ -362,6 +364,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     modFileAttributeBox.AddToolTip("Common attributes from the mod(s) file");
                     newAttributesViewItem.Items.Add(modFileAttributeBox);
+                    modFileAttributeBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
                 }
             }
             return newAttributesViewItem;
@@ -480,7 +483,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     Uid = nodeNameToUse, 
                     FontSize = MainWindowViewController.ObjectTreeFontChange + 4,
                     Foreground = Brushes.Purple,
-                    Background = Brushes.White
+                    Background = BackgroundColorController.GetBackgroundColor()
                 };
                 addNewObjectButton.AddToolTip("Click to add another " + nodeNameToUse + " object\n(*) means there are hidden attributes");
                 addNewObjectButton.Click += AddNewObjectButton_Click;

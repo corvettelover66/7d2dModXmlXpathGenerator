@@ -1,5 +1,6 @@
 ﻿using SevenDaysToDieModCreator.Controllers;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
 
@@ -27,6 +28,8 @@ namespace SevenDaysToDieModCreator.Models
             MyTextBox.Uid = ObjectNode == null ? "" : ObjectNode.Name;
             XmlObjectsListWrapper wrapperToUse = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(this.Uid);
             if (IsGameFileSearchTree) TreeViewGenerator.AddTargetContextMenuToControl(MyTextBox, wrapperToUse);
+            MyTextBox.Background = BackgroundColorController.GetBackgroundColor();
+            this.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
         }
     }
 }

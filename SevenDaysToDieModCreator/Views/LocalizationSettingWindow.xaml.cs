@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Search;
+using SevenDaysToDieModCreator.Controllers;
 using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using System;
@@ -80,11 +81,23 @@ namespace SevenDaysToDieModCreator.Views
             GameKeySelectionComboBox.IsEditable = true;
             GameKeySelectionComboBox.DropDownClosed += GameKeySelectionComboBox_DropDownClosed;
             GameKeySelectionComboBox.PreviewKeyDown += GameKeySelectionComboBox_PreviewKeyDown;
+
+            SetBackgroundColor();
+        }
+
+        private void SetBackgroundColor()
+        {
+            GameRecordScrollViewer.Background = BackgroundColorController.GetBackgroundColor();
+            LocalizationPreviewBox.Background = BackgroundColorController.GetBackgroundColor();
+            LocalizationOutputLabel.Background = BackgroundColorController.GetBackgroundColor();
+            GameLocalizationRecordOutputLabel.Background = BackgroundColorController.GetBackgroundColor();
+            GameKeySelectionComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            ModSelectionComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
         }
 
         private void AddTooltips()
         {
-            LocalizationOutputLabel.AddToolTip("Just below is a direct visualiztion of the selected mod's Localization.txt additions\n" +
+            LocalizationOutputLabel.AddToolTip("Just below is a direct visualization of the selected mod's Localization.txt additions\n" +
                 "This text box can be used to directy edit the contents of the file");
             GameLocalizationRecordOutputLabel.AddToolTip("Just below is a Game record visualization tool\n" +
                 "Here you can view, and copy existing game Localization records");

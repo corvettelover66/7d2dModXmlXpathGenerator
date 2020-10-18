@@ -1,4 +1,5 @@
-﻿using SevenDaysToDieModCreator.Extensions;
+﻿using SevenDaysToDieModCreator.Controllers;
+using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,7 @@ namespace SevenDaysToDieModCreator.Views
             this.Maingrid = topGrid;
             GridHasChanged = false;
         }
+
         private void GenerateSigleRecordGrid()
         {
             topGrid.HorizontalAlignment = HorizontalAlignment.Left;
@@ -72,13 +74,13 @@ namespace SevenDaysToDieModCreator.Views
                 columnCount++;
                 //Set the Headers
                 topGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                nextHeaderTextBox = new TextBox() { Text = headerField, FontSize = 22, Tag ="," };
+                nextHeaderTextBox = new TextBox() { Text = headerField, FontSize = 22, Tag =",", Background = BackgroundColorController.GetBackgroundColor() };
                 Grid.SetRow(nextHeaderTextBox, row);
                 Grid.SetColumn(nextHeaderTextBox, columnCount);
                 topGrid.Children.Add(nextHeaderTextBox);
                 columnCount++;
                 topGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                nextHeaderTextBox = new TextBox() { Text = nextField, FontSize = 22, Tag = "," };
+                nextHeaderTextBox = new TextBox() { Text = nextField, FontSize = 22, Tag = ",", Background = BackgroundColorController.GetBackgroundColor() };
                 Grid.SetRow(nextHeaderTextBox, row);
                 Grid.SetColumn(nextHeaderTextBox, columnCount);
                 topGrid.Children.Add(nextHeaderTextBox);
@@ -179,7 +181,7 @@ namespace SevenDaysToDieModCreator.Views
             {
                 //Set the Headers
                 topGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                nextHeaderTextBox = new TextBox() { Text = headerField, FontSize = 22 };
+                nextHeaderTextBox = new TextBox() { Text = headerField, FontSize = 22, Background = BackgroundColorController.GetBackgroundColor() };
                 Grid.SetRow(nextHeaderTextBox, row);
                 Grid.SetColumn(nextHeaderTextBox, columnCount);
                 topGrid.Children.Add(nextHeaderTextBox);
@@ -192,7 +194,7 @@ namespace SevenDaysToDieModCreator.Views
         {
             //Add a dummy column for the clear button.
             topGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            TextBox emptyTextBox = new TextBox() { Text = textForTextBox, FontSize = fontSize, };
+            TextBox emptyTextBox = new TextBox() { Text = textForTextBox, FontSize = fontSize, Background = BackgroundColorController.GetBackgroundColor() };
             Grid.SetRow(emptyTextBox, row);
             Grid.SetColumn(emptyTextBox, columnCount);
             topGrid.Children.Add(emptyTextBox);
@@ -202,7 +204,7 @@ namespace SevenDaysToDieModCreator.Views
             int numberForColumn = rowCount + 1;
             //Need to increase the row count to make sure the numbers line up with the file
             topGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            TextBox clearRowButton = new TextBox { Text = numberForColumn+ "", FontSize = 18 };
+            TextBox clearRowButton = new TextBox { Text = numberForColumn+ "", FontSize = 18, Background = BackgroundColorController.GetBackgroundColor() };
             Grid.SetRow(clearRowButton, rowCount);
             Grid.SetColumn(clearRowButton, column);
             topGrid.Children.Add(clearRowButton);
@@ -211,7 +213,7 @@ namespace SevenDaysToDieModCreator.Views
         {
             //Add the first column, the clear button
             topGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            Button clearRowButton = new Button { Content = "Clear row", FontSize = 18, Tag = rowCount };
+            Button clearRowButton = new Button { Content = "Clear row", FontSize = 18, Tag = rowCount, Background = BackgroundColorController.GetBackgroundColor() };
             clearRowButton.Click += ClearRowButton_Click;
             Grid.SetRow(clearRowButton, rowCount);
             Grid.SetColumn(clearRowButton, columnCount);
@@ -260,7 +262,8 @@ namespace SevenDaysToDieModCreator.Views
                 {
                     Text = nextRecordField,
                     Tag = ",",
-                    FontSize = 18
+                    FontSize = 18,
+                    Background = BackgroundColorController.GetBackgroundColor()
                 };
                 if(skipHeadersCount < this.LocalizationFileObject.HeaderValues.Length) newRecordTextbox.AddToolTip((rowCount +1) + " : " +this.LocalizationFileObject.HeaderValues[skipHeadersCount]);
                 newRecordTextbox.TextChanged += NewRecordTextbox_TextChanged;
@@ -295,8 +298,10 @@ namespace SevenDaysToDieModCreator.Views
             ComboBox newCommonValuesBox = new ComboBox
             {
                 FontSize = 18,
-                IsEditable = true
+                IsEditable = true,
+                Background = BackgroundColorController.GetBackgroundColor()
             };
+            newCommonValuesBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
             newCommonValuesBox.AddToolTip("key");
             newCommonValuesBox.DropDownClosed += NewCommonValuesBox_DropDownClosed;
             newCommonValuesBox.LostFocus += NewCommonValuesBox_LostFocus;
@@ -334,8 +339,10 @@ namespace SevenDaysToDieModCreator.Views
             ComboBox newCommonValuesBox = new ComboBox
             {
                 FontSize = 18,
-                IsEditable = true
+                IsEditable = true,
+                Background = BackgroundColorController.GetBackgroundColor()
             };
+            newCommonValuesBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
             newCommonValuesBox.AddToolTip(headerKey);
             newCommonValuesBox.DropDownClosed += NewCommonValuesBox_DropDownClosed;
             newCommonValuesBox.LostFocus += NewCommonValuesBox_LostFocus;
@@ -352,8 +359,11 @@ namespace SevenDaysToDieModCreator.Views
             ComboBox newCommonValuesBox = new ComboBox
             {
                 FontSize = 18,
-                IsEditable = true
+                IsEditable = true,
+                Background = BackgroundColorController.GetBackgroundColor()
             };
+            newCommonValuesBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+
             newCommonValuesBox.AddToolTip("changes");
             newCommonValuesBox.DropDownClosed += NewCommonValuesBox_DropDownClosed;
             newCommonValuesBox.LostFocus += NewCommonValuesBox_LostFocus;

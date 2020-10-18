@@ -60,6 +60,7 @@ namespace SevenDaysToDieModCreator.Views
             this.ValidateXmlButton.AddToolTip("Click here to validate the xml");
             this.UndoAllChangesXmlButton.AddToolTip("Click here to undo any changes made since opening the window");
             this.CodeCompletionKeysHelpButton.AddToolTip("Click here to see the keys used for\nAuto Complete within this window");
+
             SearchPanel.Install(XmlOutputBox);
 
             FoldingManager = FoldingManager.Install(this.XmlOutputBox.TextArea);
@@ -92,10 +93,17 @@ namespace SevenDaysToDieModCreator.Views
             this.XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
             this.XmlOutputBox.TextChanged += XmlOutputBox_TextChanged;
             this.XmlOutputBox.TextArea.TextEntering += TextArea_TextEntering; 
-            this.XmlOutputBox.TextArea.TextEntered += TextArea_TextEntered; 
-
+            this.XmlOutputBox.TextArea.TextEntered += TextArea_TextEntered;
+            SetBackgroundColor();
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
+
+        private void SetBackgroundColor()
+        {
+            this.XmlOutputBox.Background = BackgroundColorController.GetBackgroundColor();
+            this.ModNameLabel.Background = BackgroundColorController.GetBackgroundColor(); 
+        }
+
         CompletionWindow completionWindow;
         private void TextArea_TextEntered(object sender, TextCompositionEventArgs textCompositionEvent)
         {

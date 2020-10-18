@@ -1,4 +1,5 @@
-﻿using SevenDaysToDieModCreator.Extensions;
+﻿using SevenDaysToDieModCreator.Controllers;
+using SevenDaysToDieModCreator.Extensions;
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
@@ -77,7 +78,19 @@ namespace SevenDaysToDieModCreator.Views
 
             SetTooltips();
             SetTextBoxsWithExistingModInfo();
+            SetBackgroundColor();
             Closing += new CancelEventHandler(ModInfoDialogBox_Closing);
+        }
+
+        private void SetBackgroundColor()
+        {
+            this.Background = BackgroundColorController.GetBackgroundColor();
+            AllTagsComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            ModInfoNameBox.Background = BackgroundColorController.GetBackgroundColor();
+            ModInfoDescriptionBox.Background = BackgroundColorController.GetBackgroundColor();
+            ModInfoAuthorBox.Background = BackgroundColorController.GetBackgroundColor();
+            ModInfoVersionBox.Background = BackgroundColorController.GetBackgroundColor();
+            ChangeModTagCheckBox.Background = BackgroundColorController.GetBackgroundColor();
         }
 
         private void ModInfoDialogBox_Closing(object sender, CancelEventArgs e)

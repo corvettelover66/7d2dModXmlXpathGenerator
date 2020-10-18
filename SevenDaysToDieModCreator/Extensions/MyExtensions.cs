@@ -249,7 +249,7 @@ namespace SevenDaysToDieModCreator.Extensions
         }
         public static void SetComboBox<T>(this ComboBox comboBox, IList<T> listToUse, bool includeEmptyItem = false,  string name = null)
         {
-            comboBox.Background = Brushes.Red;
+            comboBox.Background = BackgroundColorController.GetBackgroundColor();
             if (name != null) comboBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
             if(includeEmptyItem)allItems.Add("              ");
@@ -264,6 +264,7 @@ namespace SevenDaysToDieModCreator.Extensions
         {
             ComboBox newBox = new ComboBox();
             if (forgroundColor != null) newBox.Foreground = forgroundColor;
+            newBox.Background = BackgroundColorController.GetBackgroundColor();
             newBox.IsEditable = true;
             newBox.SetComboBox(listToUse, true, name);
             newBox.SelectedIndex = 0;
@@ -273,7 +274,8 @@ namespace SevenDaysToDieModCreator.Extensions
         {
             MyComboBox newBox = new MyComboBox(objectNode, isGameFileSearchTree)
             {
-                IsEditable = true
+                IsEditable = true,
+                Background = BackgroundColorController.GetBackgroundColor()
             };
             if (name != null) newBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
