@@ -2,17 +2,9 @@
 using SevenDaysToDieModCreator.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SevenDaysToDieModCreator.Views
 {
@@ -33,7 +25,7 @@ namespace SevenDaysToDieModCreator.Views
             this.GridHasChanged = true;
         }
         
-        private Dictionary<int, List<Control>> TextBoxRowDictionary;
+        private readonly Dictionary<int, List<Control>> TextBoxRowDictionary;
         public LocalizationGridUserControl(string pathToFile, bool IsSingleRecord = false) 
         {
             InitializeComponent();
@@ -124,19 +116,40 @@ namespace SevenDaysToDieModCreator.Views
             int skipHeadersCount = 4;
             AddFieldColumns(lastRowPlusOne, columnCount, emptyRecord, controlsAddedInRow, skipHeadersCount);
         }
-
         private void GenerateLocalizationGrid()
         {
             topGrid.HorizontalAlignment = HorizontalAlignment.Left;
             topGrid.VerticalAlignment = VerticalAlignment.Top;
             topGrid.Background = new SolidColorBrush(Colors.LightGreen);
-            CreateHeaderRow();
-            CreateLocalizationRecordsGrid();
+            int rowCount = 0;
+            CreateHeaderRow(rowCount);
+            rowCount++;
+            //CreateSearchBoxRow(rowCount);
+            //rowCount++;
+            CreateLocalizationRecordsGrid(rowCount);
         }
-        private void CreateLocalizationRecordsGrid()
+        private void CreateSearchBoxRow(int rowCount)
+        {
+            RowDefinition rowDefinition = new RowDefinition();
+            topGrid.RowDefinitions.Add(rowDefinition);
+            int colunnCount = 0;
+            foreach (string nextHeader in LocalizationFileObject.HeaderValues) 
+            {
+                AddSearchBoxColumn(colunnCount, nextHeader);
+            }
+        }
+        private void AddSearchBoxColumn(int colunnCount, string nextHeader)
+        {
+            topGrid.ColumnDefinitions.Add(new ColumnDefinition());
+
+            //TextBox clearRowButton = new TextBox { Text = numberForColumn + "", FontSize = 18 };
+            //Grid.SetRow(clearRowButton, rowCount);
+            //Grid.SetColumn(clearRowButton, column);
+            //topGrid.Children.Add(clearRowButton);
+        }
+        private void CreateLocalizationRecordsGrid(int rowCount)
         {
             //Set row to one as first row is taken by the headers
-            int rowCount = 1;
             //go through all of the records
             foreach (List<string> record in LocalizationFileObject.RecordList)
             {
@@ -149,10 +162,8 @@ namespace SevenDaysToDieModCreator.Views
                 rowCount++;                
             }
         }
-        private void CreateHeaderRow()
+        private void CreateHeaderRow(int row)
         {
-            int row = 0;
-
             //Go throh the keys for the header row
             RowDefinition rowDefinition = new RowDefinition();
             topGrid.RowDefinitions.Add(rowDefinition);
@@ -281,15 +292,17 @@ namespace SevenDaysToDieModCreator.Views
         private Control AddModKeysColumn(int lastRowPlusOne, int columnCount, XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper)
         {
             topGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            ComboBox newCommonValuesBox = new ComboBox();
-            newCommonValuesBox.FontSize = 18;
-            newCommonValuesBox.IsEditable = true;
+            ComboBox newCommonValuesBox = new ComboBox
+            {
+                FontSize = 18,
+                IsEditable = true
+            };
             newCommonValuesBox.AddToolTip("key");
             newCommonValuesBox.DropDownClosed += NewCommonValuesBox_DropDownClosed;
             newCommonValuesBox.LostFocus += NewCommonValuesBox_LostFocus;
             if (selectedModItemsWrapper != null) 
             {
-                Dictionary<string, List<string>> attributeDictinaryForItems = selectedModItemsWrapper.objectNameToAttributeValuesMap.GetValueOrDefault("item");
+                Dictionary<string, List<string>> attributeDictinaryForItems = selectedModItemsWrapper.ObjectNameToAttributeValuesMap.GetValueOrDefault("item");
                 if (attributeDictinaryForItems != null) 
                 {
                     List<string> commonAttributes = attributeDictinaryForItems.GetValueOrDefault("name");
@@ -299,7 +312,7 @@ namespace SevenDaysToDieModCreator.Views
             }
             if (selectedModBlocksWrapper != null) 
             { 
-                Dictionary<string, List<string>> attributeDictinaryForBlocks = selectedModBlocksWrapper.objectNameToAttributeValuesMap.GetValueOrDefault("block");
+                Dictionary<string, List<string>> attributeDictinaryForBlocks = selectedModBlocksWrapper.ObjectNameToAttributeValuesMap.GetValueOrDefault("block");
                 if (attributeDictinaryForBlocks != null)
                 {
                     List<string> commonAttributes = attributeDictinaryForBlocks.GetValueOrDefault("name");
@@ -318,9 +331,11 @@ namespace SevenDaysToDieModCreator.Views
 
             if (allCommonValues == null) allCommonValues = new List<string>();
             topGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            ComboBox newCommonValuesBox = new ComboBox();
-            newCommonValuesBox.FontSize = 18;
-            newCommonValuesBox.IsEditable = true;
+            ComboBox newCommonValuesBox = new ComboBox
+            {
+                FontSize = 18,
+                IsEditable = true
+            };
             newCommonValuesBox.AddToolTip(headerKey);
             newCommonValuesBox.DropDownClosed += NewCommonValuesBox_DropDownClosed;
             newCommonValuesBox.LostFocus += NewCommonValuesBox_LostFocus;
@@ -334,9 +349,11 @@ namespace SevenDaysToDieModCreator.Views
         {
             List<string> changesColumn = new List<string>() { "", "New" }; 
             topGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            ComboBox newCommonValuesBox = new ComboBox();
-            newCommonValuesBox.FontSize = 18;
-            newCommonValuesBox.IsEditable = true;
+            ComboBox newCommonValuesBox = new ComboBox
+            {
+                FontSize = 18,
+                IsEditable = true
+            };
             newCommonValuesBox.AddToolTip("changes");
             newCommonValuesBox.DropDownClosed += NewCommonValuesBox_DropDownClosed;
             newCommonValuesBox.LostFocus += NewCommonValuesBox_LostFocus;

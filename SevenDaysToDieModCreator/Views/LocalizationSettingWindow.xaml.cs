@@ -18,13 +18,9 @@ namespace SevenDaysToDieModCreator.Views
         private LocalizationGridUserControl ModLocalizationGridUserControl { get; set; }
 
         private LocalizationGridUserControl GameRecordGridUserControl { get; set; }
-
-
         private LocalizationFileObject GameLocalizationFile { get; set; }
-
         //Reference to the loaded list warppers in the main window
         private Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; set; }
-
         private string GridAsCSVAfterUpdate { get; set; }
         private const string TITLE_POSTPEND_MESSAGE = "_" + LocalizationFileObject.LOCALIZATION_FILE_NAME;
         private string WindowTitle { get; set; }
@@ -46,7 +42,7 @@ namespace SevenDaysToDieModCreator.Views
             this.Title = GetTitleForWindow();
             this.LoadedListWrappers = loadedListWrappers;
 
-            string pathToModLocalizationFile = XmlFileManager._ModConfigOutputPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
+            string pathToModLocalizationFile = XmlFileManager.ModConfigOutputPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
             ModLocalizationGridUserControl = new LocalizationGridUserControl(pathToModLocalizationFile);
             GridAsCSVAfterUpdate = ModLocalizationGridUserControl.Maingrid.GridAsCSV(); 
 
@@ -61,7 +57,7 @@ namespace SevenDaysToDieModCreator.Views
 
             ModLocalizationScrollViewer.Content = ModLocalizationGridUserControl;
 
-            string pathToGameLocalizationFile = XmlFileManager._LoadedFilesPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
+            string pathToGameLocalizationFile = XmlFileManager.LoadedFilesPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
             GameLocalizationFile = new LocalizationFileObject(pathToGameLocalizationFile);
             TextEditorOptions newOptions = new TextEditorOptions
             {
@@ -328,7 +324,7 @@ namespace SevenDaysToDieModCreator.Views
                 //Go through game record headers
                 foreach (string nextModHeader in allLocalModHeaders) 
                 {
-                    if (!nextModHeader.Contains("key") && allGameRecordHeaders.Contains(nextModHeader)) 
+                    if (!nextModHeader.Equals("key") && allGameRecordHeaders.Contains(nextModHeader)) 
                     {
                         int indexToUse = allGameRecordHeaders.IndexOf(nextModHeader);
                         if(record[indexToUse].Contains(",")) recordToCopyBuilder.Append("\"" + record[indexToUse] + "\",");

@@ -37,21 +37,19 @@ namespace SevenDaysToDieModCreator.Views
             this.FileLocationPath = fileLocationPath;
             if (contentsForXmlOutputBox == null)
             {
-                string parentString = Wrapper.xmlFile.ParentPath == null
-                    ? ""
-                    : Wrapper.xmlFile.ParentPath;
-                XmlOutputBox.Text = XmlFileManager.GetFileContents(Path.Combine(this.FileLocationPath, parentString), Wrapper.xmlFile.FileName);
+                string parentString = Wrapper.XmlFile.ParentPath ?? "";
+                XmlOutputBox.Text = XmlFileManager.GetFileContents(Path.Combine(this.FileLocationPath, parentString), Wrapper.XmlFile.FileName);
             }
             else XmlOutputBox.Text = contentsForXmlOutputBox;
             this.StartingFileContents = XmlOutputBox.Text;
-            this.UnchangedStartingFileContents = unchangedStartingFileContents == null ? XmlOutputBox.Text : unchangedStartingFileContents;
+            this.UnchangedStartingFileContents = unchangedStartingFileContents ?? XmlOutputBox.Text;
             
             string labelContents = isGameFile
-                ? "Game File: " + wrapperToUse.xmlFile.FileName + "\n"
-                : "Mod: " + Properties.Settings.Default.ModTagSetting + "\n" + "File: " + wrapperToUse.xmlFile.FileName + "\n";
+                ? "Game File: " + wrapperToUse.XmlFile.FileName + "\n"
+                : "Mod: " + Properties.Settings.Default.ModTagSetting + "\n" + "File: " + wrapperToUse.XmlFile.FileName + "\n";
             this.StartingTitle = isGameFile
-                ? "Game File: " + wrapperToUse.xmlFile.FileName
-                : wrapperToUse.xmlFile.GetFileNameWithoutExtension() + " : " + Properties.Settings.Default.ModTagSetting;
+                ? "Game File: " + wrapperToUse.XmlFile.FileName
+                : wrapperToUse.XmlFile.GetFileNameWithoutExtension() + " : " + Properties.Settings.Default.ModTagSetting;
 
             this.Title = StartingTitle;
             ModNameLabel.Content = String.IsNullOrEmpty(title) ? labelContents : title;
@@ -125,10 +123,8 @@ namespace SevenDaysToDieModCreator.Views
             else if (textCompositionEvent.Text == "\"")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
-                string parentString = Wrapper.xmlFile.ParentPath == null
-                        ? ""
-                        : Wrapper.xmlFile.ParentPath;
-                string fullFilePath = Path.Combine(this.FileLocationPath, parentString, this.Wrapper.xmlFile.FileName);
+                string parentString = Wrapper.XmlFile.ParentPath ?? "";
+                string fullFilePath = Path.Combine(this.FileLocationPath, parentString, this.Wrapper.XmlFile.FileName);
                 IList<ICompletionData> data = CodeCompletionGenerator.GenerateAttributeList(completionWindow, this.Wrapper, new XmlObjectsListWrapper(new XmlFileObject(fullFilePath)));
                 completionWindow.Show();
                 completionWindow.Closed += delegate
@@ -162,10 +158,8 @@ namespace SevenDaysToDieModCreator.Views
             else if (Keyboard.Modifiers == ModifierKeys.Control && textCompositionEvent.Text == " ")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
-                string parentString = Wrapper.xmlFile.ParentPath == null
-                        ? ""
-                        : Wrapper.xmlFile.ParentPath;
-                string fullFilePath = Path.Combine(this.FileLocationPath, parentString, this.Wrapper.xmlFile.FileName);
+                string parentString = Wrapper.XmlFile.ParentPath ?? "";
+                string fullFilePath = Path.Combine(this.FileLocationPath, parentString, this.Wrapper.XmlFile.FileName);
                 IList<ICompletionData> data = CodeCompletionGenerator.GenerateCommonAttributesList(completionWindow, this.Wrapper, new XmlObjectsListWrapper(new XmlFileObject(fullFilePath)));
                 completionWindow.Show();
                 completionWindow.Closed += delegate
@@ -277,11 +271,9 @@ namespace SevenDaysToDieModCreator.Views
                 switch (result)
                 {
                     case MessageBoxResult.Yes:
-                        string parentString = Wrapper.xmlFile.ParentPath == null
-                            ? ""
-                            : Wrapper.xmlFile.ParentPath;
+                        string parentString = Wrapper.XmlFile.ParentPath ?? "";
                         string xmlOut = XmlOutputBox.Text;
-                        if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(XmlFileManager._ModConfigOutputPath, parentString), Wrapper.xmlFile.FileName, xmlOut, true);
+                        if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(XmlFileManager.ModConfigOutputPath, parentString), Wrapper.XmlFile.FileName, xmlOut, true);
                         break;
                     case MessageBoxResult.Cancel:
                         DirectEditView directEditView = new DirectEditView(this.Wrapper, this.IsGameFile, this.StartingTitle, XmlOutputBox.Text, FileLocationPath, this.UnchangedStartingFileContents);
@@ -307,7 +299,7 @@ namespace SevenDaysToDieModCreator.Views
                         {
                             XmlOutputBox.Text = fileContents;
                             StartingFileContents = fileContents;
-                            this.Title = Wrapper.xmlFile.FileName;
+                            this.Title = Wrapper.XmlFile.FileName;
                         }
                         break;
                 }
@@ -322,10 +314,8 @@ namespace SevenDaysToDieModCreator.Views
         }
         private string GetCurrentFileContents()
         {
-            string parentString = Wrapper.xmlFile.ParentPath == null
-                ? ""
-                : Wrapper.xmlFile.ParentPath;
-            string fileContents = XmlFileManager.GetFileContents(Path.Combine(this.FileLocationPath, parentString), Wrapper.xmlFile.FileName);
+            string parentString = Wrapper.XmlFile.ParentPath ?? "";
+            string fileContents = XmlFileManager.GetFileContents(Path.Combine(this.FileLocationPath, parentString), Wrapper.XmlFile.FileName);
             return fileContents;
         }
         private bool IsFileChanged()
@@ -352,10 +342,10 @@ namespace SevenDaysToDieModCreator.Views
                         return;
                 }
             }
-            string parentPath = Wrapper.xmlFile.ParentPath == null ? "" : Wrapper.xmlFile.ParentPath;
+            string parentPath = Wrapper.XmlFile.ParentPath ?? "";
             if (!String.IsNullOrEmpty(xmlOut))
             {
-                XmlFileManager.WriteStringToFile(Path.Combine(this.FileLocationPath, parentPath), Wrapper.xmlFile.FileName, xmlOut);
+                XmlFileManager.WriteStringToFile(Path.Combine(this.FileLocationPath, parentPath), Wrapper.XmlFile.FileName, xmlOut);
                 if (Properties.Settings.Default.AutoMoveMod) XmlFileManager.CopyAllOutputFiles();
                 StartingFileContents = xmlOut;
                 this.Title = this.StartingTitle;
@@ -378,7 +368,7 @@ namespace SevenDaysToDieModCreator.Views
                         {
                             XmlOutputBox.Text = fileContents;
                             StartingFileContents = fileContents;
-                            this.Title = Wrapper.xmlFile.FileName;
+                            this.Title = Wrapper.XmlFile.FileName;
                         }
                         break;
                 }

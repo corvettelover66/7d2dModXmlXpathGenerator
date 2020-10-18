@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace SevenDaysToDieModCreator.Models
 {
@@ -15,8 +14,20 @@ namespace SevenDaysToDieModCreator.Models
         public const string LOCALIZATION_FILE_NAME = "Localization.txt";
         public string KeyColumn { get; set; }
         
-        private string[] DefaultHeaderColumns = new string[]{ "Key", "Source", "Context", "Changes", "english", "german", "latam", "french", "italian", "japanese", "koreana", "polish", "brazilian", "russian", "turkish", "schinese", "tchinese", "spanish" };
+        private readonly string[] DefaultHeaderColumns = new string[]{ "Key", "Source", "Context", "Changes", "english", "german", "latam", "french", "italian", "japanese", "koreana", "polish", "brazilian", "russian", "turkish", "schinese", "tchinese", "spanish" };
+        //Does  hard check on the passed in headerToCheck string to see if it is a "file" or "Source column because the game file uses a different 
+        //nomenclature for the same header when creating mod localizations"
+        public static bool HeaderIsFileOrSourceColumn(string headerToCheck) 
+        {
+            return headerToCheck.ToLower().Equals("source") || headerToCheck.ToLower().Equals("file") ;
+        }
+        //Does  hard check on the passed in headerToCheck string to see if it is a "type" or "context" column because the game file uses a different 
+        //nomenclature for the same header when creating mod localizations"
+        public static bool HeaderIsTypeOrContextColumn(string headerToCheck)
+        {
+            return headerToCheck.ToLower().Equals("type") || headerToCheck.ToLower().Equals("context");
 
+        }
         public string[] HeaderValues { get; private set; }
         //A dictionary of all value columns by the header as the key
         //Key: Header from the CSV
@@ -35,6 +46,7 @@ namespace SevenDaysToDieModCreator.Models
             HeaderKeyToCommonValuesMap = new Dictionary<string, SortedSet<string>>();
             KeyValueToRecordMap = new Dictionary<string, List<string>>();
             RecordList = new List<List<string>>();
+            HeaderValues = DefaultHeaderColumns;
             LOCALIZATION_EXIST = File.Exists(pathToFile);
             if (LOCALIZATION_EXIST)
             {
@@ -59,8 +71,10 @@ namespace SevenDaysToDieModCreator.Models
         //THROWS Index OUTOFRnge EXception if the ROW count does not match the Header count
         private void TraverseLocalizatonFile(string pathToFile)
         {
-            using TextFieldParser parser = new TextFieldParser(@pathToFile);
-            parser.HasFieldsEnclosedInQuotes = true;
+            using TextFieldParser parser = new TextFieldParser(@pathToFile)
+            {
+                HasFieldsEnclosedInQuotes = true
+            };
             parser.SetDelimiters(",");
             int rowCount = 0;
             while (!parser.EndOfData)

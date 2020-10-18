@@ -16,7 +16,7 @@ namespace SevenDaysToDieModCreator.Models
         private const string MOD_INFO_VERSION_TAG = "Version";
 
         public static string MOD_INFO_FILE_NAME = "ModInfo.xml";
-        public static string ModInfoFilePath { get => Path.Combine(XmlFileManager._ModDirectoryOutputPath, MOD_INFO_FILE_NAME); } 
+        public static string ModInfoFilePath { get => Path.Combine(XmlFileManager.ModDirectoryOutputPath, MOD_INFO_FILE_NAME); } 
 
         public ModInfo() 
         {

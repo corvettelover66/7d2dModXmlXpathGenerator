@@ -1,5 +1,4 @@
-﻿using ICSharpCode.AvalonEdit.Folding;
-using ICSharpCode.AvalonEdit.Search;
+﻿using ICSharpCode.AvalonEdit.Search;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using SevenDaysToDieModCreator.Controllers;
 using SevenDaysToDieModCreator.Extensions;
@@ -13,7 +12,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Xml;
+using System.Windows.Media;
 
 namespace SevenDaysToDieModCreator
 {
@@ -33,6 +32,7 @@ namespace SevenDaysToDieModCreator
         private MyStackPanel SearchTreeFormsPanel { get; set; }
         public ComboBox LoadedModFilesSearchViewComboBox { get; private set; }
         public Button LoadedModFilesButton { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -42,6 +42,35 @@ namespace SevenDaysToDieModCreator
             SetupExceptionHandling();
             this.XmlOutputBox.ShowLineNumbers = true;
             SearchPanel.Install(XmlOutputBox);
+        }
+        private void SetBackgroundFromSetting(bool removeExistingResources = false)
+        {
+            this.Background = BackgroundColorController.GetBackgroundColor();
+            this.XmlOutputBox.Background = BackgroundColorController.GetBackgroundColor();
+            if (removeExistingResources) RemoveExistingColorFromComboBoxResource();
+            SetBackgroundForComboBoxes();
+        }
+
+        private void RemoveExistingColorFromComboBoxResource()
+        {
+            LoadedModFilesSearchViewComboBox.Resources.Clear();
+            LoadedModsSearchViewComboBox.Resources.Clear();
+            LoadedModsCenterViewComboBox.Resources.Clear();
+            CurrentModFilesCenterViewComboBox.Resources.Clear();
+            SearchTreeLoadedFilesComboBox.Resources.Clear();
+            NewObjectViewLoadedFilesComboBox.Resources.Clear();
+            CurrentGameFilesCenterViewComboBox.Resources.Clear();
+        }
+
+        private void SetBackgroundForComboBoxes()
+        {
+            LoadedModFilesSearchViewComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            LoadedModsSearchViewComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            LoadedModsCenterViewComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            CurrentModFilesCenterViewComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            SearchTreeLoadedFilesComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            NewObjectViewLoadedFilesComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            CurrentGameFilesCenterViewComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
         }
 
         private void MyWindow_Loaded(object sender, RoutedEventArgs e)
@@ -67,6 +96,7 @@ namespace SevenDaysToDieModCreator
             this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
             this.LoadedModsCenterViewComboBox.Text = Properties.Settings.Default.ModTagSetting;
             SetMainWindowToolTips();
+            SetBackgroundFromSetting();
         }
         private void IgnoreAllAttributesCheckBox_Click(object sender, RoutedEventArgs e)
         {
@@ -112,6 +142,9 @@ namespace SevenDaysToDieModCreator
             CreateEditModInfoMenuItem.AddToolTip("Click here to create a new mod or edit the Mod Info for an existing mod");
             ChangeLogTimeStampMenuItem.AddToolTip("Click here to change the Timestamp setting");
             OpenLocalizationMenuItem.AddToolTip("Click here to open the localization window to manage Localization for your mods");
+            NormalThemeMenuItem.AddToolTip("Click here to change the background color to the normal theme");
+            MediumThemeMenuItem.AddToolTip("Click here to change the background color to the medium theme");
+            DarkThemeMenuItem.AddToolTip("Click here to change the background color to the dark theme");
             //LoadGameModDirectoryMenuItem.AddToolTip("Click here to load the 7 days to die \"Mods\" directory, to load all mods");
             //Buttons
             SaveXmlViewButton.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
@@ -198,9 +231,11 @@ namespace SevenDaysToDieModCreator
         }
         private void OpenGameFolderSelectDialog()
         {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = Directory.GetCurrentDirectory();
-            dialog.IsFolderPicker = true;
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog
+            {
+                InitialDirectory = Directory.GetCurrentDirectory(),
+                IsFolderPicker = true
+            };
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 if (!String.IsNullOrEmpty(dialog.FileName))
@@ -253,9 +288,7 @@ namespace SevenDaysToDieModCreator
             if (!String.IsNullOrEmpty(wrapperKey))
             {
                 XmlObjectsListWrapper xmlObjectsListWrapper = this.MainWindowFileController.LoadedListWrappers.GetValueOrDefault(wrapperKey);
-                xmlObjectsListWrapper = xmlObjectsListWrapper == null
-                    ? this.MainWindowFileController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + wrapperKey)
-                    : xmlObjectsListWrapper;
+                xmlObjectsListWrapper ??= this.MainWindowFileController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + wrapperKey);
                 if (xmlObjectsListWrapper == null)
                 {
                     MessageBox.Show(
@@ -266,9 +299,9 @@ namespace SevenDaysToDieModCreator
                         MessageBoxImage.Error);
                     return;
                 }
-                string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
+                string parentPath = xmlObjectsListWrapper.XmlFile.ParentPath ?? "";
 
-                this.XmlOutputBox.Text = XmlFileManager.ReadExistingFile(Path.Combine(parentPath, xmlObjectsListWrapper.xmlFile.FileName));
+                this.XmlOutputBox.Text = XmlFileManager.ReadExistingFile(Path.Combine(parentPath, xmlObjectsListWrapper.XmlFile.FileName));
             }
         }
         private void LoadedModsCenterViewComboBox_DropDownClosed(object sender, EventArgs e)
@@ -347,7 +380,7 @@ namespace SevenDaysToDieModCreator
             switch (result)
             {
                 case MessageBoxResult.OK:
-                    XmlXpathGenerator.SaveAllGeneratedXmlToPath(NewObjectFormsPanel, XmlFileManager._ModConfigOutputPath, true);
+                    XmlXpathGenerator.SaveAllGeneratedXmlToPath(NewObjectFormsPanel, XmlFileManager.ModConfigOutputPath, true);
                     if (Properties.Settings.Default.AutoMoveMod) XmlFileManager.CopyAllOutputFiles();
                     this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
                     this.SearchViewModSelectionPanel.Children.Remove(this.LoadedModFilesSearchViewComboBox);
@@ -393,7 +426,7 @@ namespace SevenDaysToDieModCreator
 
             if (dialog.ShowDialog() == true)
             {
-                MainWindowFileController.FinishModInfoSave(dialog, CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
+                MainWindowFileController.FinishModInfoSave(CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
             }
         }
         private void OpenDirectEditModXmlViewButton_Click(object sender, RoutedEventArgs e)
@@ -430,7 +463,7 @@ namespace SevenDaysToDieModCreator
 
                 }
             }
-            DirectEditView directEdit = new DirectEditView(selectedWrapper, false, fileLocationPath: XmlFileManager._ModConfigOutputPath);
+            DirectEditView directEdit = new DirectEditView(selectedWrapper, false, fileLocationPath: XmlFileManager.ModConfigOutputPath);
             directEdit.Closed += DirectEdit_Closed;
             directEdit.Show();
         }
@@ -465,7 +498,7 @@ namespace SevenDaysToDieModCreator
                     return;
                 }
             }
-            DirectEditView directEdit = new DirectEditView(selectedWrapper, true, fileLocationPath: XmlFileManager._LoadedFilesPath);
+            DirectEditView directEdit = new DirectEditView(selectedWrapper, true, fileLocationPath: XmlFileManager.LoadedFilesPath);
             directEdit.Closed += DirectEdit_Closed;
             directEdit.Show();
         }
@@ -494,7 +527,7 @@ namespace SevenDaysToDieModCreator
             string gameModDirectory = Properties.Settings.Default.GameFolderModDirectory;
             MessageBoxResult result = MessageBox.Show(
                 "This will copy all local generated xmls files at " +
-                    XmlFileManager._ModConfigOutputPath + "\n" +
+                    XmlFileManager.ModConfigOutputPath + "\n" +
                 " and replace the files at \n" +
                 Path.Combine(gameModDirectory, Properties.Settings.Default.ModTagSetting ) + "\n" +
                 "Are you sure?",
@@ -635,6 +668,30 @@ namespace SevenDaysToDieModCreator
         private void OpenLocalizationMenuItem_Click(object sender, RoutedEventArgs e)
         {
             this.MainWindowFileController.HandleLocalizationFile();
+        }
+
+        private void NormalThemeMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.IsDarkModeActive = false;
+            Properties.Settings.Default.SettingIsMediumModeActive = false;
+            Properties.Settings.Default.Save();
+            SetBackgroundFromSetting(true);
+        }
+
+        private void MediumThemeMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.IsDarkModeActive = false;
+            Properties.Settings.Default.SettingIsMediumModeActive = true;
+            Properties.Settings.Default.Save();
+            SetBackgroundFromSetting(true);
+        }
+
+        private void DarkThemeMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.IsDarkModeActive = true;
+            Properties.Settings.Default.SettingIsMediumModeActive = false;
+            Properties.Settings.Default.Save();
+            SetBackgroundFromSetting(true);
         }
 
         //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)

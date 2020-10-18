@@ -51,11 +51,11 @@ namespace SevenDaysToDieModCreator.Models
                 {
                     TreeViewItem nextChildAsTree = (TreeViewItem)nextChild;
                     XmlObjectsListWrapper xmlObjectsListWrapper = newObjectFormsPanel.StackPanelLoadedListWrappers.GetValueOrDefault(nextChildAsTree.Uid);
-                    string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
+                    string parentPath = xmlObjectsListWrapper.XmlFile.ParentPath ?? "";
                     string xmlOut = xmlObjectsListWrapper == null ? "" : GenerateXmlWithWrapper(nextChildAsTree, xmlObjectsListWrapper, true);
                     if (!String.IsNullOrEmpty(xmlOut))
                     {
-                        XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.xmlFile.FileName, topTag + xmlOut.TrimEnd() + topTagEnd, Properties.Settings.Default.DoLogTimestampOnSave);
+                        XmlFileManager.WriteStringToFile(Path.Combine(path, parentPath), xmlObjectsListWrapper.XmlFile.FileName, topTag + xmlOut.TrimEnd() + topTagEnd, Properties.Settings.Default.DoLogTimestampOnSave);
                     }
                     if (writeToLog && !String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToLog(xmlOut, true);
                 }
@@ -76,8 +76,7 @@ namespace SevenDaysToDieModCreator.Models
             //We have a copied object creation tree view 
             else if (nextChildAsTree.Header.GetType() == typeof(Button))
             {
-                Button headerAsButton = nextChildAsTree.Header as Button;
-                if (headerAsButton != null )
+                if (nextChildAsTree.Header is Button headerAsButton)
                 {
                     xmlOut += GenerateObjectTreeXml(nextChildAsTree, xmlObjectsListWrapper, headerAsButton);
                 }
@@ -91,8 +90,8 @@ namespace SevenDaysToDieModCreator.Models
                     xmlOut += GenerateObjectTreeXml(nextChildAsTree, xmlObjectsListWrapper, nextChildTreeButton);
                 }
             }
-            string parentPath = xmlObjectsListWrapper.xmlFile.ParentPath == null ? "" : xmlObjectsListWrapper.xmlFile.ParentPath;
-            if (includeExistingData) existingWrapperFileData = XmlFileManager.ReadExistingFile(Path.Combine(parentPath, xmlObjectsListWrapper.xmlFile.FileName), Properties.Settings.Default.ModTagSetting);
+            string parentPath = xmlObjectsListWrapper.XmlFile.ParentPath ?? "";
+            if (includeExistingData) existingWrapperFileData = XmlFileManager.ReadExistingFile(Path.Combine(parentPath, xmlObjectsListWrapper.XmlFile.FileName), Properties.Settings.Default.ModTagSetting);
             if (!String.IsNullOrEmpty(xmlOut) && !String.IsNullOrEmpty(existingWrapperFileData)) xmlOut += existingWrapperFileData;
             return xmlOut;
         }
@@ -100,7 +99,7 @@ namespace SevenDaysToDieModCreator.Models
         private static string GenerateObjectTreeXml(TreeViewItem nextChildAsTree, XmlObjectsListWrapper xmlObjectsListWrapper, Button headerAsButton)
         {
             string xmlOut = "";
-            foreach (string nodeName in xmlObjectsListWrapper.allTopLevelTags)
+            foreach (string nodeName in xmlObjectsListWrapper.AllTopLevelTags)
             {
                 if (nodeName.Contains(headerAsButton.Uid))
                 {
@@ -120,14 +119,16 @@ namespace SevenDaysToDieModCreator.Models
                 {
                     if (!nextString.Equals(xPathAction)) attributeInAction += nextString + "_";
                 }
+                //Old substrng before simpification
+                //attributeInAction = attributeInAction.Substring(0, attributeInAction.Length - 1);
                 //Trim trailing underscore
-                attributeInAction = attributeInAction.Substring(0, attributeInAction.Length - 1);
+                attributeInAction = attributeInAction[0..^1];
             }
 
             string attributeName = "";
             string nodeToSkip;
             //If it is insert before or insert after and a top tag we don't want to skip the first tag.
-            if (((xPathAction.Equals(XPATH_ACTION_INSERT_AFTER) || xPathAction.Equals(XPATH_ACTION_INSERT_BEFORE)) && String.IsNullOrEmpty(attributeInAction)) && xmlObjectsListWrapper.allTopLevelTags.Contains(nodeName)) nodeToSkip = "";
+            if (((xPathAction.Equals(XPATH_ACTION_INSERT_AFTER) || xPathAction.Equals(XPATH_ACTION_INSERT_BEFORE)) && String.IsNullOrEmpty(attributeInAction)) && xmlObjectsListWrapper.AllTopLevelTags.Contains(nodeName)) nodeToSkip = "";
             else nodeToSkip = nodeName;
 
             string generatedXml = GenerateXmlForObject(topTree, "", nodeToSkip, xPathAction, nodeName, 1);
@@ -252,7 +253,9 @@ namespace SevenDaysToDieModCreator.Models
                 //Need to remove the previous closing tag and add the xml closing tag
                 else if (!String.IsNullOrEmpty(xmlOut) && didAddAttributes)
                 {
-                    xmlOut = xmlOut.Substring(0, xmlOut.Length - 3) + "/>\n";
+                    //Before simplification
+                    //xmlOut = xmlOut.Substring(0, xmlOut.Length - 3) + "/>\n";
+                    xmlOut = xmlOut[0..^3] + "/>\n";
                 }
             }
             //There were attributes but no children trees, add closing tag.
@@ -288,7 +291,7 @@ namespace SevenDaysToDieModCreator.Models
         {
             string addedViewTextStart = " <!--WARNING: Direct text edits made here will NOT be saved.-->\n\n" +
              "<!--To make direct file edits you can select a file below and open the direct editor window for the file.-->\n\n" +
-             "<!--You can also make direct changes to the file(s) at the current output location: \n" + XmlFileManager._ModConfigOutputPath + "-->\n";
+             "<!--You can also make direct changes to the file(s) at the current output location: \n" + XmlFileManager.ModConfigOutputPath + "-->\n";
             string unsavedGeneratedXmlStart = "<!-- -------------------------------------- Current Unsaved XML ----------------------------------- -->\n\n";
 
             string unsavedGeneratedXmlEnd = "\n\n<!-- --------------------------------------------------------------------------------------------------------- -->\n\n";
@@ -299,18 +302,20 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static string CombineAppendTags(XmlObjectsListWrapper Wrapper, string xmlToCombine)
         {
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = "\t";
-            settings.OmitXmlDeclaration = true;
+            XmlWriterSettings settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "\t",
+                OmitXmlDeclaration = true
+            };
 
             StringBuilder xmlOutBuilder = new StringBuilder();
             XmlWriter xmlWriter = XmlWriter.Create(xmlOutBuilder, settings);
-            foreach (string topTag in Wrapper.allTopLevelTags)
+            foreach (string topTag in Wrapper.AllTopLevelTags)
             {
 
                 //If the wrapper only has one top level tag
-                XmlDocument xmlDocument = Wrapper.allTopLevelTags.Count < 2
+                XmlDocument xmlDocument = Wrapper.AllTopLevelTags.Count < 2
                     ? ConsolidateByTag("xpath=\"/" + Wrapper.TopTagName + "\"", xmlToCombine)
                     : ConsolidateByTag("xpath=\"/" + Wrapper.TopTagName + "/" + topTag + "\"", xmlToCombine);
                 if (xmlDocument != null)

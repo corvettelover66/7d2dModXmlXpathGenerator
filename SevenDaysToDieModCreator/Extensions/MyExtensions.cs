@@ -19,14 +19,12 @@ namespace SevenDaysToDieModCreator.Extensions
             foreach (UIElement element in gridToTraverse.Children)
             {
                 int columnCount = 0;
-                TextBox textbox = element as TextBox;
-                if (textbox != null && textbox.Tag != null)
+                if (element is TextBox textbox && textbox.Tag != null)
                 {
                     if (textbox.Text.Contains(",")) csvToReturn += "\"" + textbox.Text + "\"" + textbox.Tag;
                     else csvToReturn += textbox.Text + textbox.Tag;
                 }
-                ComboBox comboBox = element as ComboBox;
-                if (comboBox != null) 
+                if (element is ComboBox comboBox) 
                 {
                     csvToReturn += comboBox.Text + comboBox.Tag;
                 }
@@ -96,7 +94,7 @@ namespace SevenDaysToDieModCreator.Extensions
         }
         public static ContextMenu AddContextMenu(this Control objectControl, RoutedEventHandler myOnClickFunction, string headerText, string onHoverMessageText = "", string xpathAction = "")
         {
-            ContextMenu newButtonRightClickMenu = objectControl.ContextMenu == null ? new ContextMenu() : objectControl.ContextMenu;
+            ContextMenu newButtonRightClickMenu = objectControl.ContextMenu ?? new ContextMenu();
             if (newButtonRightClickMenu.Tag == null) newButtonRightClickMenu.Tag = objectControl.GetType() == typeof(TextBox) ? objectControl.Tag : objectControl;
             MenuItem newContextMenuItem = new MenuItem
             {
@@ -166,8 +164,10 @@ namespace SevenDaysToDieModCreator.Extensions
             }
             else
             {
-                List<string> attributeValues = new List<string>();
-                attributeValues.Add(nextAttribute.Value);
+                List<string> attributeValues = new List<string>
+                {
+                    nextAttribute.Value
+                };
                 objectAttributesMap.Add(nextAttribute.Name, attributeValues);
             }
         }
@@ -181,8 +181,10 @@ namespace SevenDaysToDieModCreator.Extensions
             }
             else
             {
-                List<string> attributeValues = new List<string>();
-                attributeValues.Add(valueToAdd);
+                List<string> attributeValues = new List<string>
+                {
+                    valueToAdd
+                };
                 objectAttributesMap.Add(key, attributeValues);
             }
         }
@@ -225,7 +227,7 @@ namespace SevenDaysToDieModCreator.Extensions
         //Dictionary used to store any tooltips that have been created to reuse objects to save used memory.
         //Key the tooltip message
         //Value the existing tooltip for the message.
-        private static Dictionary<string, ToolTip> addedToolTips = new Dictionary<string, ToolTip>();
+        private static readonly Dictionary<string, ToolTip> addedToolTips = new Dictionary<string, ToolTip>();
         //Adds a hover message to an object control
         public static bool AddToolTip(this Control controlObject, string onHoverMessage, int fontSize = 0, SolidColorBrush forgroundColor = null)
         {
@@ -247,6 +249,7 @@ namespace SevenDaysToDieModCreator.Extensions
         }
         public static void SetComboBox<T>(this ComboBox comboBox, IList<T> listToUse, bool includeEmptyItem = false,  string name = null)
         {
+            comboBox.Background = Brushes.Red;
             if (name != null) comboBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
             if(includeEmptyItem)allItems.Add("              ");
@@ -268,8 +271,10 @@ namespace SevenDaysToDieModCreator.Extensions
         }
         public static MyComboBox CreateMyComboBoxList<T>(this IList<T> listToUse, XmlNode objectNode, bool isGameFileSearchTree = true, string name = null)
         {
-            MyComboBox newBox = new MyComboBox(objectNode, isGameFileSearchTree);
-            newBox.IsEditable = true;
+            MyComboBox newBox = new MyComboBox(objectNode, isGameFileSearchTree)
+            {
+                IsEditable = true
+            };
             if (name != null) newBox.Name = name;
             ObservableCollection<string> allItems = new ObservableCollection<string>();
             foreach (var nextString in listToUse.OrderBy(i => i))
@@ -287,8 +292,10 @@ namespace SevenDaysToDieModCreator.Extensions
         {
             if (boxToAddTo.ItemsSource == null)
             {
-                ObservableCollection<string> allItems = new ObservableCollection<string>();
-                allItems.Add(valueToAdd);
+                ObservableCollection<string> allItems = new ObservableCollection<string>
+                {
+                    valueToAdd
+                };
                 boxToAddTo.ItemsSource = allItems;
                 return;
             }

@@ -29,7 +29,7 @@ namespace SevenDaysToDieModCreator.Controllers
         private static ContextMenu XmlAttributeContextMenu { get; set; }
         public static void CreateEmptyNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey)
         {
-            if (xmlObjectListWrapper.allTopLevelTags.Count > 1) 
+            if (xmlObjectListWrapper.AllTopLevelTags.Count > 1) 
             {
                 Label topTreeLabel = new Label
                 {
@@ -41,7 +41,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 topTreeLabel.AddContextMenu(RemoveTreeNewObjectsContextMenu_Click, "Remove Object From View");
                 MainWindowViewController.NewObjectFormViewPanel.Children.Add(topTreeLabel);
             }
-            foreach (string topTag in xmlObjectListWrapper.allTopLevelTags)
+            foreach (string topTag in xmlObjectListWrapper.AllTopLevelTags)
             {
                 TreeViewItem returnedTree = GetEmptyNewObjectFormTree(xmlObjectListWrapper, topTag, wrapperKey);                
                 MainWindowViewController.NewObjectFormViewPanel.Children.Add(returnedTree);
@@ -94,12 +94,12 @@ namespace SevenDaysToDieModCreator.Controllers
             };
             newObjectFormTree.AddToolTip("Here you can create new " + tagName + " tags");
 
-            newObjectFormTree = SetEmptyNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newObjectFormTree, tagName, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue());
+            newObjectFormTree = SetEmptyNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newObjectFormTree, tagName, xmlObjectListWrapper.ObjectNameToChildrenMap.GetDictionaryAsListQueue());
             return newObjectFormTree;
         }
         public static TreeViewItem SetEmptyNewObjectFormTree(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, string currentTagName, Dictionary<string, Queue<string>> childrenDictionary, bool doSkipFirstAttributeSet = false, HashSet<string> alreadyAddedChildNodes = null)
         {
-            List<string> attributes = xmlObjectListWrapper.objectNameToAttributesMap.GetValueOrDefault(currentTagName);
+            List<string> attributes = xmlObjectListWrapper.ObjectNameToAttributesMap.GetValueOrDefault(currentTagName);
             if (attributes != null && !doSkipFirstAttributeSet) topTreeView = SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, currentTagName);
 
             if (topTreeView != null)
@@ -296,14 +296,12 @@ namespace SevenDaysToDieModCreator.Controllers
                 Uid = wrapperKey,
                 FontSize = MainWindowViewController.ObjectTreeFontChange + 4,
             };
-            return SetEmptyNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newTopTree, startingXmlTagName, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue(), doSkipFirstAttributes);
+            return SetEmptyNewObjectFormTree(xmlObjectListWrapper, wrapperKey, newTopTree, startingXmlTagName, xmlObjectListWrapper.ObjectNameToChildrenMap.GetDictionaryAsListQueue(), doSkipFirstAttributes);
         }
         private static bool SetNextEmptyNewObjectFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, string tagName, Dictionary<string, Queue<string>> allChildrenDictionary, HashSet<string> alreadyAddedChildNodes = null)
         {
             bool hasChildren = false;
-            Queue<string> allChildren = allChildrenDictionary != null
-                 ? allChildrenDictionary.GetValueOrDefault(tagName)
-                 : null;
+            Queue<string> allChildren = allChildrenDictionary?.GetValueOrDefault(tagName);
 
             if (allChildren != null && allChildren.Count > 0)
             {
@@ -387,8 +385,8 @@ namespace SevenDaysToDieModCreator.Controllers
                 XmlObjectsListWrapper modWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(nextMod + "_" + xmlObjectListWrapper.GenerateDictionaryKey());
                 if (modWrapper != null) 
                 {
-                    Dictionary<string, List<string>> attributesDictionary = modWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(currentTagName);
-                    List<string> attributeCommon = attributesDictionary != null ? attributesDictionary.GetValueOrDefault(nextAttribute) : null;
+                    Dictionary<string, List<string>> attributesDictionary = modWrapper.ObjectNameToAttributeValuesMap.GetValueOrDefault(currentTagName);
+                    List<string> attributeCommon = attributesDictionary?.GetValueOrDefault(nextAttribute);
                     if(attributeCommon != null)allCommonAttributes.UnionWith(attributeCommon);                
                 }
             }
@@ -401,7 +399,7 @@ namespace SevenDaysToDieModCreator.Controllers
             ComboBox newAttributesComboBox = null;
             if (allCommonAttributes == null)
             {
-                Dictionary<string, List<string>> attributesDictionary = xmlObjectListWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(currentTagName);
+                Dictionary<string, List<string>> attributesDictionary = xmlObjectListWrapper.ObjectNameToAttributeValuesMap.GetValueOrDefault(currentTagName);
                 List<string> attributeCommon = attributesDictionary?.GetValueOrDefault(nextAttribute);
                 newAttributesComboBox = attributeCommon?.CreateComboBoxFromList(forgroundColor: Brushes.Blue);
             }
@@ -457,7 +455,7 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         private static TreeViewItem GetNewObjectFormTreeWithExistingData(XmlObjectsListWrapper xmlObjectListWrapper, XmlNode startingNode, string wrapperKey)
         {
-            TreeViewItem newTreeView = SetNewObjectFormTreeWithExistingData(xmlObjectListWrapper, wrapperKey, startingNode, xmlObjectListWrapper.objectNameToChildrenMap.GetDictionaryAsListQueue());
+            TreeViewItem newTreeView = SetNewObjectFormTreeWithExistingData(xmlObjectListWrapper, wrapperKey, startingNode, xmlObjectListWrapper.ObjectNameToChildrenMap.GetDictionaryAsListQueue());
             newTreeView.FontSize = MainWindowViewController.ObjectTreeFontChange + 6;
             newTreeView.IsExpanded = true;
             newTreeView.AddToolTip("Here you can create new " + startingNode.Name + " tags");
@@ -467,10 +465,10 @@ namespace SevenDaysToDieModCreator.Controllers
         private static TreeViewItem SetNewObjectFormTreeWithExistingData(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, XmlNode currentNode, Dictionary<string, Queue<string>> allChildrenDictionary, string nodeName = null)
         {
             string nodeNameToUse = String.IsNullOrEmpty(nodeName) ? currentNode.Name : nodeName;
-            List<string> attributes = xmlObjectListWrapper.objectNameToAttributesMap.GetValueOrDefault(nodeNameToUse);
+            List<string> attributes = xmlObjectListWrapper.ObjectNameToAttributesMap.GetValueOrDefault(nodeNameToUse);
             TreeViewItem newTreeView = new TreeViewItem();
             if (attributes != null) newTreeView = SetNextObjectTreeViewAtrributes(attributes, xmlObjectListWrapper, nodeNameToUse, currentNode);
-            newTreeView = SetNextNewObjectWithExistingDataFormChildren(xmlObjectListWrapper, wrapperKey, newTreeView, currentNode, allChildrenDictionary, nodeNameToUse);
+            newTreeView = SetNextNewObjectWithExistingDataFormChildren(xmlObjectListWrapper, wrapperKey, newTreeView, currentNode, allChildrenDictionary);
             if (newTreeView != null) 
             {
                 newTreeView.AddToolTip("Edit form for the " + nodeNameToUse + " object");
@@ -497,7 +495,7 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             return newTreeView;
         }
-        private static TreeViewItem SetNextNewObjectWithExistingDataFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, XmlNode currentNode, Dictionary<string, Queue<string>> allChildrenDictionary, string nodeName = null)
+        private static TreeViewItem SetNextNewObjectWithExistingDataFormChildren(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, TreeViewItem topTreeView, XmlNode currentNode, Dictionary<string, Queue<string>> allChildrenDictionary)
         {
             HashSet<string> childNodeNames = new HashSet<string>();
             if (currentNode != null && currentNode.HasChildNodes)
@@ -539,7 +537,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     return;
                 }
                 bool didSetTree = false;
-                foreach (string nodeName in gameFileWrapper.allTopLevelTags)
+                foreach (string nodeName in gameFileWrapper.AllTopLevelTags)
                 { 
                     if (nodeName.Contains(xmlNode.Name))
                     {
@@ -566,7 +564,7 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         public static TreeViewItem GetSearchTreeViewRecursive(XmlObjectsListWrapper xmlObjectListWrapper, string wrapperKey, bool addContextMenu = true, bool includeChildrenInOnHover = false, bool includeComments = false)
         {
-            XmlNodeList allObjects = xmlObjectListWrapper.xmlFile.xmlDocument.GetElementsByTagName(xmlObjectListWrapper.TopTagName);
+            XmlNodeList allObjects = xmlObjectListWrapper.XmlFile.xmlDocument.GetElementsByTagName(xmlObjectListWrapper.TopTagName);
             TreeViewItem topObjectsTreeView = new TreeViewItem()
             {
                 Header = xmlObjectListWrapper.TopTagName,
@@ -637,13 +635,13 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
                 if (nextNewTreeViewItem != null)
                 {
-                    AddSearchTreeContextMenu(nextNewTreeViewItem, xmlObjectListWrapper, nextObjectNode.Name, addContextMenu);
+                    AddSearchTreeContextMenu(nextNewTreeViewItem, xmlObjectListWrapper, addContextMenu);
                     topObjectsTreeView.Items.Add(nextNewTreeViewItem);
                 }
             }
             return topObjectsTreeView;
         }
-        private static void AddSearchTreeContextMenu(TreeViewItem nextNewTreeViewItem, XmlObjectsListWrapper xmlObjectListWrapper, string nextObjectNodeName, bool isGameFileTree)
+        private static void AddSearchTreeContextMenu(TreeViewItem nextNewTreeViewItem, XmlObjectsListWrapper xmlObjectListWrapper, bool isGameFileTree)
         {
             if (isGameFileTree)
             {
@@ -708,7 +706,7 @@ namespace SevenDaysToDieModCreator.Controllers
             {
                 XmlObjectsListWrapper standardFileWrapper = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(modListWrapper.GenerateDictionaryKey());
                 string nodeName = controlAsTextBox.Uid;
-                if (standardFileWrapper != null && standardFileWrapper.allTopLevelTags.Contains(nodeName))
+                if (standardFileWrapper != null && standardFileWrapper.AllTopLevelTags.Contains(nodeName))
                 {
                     controlToAddMenu.AddContextMenu(CopyObject_ContextMenuClick,
                         "Copy Object",
@@ -718,7 +716,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 {
                     MessageBox.Show(
                         "Failed loading the copy functionality for the mod file. That means you will be unable to copy objects using the search tree.\n\n" +
-                        "To fix this you need to load the game xml file " + modListWrapper.xmlFile.FileName + ".",
+                        "To fix this you need to load the game xml file " + modListWrapper.XmlFile.FileName + ".",
                         "Failed Loading Edit Functionality",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
@@ -787,7 +785,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     bool doSkipAttributes = true;
                     if (xPathAction.Equals(XmlXpathGenerator.XPATH_ACTION_INSERT_BEFORE) || xPathAction.Equals(XmlXpathGenerator.XPATH_ACTION_INSERT_AFTER))
                     {
-                        if (!wrapperToUse.allTopLevelTags.Contains(xmlNode.Name)) nodeName = xmlNode.ParentNode.Name;
+                        if (!wrapperToUse.AllTopLevelTags.Contains(xmlNode.Name)) nodeName = xmlNode.ParentNode.Name;
                         else doSkipAttributes = false;
                     }
                     newObjectFormTree = GetNewObjectFormTreeAddButton(wrapperToUse, senderTreeView.Uid.ToString(), nodeName, doSkipAttributes);
@@ -875,8 +873,8 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             else if (!senderAsMenuItem.Name.Equals(XmlXpathGenerator.XPATH_ACTION_REMOVE))
             {
-                List<string> attributeCommon = xmlObjectListWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(xmlNode.Name).GetValueOrDefault(xmlAttributeName);
-                ComboBox newAttributesComboBox = attributeCommon != null ? attributeCommon.CreateComboBoxFromList(forgroundColor: Brushes.Blue) : null;
+                List<string> attributeCommon = xmlObjectListWrapper.ObjectNameToAttributeValuesMap.GetValueOrDefault(xmlNode.Name).GetValueOrDefault(xmlAttributeName);
+                ComboBox newAttributesComboBox = attributeCommon?.CreateComboBoxFromList(forgroundColor: Brushes.Blue);
                 if (newAttributesComboBox != null)
                 {
                     newAttributesComboBox.DropDownClosed += NewAttributesComboBox_DropDownClosed;
@@ -1075,7 +1073,7 @@ namespace SevenDaysToDieModCreator.Controllers
             TreeViewItem senderAsTreeViewItem = sender as TreeViewItem;
             XmlNode treeViewNode = senderAsTreeViewItem.Tag as XmlNode;
             XmlAttribute nextAvailableAttribute = treeViewNode.GetAvailableAttribute();
-            string attributeValue = nextAvailableAttribute != null ? nextAvailableAttribute.Value : null;
+            string attributeValue = nextAvailableAttribute?.Value;
             if(!String.IsNullOrEmpty(attributeValue))Clipboard.SetText(attributeValue);
         }
     }

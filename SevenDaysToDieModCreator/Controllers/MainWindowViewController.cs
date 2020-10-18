@@ -15,7 +15,7 @@ namespace SevenDaysToDieModCreator.Controllers
         public static CheckBox IncludeAllModsCheckBox { get; set; }
         public static ICSharpCode.AvalonEdit.TextEditor XmlOutputBox { get; set; }
 
-        private long FILE_SIZE_THRESHOLD = 1000000;
+        private readonly long FILE_SIZE_THRESHOLD = 1000000;
         //A dictionary for finding XmlListWrappers by filename
         //Key file name without .xml i.e. recipes, progressions, items
         //The corressponding list wrapper
@@ -41,7 +41,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
             XmlObjectsListWrapper leftObjectWrapper = searchTreeFormsPanel.StackPanelLoadedListWrappers.GetValueOrDefault(selectedObject);
-            if (leftObjectWrapper == null || leftObjectWrapper.xmlFile.FileSize < this.FILE_SIZE_THRESHOLD)
+            if (leftObjectWrapper == null || leftObjectWrapper.XmlFile.FileSize < this.FILE_SIZE_THRESHOLD)
             {
                 TreeViewItem nextTreeView = TreeViewGenerator.GetSearchTreeViewRecursive(selectedWrapper, selectedObject, addContextMenu: doAddContextMenu, includeChildrenInOnHover: includeChildrenInOnHover, includeComments: includeComments);
                 nextTreeView.Header = selectedObject;
@@ -64,6 +64,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
         }
+
         public void AddObjectTree(string newObjectViewLoadedFilesComboBoxText)
         {
             if (String.IsNullOrEmpty(newObjectViewLoadedFilesComboBoxText)) return;

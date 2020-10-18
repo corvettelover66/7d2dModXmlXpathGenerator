@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:SevenDaysToDieModCreator"
         mc:Ignorable="d"
         Title="MainWindow" Height="{Binding SystemParameters.PrimaryScreenHeight}" Width="{Binding SystemParameters.PrimaryScreenHeight}">
+    <!-- Background="Bisque" -->
     <Grid Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition MaxHeight="26"></RowDefinition>
@@ -30,6 +31,11 @@
                         <MenuItem Header="T_imestamp" Name="ChangeLogTimeStampMenuItem"  Click="ChangeLogTimeStampMenuItem_Click" />
                         <MenuItem Header="O_pen Localization" Name="OpenLocalizationMenuItem"  Click="OpenLocalizationMenuItem_Click" />
                         <MenuItem Header="_Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
+                    </MenuItem>
+                    <MenuItem Header="Theme">
+                        <MenuItem Header="_Normal" Name="NormalThemeMenuItem" Click="NormalThemeMenuItem_Click" />
+                        <MenuItem Header="_Medium" Name="MediumThemeMenuItem" Click="MediumThemeMenuItem_Click"/>
+                        <MenuItem Header="_Dark" Name="DarkThemeMenuItem" Click="DarkThemeMenuItem_Click"/>
                     </MenuItem>
                     <MenuItem Header="_Help" Name="HelpMenuItem"  Click="HelpMenu_Click"/>
                 </Menu>

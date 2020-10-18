@@ -7,18 +7,18 @@ namespace SevenDaysToDieModCreator.Models
     class XmlFileManager
     {
         private static string ReadFileContents;
-        public static string _fileOutputPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
-        public static string _ModDirectoryOutputPath
+        public static string FileOutputPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
+        public static string ModDirectoryOutputPath
         {
             get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/", Properties.Settings.Default.ModTagSetting);
-            set => _ModDirectoryOutputPath = value;
+            set => ModDirectoryOutputPath = value;
         }
-        public static string _ModConfigOutputPath
+        public static string ModConfigOutputPath
         {
             get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + Properties.Settings.Default.ModTagSetting + "/Config/");
-            set => _ModConfigOutputPath = value;
+            set => ModConfigOutputPath = value;
         }
-        public static string _LoadedFilesPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
+        public static string LoadedFilesPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
         public static string Xui_Folder_Name = "XUi";
 
         internal static void ReplaceTagsInModFiles(string oldCustomTag, string newCustomTag)
@@ -79,8 +79,8 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static List<string> GetCustomModFoldersInOutput()
         {
-            if (!Directory.Exists(_fileOutputPath + "/Mods/")) Directory.CreateDirectory(_fileOutputPath + "/Mods/");
-            string[] allDirs = Directory.GetDirectories(_fileOutputPath + "/Mods/", "*");
+            if (!Directory.Exists(FileOutputPath + "/Mods/")) Directory.CreateDirectory(FileOutputPath + "/Mods/");
+            string[] allDirs = Directory.GetDirectories(FileOutputPath + "/Mods/", "*");
             List<string> justChildrenPathNames = new List<string>();
             foreach (string nextDir in allDirs)
             {
@@ -113,18 +113,18 @@ namespace SevenDaysToDieModCreator.Models
         {
             foreach (string nextFile in allXmlsInOutputPath)
             {
-                allModFiles.Add(filePrefix + Path.GetFileName(nextFile.Substring(0, nextFile.Length - 4)));
+                allModFiles.Add(filePrefix + Path.GetFileName(nextFile[0..^4]));
             }
         }
         public static void WriteStringToLog(string xml, bool addTimeStamp = true)
         {
-            if (!Directory.Exists(_fileOutputPath)) Directory.CreateDirectory(_fileOutputPath);
-            string filePath = _fileOutputPath + logFileName;
-            if (!File.Exists(filePath)) CreateFilePath(_fileOutputPath, logFileName);
+            if (!Directory.Exists(FileOutputPath)) Directory.CreateDirectory(FileOutputPath);
+            string filePath = FileOutputPath + logFileName;
+            if (!File.Exists(filePath)) CreateFilePath(FileOutputPath, logFileName);
 
             if (addTimeStamp) xml = "<!-- Written " + DateTime.Now.ToString("MMMM dd, yyyy") + " at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + xml;
 
-            AppendToFile(_fileOutputPath, logFileName, xml);
+            AppendToFile(FileOutputPath, logFileName, xml);
         }
         public static string GetFileContents(string path, string fileName)
         {
@@ -137,7 +137,7 @@ namespace SevenDaysToDieModCreator.Models
         //Pass in the Custom Tag to exclude it from the read.
         public static string ReadExistingFile(string fileName, string MyCustomTagName = null)
         {
-            string fileContents = GetFileContents(_ModConfigOutputPath, fileName);
+            string fileContents = GetFileContents(ModConfigOutputPath, fileName);
             if (fileContents != null && MyCustomTagName != null)
             {
                 fileContents = fileContents.Replace("<" + MyCustomTagName + ">", "");
@@ -148,7 +148,7 @@ namespace SevenDaysToDieModCreator.Models
         }
         private static void ReadFile(string path)
         {
-            FileInfo fileInfo = null;
+            FileInfo fileInfo;
             StreamReader streamReader =null;
             string line = null;
             try
@@ -260,15 +260,15 @@ namespace SevenDaysToDieModCreator.Models
             string gameModDirectory = Path.Combine(Properties.Settings.Default.GameFolderModDirectory, Properties.Settings.Default.ModTagSetting);
 
             Directory.CreateDirectory(gameModDirectory);
-            Directory.CreateDirectory(_ModConfigOutputPath);
-            if (!String.IsNullOrEmpty(gameModDirectory)) CopyAllFilesToPath(_ModDirectoryOutputPath, gameModDirectory, true);
+            Directory.CreateDirectory(ModConfigOutputPath);
+            if (!String.IsNullOrEmpty(gameModDirectory)) CopyAllFilesToPath(ModDirectoryOutputPath, gameModDirectory, true);
         }
         internal static void RenameModDirectory(string oldModName, string newModName)
         {
             string tempDirName = "temp";
-            string oldModDirectory = Path.Combine(_fileOutputPath, "Mods", oldModName);
-            string newModDirectory = Path.Combine(_fileOutputPath, "Mods", newModName);
-            string tempModDirectory = Path.Combine(_fileOutputPath, "Mods", tempDirName);
+            string oldModDirectory = Path.Combine(FileOutputPath, "Mods", oldModName);
+            string newModDirectory = Path.Combine(FileOutputPath, "Mods", newModName);
+            string tempModDirectory = Path.Combine(FileOutputPath, "Mods", tempDirName);
             //Handle edge case where directory names are the same when ignoreing case but they are actually different when taking in Case. Windows ignores the case and I don't want to.
             if (oldModName.ToLower().Equals(newModName.ToLower())
                 && !oldModName.Equals(newModName))

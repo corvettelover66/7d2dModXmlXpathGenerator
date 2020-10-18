@@ -20,7 +20,7 @@ namespace SevenDaysToDieModCreator.Views
                 ModInfo newModIfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
                 if (!this.StartingModTagSetting.Equals(newModTagSetting) && ChangeModTagCheckBox.IsChecked.Value) 
                 {
-                    MessageBoxResult result = MessageBoxResult.None;
+                    MessageBoxResult result;
                     try
                     {
                         XmlFileManager.RenameModDirectory(StartingModTagSetting, newModTagSetting);
@@ -87,8 +87,7 @@ namespace SevenDaysToDieModCreator.Views
 
         private void AllTagsComboBox_DropDownClosed(object sender, EventArgs e)
         {
-            ComboBox senderAsComboBox = sender as ComboBox;
-            if (senderAsComboBox != null)
+            if (sender is ComboBox senderAsComboBox)
             {
                 if (!String.IsNullOrEmpty(senderAsComboBox.Text.Trim()))
                 {
@@ -109,8 +108,7 @@ namespace SevenDaysToDieModCreator.Views
         }
         private void AllTagsComboBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            ComboBox senderAsComboBox = sender as ComboBox;
-            if (senderAsComboBox != null) 
+            if (sender is ComboBox senderAsComboBox)
             {
                 VerifyTagNameCorrectness(senderAsComboBox);
             }
@@ -168,7 +166,7 @@ namespace SevenDaysToDieModCreator.Views
             if (VerifyTagNameCorrectness(this.AllTagsComboBox)) 
             {
                 string modInfoXmlOut = this.ResponseText;
-                XmlFileManager.WriteStringToFile(XmlFileManager._ModDirectoryOutputPath, ModInfo.MOD_INFO_FILE_NAME, modInfoXmlOut);
+                XmlFileManager.WriteStringToFile(XmlFileManager.ModDirectoryOutputPath, ModInfo.MOD_INFO_FILE_NAME, modInfoXmlOut);
                 MessageBox.Show("Saved mod info for " + this.AllTagsComboBox.Text + ".", "Saving Mod info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }

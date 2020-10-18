@@ -130,5 +130,29 @@ namespace SevenDaysToDieModCreator.Properties {
                 this["IgnoreAllAttributesCheckbox"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsDarkModeActive {
+            get {
+                return ((bool)(this["IsDarkModeActive"]));
+            }
+            set {
+                this["IsDarkModeActive"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SettingIsMediumModeActive {
+            get {
+                return ((bool)(this["SettingIsMediumModeActive"]));
+            }
+            set {
+                this["SettingIsMediumModeActive"] = value;
+            }
+        }
     }
 }

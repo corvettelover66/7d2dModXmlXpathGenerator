@@ -10,11 +10,11 @@ namespace SevenDaysToDieModCreator.Models
         public string TopTagName { get; private set; }
         public string FirstChildTagName { get; private set; }
 
-        public XmlFileObject xmlFile { get; private set; }
+        public XmlFileObject XmlFile { get; private set; }
         //Any Object's Common Attributes Note: Values are unique to the tag
         //Key = "Tag Name" E.G. "recipe or ingredient"
         //Value = "All commmon attributes for that tag"
-        public Dictionary<string, List<string>> objectNameToAttributesMap { get; private set; }
+        public Dictionary<string, List<string>> ObjectNameToAttributesMap { get; private set; }
         //Any Object's Common Attributes Note: Values are unique to the tag
         //First level Dictionary
         //Key = "Tag Name" E.G. "recipe or ingredient"
@@ -22,59 +22,59 @@ namespace SevenDaysToDieModCreator.Models
         //Attributes Dictionary
         //Key = "Attribute name" E.G. "name or count"
         //Value = "All common values for that attribute, exclusive to the Object Tag"
-        public Dictionary<string, Dictionary<string, List<string>>> objectNameToAttributeValuesMap { get; private set; }
+        public Dictionary<string, Dictionary<string, List<string>>> ObjectNameToAttributeValuesMap { get; private set; }
 
         //A dictionary of any Tag name to all children tag names
         //Key = "Tag Name" E.G. "recipe or ingredient"
         //Value = "List of all child tag names"
-        public Dictionary<string, List<string>> objectNameToChildrenMap { get; private set; }
+        public Dictionary<string, List<string>> ObjectNameToChildrenMap { get; private set; }
         //A List of string with all topLevelNodes in the XML file, for most that is only one for progressions that is four
-        public List<string> allTopLevelTags { get; private set; }
+        public List<string> AllTopLevelTags { get; private set; }
 
         public XmlObjectsListWrapper(XmlFileObject xmlFileObject)
         {
-            this.xmlFile = xmlFileObject;
-            this.objectNameToAttributesMap = new Dictionary<string, List<string>>();
-            this.objectNameToAttributeValuesMap = new Dictionary<string, Dictionary<string, List<string>>>();
-            this.objectNameToChildrenMap = new Dictionary<string, List<string>>();
-            this.allTopLevelTags = new List<string>();
+            this.XmlFile = xmlFileObject;
+            this.ObjectNameToAttributesMap = new Dictionary<string, List<string>>();
+            this.ObjectNameToAttributeValuesMap = new Dictionary<string, Dictionary<string, List<string>>>();
+            this.ObjectNameToChildrenMap = new Dictionary<string, List<string>>();
+            this.AllTopLevelTags = new List<string>();
 
             TraverseXml(false);
             SetTopLevelNodes();
         }
         public string GenerateDictionaryKey() 
         {
-            return  this.xmlFile.ParentPath == null ? this.xmlFile.GetFileNameWithoutExtension() : this.xmlFile.ParentPath + "_" + this.xmlFile.GetFileNameWithoutExtension();
+            return  this.XmlFile.ParentPath == null ? this.XmlFile.GetFileNameWithoutExtension() : this.XmlFile.ParentPath + "_" + this.XmlFile.GetFileNameWithoutExtension();
 
         }
         public void ClearAllLists()
         {
-            this.objectNameToAttributesMap.Clear();
-            this.objectNameToAttributeValuesMap.Clear();
-            this.objectNameToChildrenMap.Clear();
-            allTopLevelTags.Clear();
+            this.ObjectNameToAttributesMap.Clear();
+            this.ObjectNameToAttributeValuesMap.Clear();
+            this.ObjectNameToChildrenMap.Clear();
+            AllTopLevelTags.Clear();
         }
         public void TraverseXml(bool clearList = true)
         {
-            string firstChildName = this.xmlFile.xmlDocument.DocumentElement.FirstChild.Name;
+            string firstChildName = this.XmlFile.xmlDocument.DocumentElement.FirstChild.Name;
             int count = 0;
-            while (firstChildName.Contains("#") && count != this.xmlFile.xmlDocument.DocumentElement.ChildNodes.Count)
+            while (firstChildName.Contains("#") && count != this.XmlFile.xmlDocument.DocumentElement.ChildNodes.Count)
             {
-                firstChildName = this.xmlFile.xmlDocument.DocumentElement.ChildNodes.Item(count).Name;
+                firstChildName = this.XmlFile.xmlDocument.DocumentElement.ChildNodes.Item(count).Name;
                 count++;
             }
             this.FirstChildTagName = firstChildName;
-            this.TopTagName = this.xmlFile.xmlDocument.DocumentElement.Name;
+            this.TopTagName = this.XmlFile.xmlDocument.DocumentElement.Name;
             if (clearList) ClearAllLists();
-            XmlNodeList allObjects = this.xmlFile.xmlDocument.DocumentElement.ChildNodes;
+            XmlNodeList allObjects = this.XmlFile.xmlDocument.DocumentElement.ChildNodes;
             TraverseXmlNodeList(allObjects, "");
         }
         private void SetTopLevelNodes()
         {
-            XmlNodeList allObjects = this.xmlFile.xmlDocument.DocumentElement.ChildNodes;
+            XmlNodeList allObjects = this.XmlFile.xmlDocument.DocumentElement.ChildNodes;
             foreach (XmlNode nextObjectNode in allObjects)
             {
-                if (!nextObjectNode.Name.Contains("#")) allTopLevelTags.AddUnique(nextObjectNode.Name);
+                if (!nextObjectNode.Name.Contains("#")) AllTopLevelTags.AddUnique(nextObjectNode.Name);
             }
         }
         public void TraverseXmlNodeList(XmlNodeList allObjects, String lastParentName)
@@ -89,16 +89,16 @@ namespace SevenDaysToDieModCreator.Models
             if (nextObjectNode == null || nextObjectNode.Name.Contains("#")) return;
             else if (lastParentName.Length > 0)
             {
-                List<string> childrenList = this.objectNameToChildrenMap.GetValueOrDefault(lastParentName);
+                List<string> childrenList = this.ObjectNameToChildrenMap.GetValueOrDefault(lastParentName);
                 childrenList.AddUnique(nextObjectNode.Name);
             }
             if (nextObjectNode.Attributes != null) TraverseAttributes(nextObjectNode);
             if (nextObjectNode.HasChildNodes)
             {
-                List<string> currentMap = this.objectNameToChildrenMap.GetValueOrDefault(nextObjectNode.Name);
+                List<string> currentMap = this.ObjectNameToChildrenMap.GetValueOrDefault(nextObjectNode.Name);
                 if (currentMap == null)
                 {
-                    this.objectNameToChildrenMap.Add(nextObjectNode.Name, new List<string>());
+                    this.ObjectNameToChildrenMap.Add(nextObjectNode.Name, new List<string>());
                 }
                 TraverseXmlNodeList(nextObjectNode.ChildNodes, nextObjectNode.Name);
             }
@@ -109,13 +109,13 @@ namespace SevenDaysToDieModCreator.Models
             {
                 if (nextAttribute.Name.Contains("name"))
                 {
-                    this.objectNameToAttributesMap.AddUniqueValueToMap(nextObjectNode.Name, nextAttribute.Name);
-                    this.objectNameToAttributeValuesMap.AddUniqueAttributeToMapOfMaps(nextObjectNode.Name, nextAttribute);
+                    this.ObjectNameToAttributesMap.AddUniqueValueToMap(nextObjectNode.Name, nextAttribute.Name);
+                    this.ObjectNameToAttributeValuesMap.AddUniqueAttributeToMapOfMaps(nextObjectNode.Name, nextAttribute);
                 }
                 else if (!nextAttribute.Value.Contains("whitspace"))
                 {
-                    this.objectNameToAttributesMap.AddUniqueValueToMap(nextObjectNode.Name, nextAttribute.Name);
-                    this.objectNameToAttributeValuesMap.AddUniqueAttributeToMapOfMaps(nextObjectNode.Name, nextAttribute);
+                    this.ObjectNameToAttributesMap.AddUniqueValueToMap(nextObjectNode.Name, nextAttribute.Name);
+                    this.ObjectNameToAttributeValuesMap.AddUniqueAttributeToMapOfMaps(nextObjectNode.Name, nextAttribute);
                 }
             }
         }

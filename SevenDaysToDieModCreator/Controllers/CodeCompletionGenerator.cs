@@ -13,7 +13,7 @@ namespace SevenDaysToDieModCreator.Controllers
             data.Add(new MyCompletionData("!-- -->", "Xml Comment: "));
             data.Add(new MyCompletionData("!-- \n\n -->", "Xml Comment on multiple lines: "));
             AddXpathCommands(data);
-            foreach (string nextKey in wrapper.objectNameToAttributeValuesMap.Keys) 
+            foreach (string nextKey in wrapper.ObjectNameToAttributeValuesMap.Keys) 
             {
                 string justTag = nextKey;
                 data.Add(new MyCompletionData(justTag, "Xml Node: "));
@@ -53,10 +53,10 @@ namespace SevenDaysToDieModCreator.Controllers
         }
         private static void AddAttributesFromWrapper(XmlObjectsListWrapper wrapper, IList<ICompletionData> data, bool excludeQuotes = false)
         {
-            foreach (string nextKey in wrapper.objectNameToAttributeValuesMap.Keys)
+            foreach (string nextKey in wrapper.ObjectNameToAttributeValuesMap.Keys)
             {
                 //Get an attribute dictionary for a tag
-                Dictionary<string, List<string>> attributeDictinaryForTag = wrapper.objectNameToAttributeValuesMap.GetValueOrDefault(nextKey);
+                Dictionary<string, List<string>> attributeDictinaryForTag = wrapper.ObjectNameToAttributeValuesMap.GetValueOrDefault(nextKey);
                 if (attributeDictinaryForTag != null)
                 {
                     foreach (string attributeKey in attributeDictinaryForTag.Keys)
@@ -82,9 +82,9 @@ namespace SevenDaysToDieModCreator.Controllers
         {
             IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
             SortedSet<string> allKeysToAdd = new SortedSet<string>();
-            foreach (string nextKey in gameFileWrapper.objectNameToAttributeValuesMap.Keys)
+            foreach (string nextKey in gameFileWrapper.ObjectNameToAttributeValuesMap.Keys)
             {
-                Dictionary<string, List<string>> attributeDictinaryForTag = gameFileWrapper.objectNameToAttributeValuesMap.GetValueOrDefault(nextKey);
+                Dictionary<string, List<string>> attributeDictinaryForTag = gameFileWrapper.ObjectNameToAttributeValuesMap.GetValueOrDefault(nextKey);
                 if (attributeDictinaryForTag != null)
                 {
                     foreach (string attributeKey in attributeDictinaryForTag.Keys)
@@ -105,7 +105,7 @@ namespace SevenDaysToDieModCreator.Controllers
         internal static IList<ICompletionData> GenerateEndTagList(CompletionWindow completionWindow, XmlObjectsListWrapper wrapper)
         {
             IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
-            foreach (string nextKey in wrapper.objectNameToAttributeValuesMap.Keys)
+            foreach (string nextKey in wrapper.ObjectNameToAttributeValuesMap.Keys)
             {
                 string justClosingTag = "</" + nextKey + ">";
                 data.Add(new MyCompletionData(justClosingTag, "Xml Node Closing tag: "));
