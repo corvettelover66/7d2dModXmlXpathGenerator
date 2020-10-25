@@ -69,9 +69,6 @@ TODO
 EASY:
 -Add a setting to change the search box threshold
 +Force on focus when opening a direct edit window
-+Add a check to remove object function to check if it is the last in the tree, rather than go off of the first one. That way you can remove unwanted other trees.
-+Add ignore functionality to child trees in new object view.
-+Add logic to auto remove config tags from the files.
 +Add a checkbox to stop updates in the XmlOutputBox
 +Add a small edit text window for storing values.
 +add a file menu to delete all empty files.
@@ -91,17 +88,39 @@ MEDIUM:
 +++Add comments for every file!
 
 HARD:
--When updating a mod, using the Load mod menu item, merge the files.
 -Add the possibility to add multiple attributes to the xpath action.
 -Finish the duplicate an object in the left new object panel feature. (This is essentially already in the app. With the copy object command in the search tree you can achieve this functionality)
 -Add the ability to validate Recipes against the items xml to help with in game issues.
 -In mod trees, on right click, have option to search a file for dependencies.
--Add in functionality to handle the locilization file.
 -Find a way to live update search trees on file changes.
 -Remove all hardcoded ui strings into a properties file for easily translating the application to other languages.(Not super hard, just time consuming)
 +Add side by side search trees for easier comparison.
 
 Version History
+1.6.9
+- Added small fix to loading the output path to prevent crashing if directories are modified manually incorrectly.
+- Completely refactored and rebuit the create/edit mod window. Comes with a varety of changes.
+	- Change mod tag is now a seperate button. This comes with a tag name find and replace to easily change the mod name without the hassle of changeing the name in every file.
+	- New mods can be created here using existig modinfo values or new ones. This is done by adding a new name to the mod name combo box and clicking save.
+	- Now displays a preview of the ModInfo.xml before saving.
+	- Note: After testing the functions of the window worked more reliably and should be easier to understand.
+- Removed the ModInfo popup when starting the app for the first time ( or on a version update ).
+- New Object trees from certain xpath commands used on a search tree could not be removed individually or ignored. This is now fixed and any object tree should have these menu options.
+- Added full xpath command capabilities to Mod search Trees where appropriate.
+	- Generate xpath to mod objects easily using the mod search trees. 
+	- Special Note: It was discovered to be possible to target objects added from MODS with xpath. Before, the app would not give users the options to target appropriate objects for xpath generation. Now it will provide those options in appropriate cases.
+- Added an expand/collapse all children context menu to search trees.
+	- When clicked it will expand or collapse all children trees of the clicked tree.
+- Changed search tree attributes to be in rows rather than staggered trees. This is a purely visual change.	
+- When including comments is checked, comment trees are auto expanded, this is helpful with well documented mod files and the search trees.
+1.6.8
+-Added a new menu to change the color theme.
+	- Comes in three categories:
+		- Normal: White backgrounds
+		- Medium: Bisque backgrounds
+		- Dark: Silver backgrounds
+-Fixed typo in tooltip.
+-Refactored code based on Visual Stdio Suggestions
 1.6.7
 -Fixed small bugs from 1.6.6
 	-Set command was broken, and would crash the app.
