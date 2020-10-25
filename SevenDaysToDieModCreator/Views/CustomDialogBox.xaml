@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:local="clr-namespace:SevenDaysToDieModCreator.Views"
         Height="Auto">
     <Grid>
@@ -29,7 +30,7 @@
                             <Label Content="Current Selected Mod:" FontSize="22"></Label>
                         </Grid>
                         <Grid Grid.Column="1">
-                            <Label x:Name="CurrentSelectedModLabel" FontSize="22"></Label>
+                            <TextBox x:Name="CurrentSelectedModTextBox" FontSize="22"></TextBox>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -38,14 +39,22 @@
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="2">
-                    <CheckBox x:Name="ChangeModTagCheckBox" FontSize="16" Content="Change Mod Tag" ></CheckBox>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <ComboBox Name="ChangeNameAllTagsComboBox" FontFamily="Arial" IsEditable="True" FontSize="22"></ComboBox>
+                    </Grid>
+                    <Grid Grid.Column="1">
+                        <Button FontSize="20" x:Name="ChangeModNameButton" Content="Change Mod Name" Click="ChangeModTagButton_Click"></Button>
+                    </Grid>
                 </Grid>
             </Grid>
         </Grid>
         <Grid Grid.Row="1">
-            <ScrollViewer x:Name="TextBlockLabelScrollView" VerticalAlignment="Top">
-                <TextBlock FontFamily="Arial" FontSize="20" TextWrapping="Wrap" Name="LabelTextBlock"/>
-            </ScrollViewer>
+            <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="ModInfoXmlPreviewAvalonEditor" FontSize="20">
+            </avalonedit:TextEditor>
         </Grid>
         <Grid Grid.Row="2">
             <StackPanel Name="CustomDialogStackPanel" VerticalAlignment="Top"  Height="Auto" >
@@ -62,7 +71,7 @@
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0">
-                    <Button Name="OkButton" FontFamily="Arial" Content="_Save"  FontSize="22"  Click="OKButton_Click" />
+                    <Button Name="OkButton" FontFamily="Arial" Content="_Save"  FontSize="22"  Click="SaveButton_Click" />
                 </Grid>
                 <Grid Grid.Column="1">
                     <Button Name="CloseButton" FontFamily="Arial" Content="_Close"  FontSize="22"  Click="CloseButton_Click" />

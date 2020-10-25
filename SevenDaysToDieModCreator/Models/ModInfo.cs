@@ -16,23 +16,19 @@ namespace SevenDaysToDieModCreator.Models
         private const string MOD_INFO_VERSION_TAG = "Version";
 
         public static string MOD_INFO_FILE_NAME = "ModInfo.xml";
-        public static string ModInfoFilePath { get => Path.Combine(XmlFileManager.ModDirectoryOutputPath, MOD_INFO_FILE_NAME); } 
 
-        public ModInfo() 
+        public ModInfo(string modName) 
         {
-            if (File.Exists(ModInfoFilePath))
+            string modInfoFilePath = Path.Combine(XmlFileManager.Get_ModDirectoryOutputPath(modName), MOD_INFO_FILE_NAME);
+            if (File.Exists(modInfoFilePath))
             {
-                bool didSucceed = LoadSettingsFromFile();
+                bool didSucceed = LoadSettingsFromFile(modInfoFilePath);
                 ModInfoExists = didSucceed;
                 if (!didSucceed)
                 {
+                    ModInfoExists = false;
                     XmlFileManager.WriteStringToLog("Failed Loading mod info.");
                 }
-            }
-            else if(Directory.Exists(ModInfoFilePath))
-            {
-                File.Create(ModInfoFilePath);
-                ModInfoExists = false;
             }
         }
         public ModInfo(string name, string description, string author, string version)
@@ -41,24 +37,31 @@ namespace SevenDaysToDieModCreator.Models
             Description = description;
             Author = author;
             Version = version;
-            if (!File.Exists(ModInfoFilePath))
+        }
+        public static void CreateModInfoFile(string modTagDirectoryName) 
+        {
+            string modDirectoryWithConfig = XmlFileManager.Get_ModDirectoryConfigPath(modTagDirectoryName);
+            if (!Directory.Exists(modDirectoryWithConfig))
             {
-                File.Create(ModInfoFilePath);
+                Directory.CreateDirectory(modDirectoryWithConfig);
+            }
+            string modInfoFilePath = Path.Combine(XmlFileManager.Get_ModDirectoryOutputPath(modTagDirectoryName), MOD_INFO_FILE_NAME);
+            if (!File.Exists(modInfoFilePath))
+            {
+                File.Create(modInfoFilePath);
             }
         }
-
         public string Name { get; private set; }
-
         public string Description { get; private set; }
         public string Author { get; private set; }
         public string Version { get; private set; }
-        public bool LoadSettingsFromFile() 
+        public bool LoadSettingsFromFile(string modInfoFilePath) 
         {
             bool didSucceed = false;
             XmlDocument xmlDocument = new XmlDocument();
             try
             {
-                xmlDocument.Load(ModInfoFilePath);
+                xmlDocument.Load(modInfoFilePath);
                 XmlNodeList allModInfoNodes = xmlDocument.GetElementsByTagName("ModInfo");
                 XmlNode firstChild = allModInfoNodes.Item(0);
                 if (firstChild != null) 
@@ -70,7 +73,7 @@ namespace SevenDaysToDieModCreator.Models
                         else if (nextNode.Name.Equals(MOD_INFO_AUTHOR_TAG)) this.Author = nextNode.GetAvailableAttribute().Value;
                         else if (nextNode.Name.Equals(MOD_INFO_VERSION_TAG)) this.Version = nextNode.GetAvailableAttribute().Value;
                     }
-                didSucceed = true;
+                    didSucceed = true;
                 }
             }
             catch (Exception e)

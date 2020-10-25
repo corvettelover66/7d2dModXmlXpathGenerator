@@ -13,68 +13,20 @@ namespace SevenDaysToDieModCreator.Views
     public partial class ModInfoDialogBox : Window
     {
         private ComboBox AllTagsComboBox { get; set; }
-        private string StartingModTagSetting { get; set; }
-        public string ResponseText
-        {
-            get {
-                string newModTagSetting = this.AllTagsComboBox.Text;
-                ModInfo newModIfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
-                if (!this.StartingModTagSetting.Equals(newModTagSetting) && ChangeModTagCheckBox.IsChecked.Value) 
-                {
-                    MessageBoxResult result;
-                    try
-                    {
-                        XmlFileManager.RenameModDirectory(StartingModTagSetting, newModTagSetting);
-                        //Set the result to yes so the tags are automatcally auto replaced as we knw the application has succeeded in renamng the directory 
-                        result = MessageBoxResult.Yes;
-                        Properties.Settings.Default.ModTagSetting = newModTagSetting;
-                        Properties.Settings.Default.Save();
-                    }
-                    catch (Exception e)
-                    {
-                        XmlFileManager.WriteStringToLog("ERROR renaming directory. Exception:\n " + e.ToString() + " \nMessage: " + e.Message);
-                        string message = "Error attempting to rename directory for mod " + StartingModTagSetting 
-                            + ". To fix this you could open the output folder and give the directory " + StartingModTagSetting
-                            + " correct permissions, alternatively you can manually rename the mod folder in the output directory.\n\n" +
-                            " The application can still perform a find and replace on top tag names in every xml for the mod to replace the old mod name with the new mod name you have chosen.\n" +
-                            "Would you like to run that feature to change your top tags from " + StartingModTagSetting + " to " + newModTagSetting + " in all xml files for the mod?";
-                        result = MessageBox.Show(message, "Rename Mod Directory Error", MessageBoxButton.YesNo, MessageBoxImage.Error);
-                    }
-                    switch (result) 
-                    {
-                        case MessageBoxResult.Yes:
-                            XmlFileManager.ReplaceTagsInModFiles(StartingModTagSetting, newModTagSetting);
-                            break;
-                    } 
-                }
-                return newModIfo.ToString();
-            }
-            set { ResponseText = value; }
-        }
+
         public ModInfoDialogBox(string textBoxBody = "", string windowTitle = "")
         {
             InitializeComponent();
-            this.StartingModTagSetting = Properties.Settings.Default.ModTagSetting;
-            this.CurrentSelectedModLabel.Content = this.StartingModTagSetting;
+            this.CurrentSelectedModTextBox.Text = Properties.Settings.Default.ModTagSetting;
             this.Title = windowTitle ?? "";
-            string defaultText = "Thank you for downloading the 7 days to die Mod Creator! " +
-                "Please input the mod info for your new mod or select a mod using the drop down box above.\n\n" +
-                "It is worth noting that the current mod tag will be used as the name of the mod folder in the output location and the top tag for every file.\n" +
-                "You can change this folder directly or use the \"Edit ModInfo\" menu item and change the current tag value.\n" +
-                "IMPORTANT: If you lose work check the log.txt in the Output folder. " +
-                "Any time you close the app or reset the object view, the xml that could be generated is output in that log. " +
-                "If you like the mod don't forget to drop an endorsment or just leave me a comment!\n";
-            if (!String.IsNullOrEmpty(textBoxBody)) defaultText = textBoxBody + "\n";
-            LabelTextBlock.Text = "\n\n" +  defaultText;
 
-            List<string> allCustomModsInPath = XmlFileManager.GetCustomModFoldersInOutput();
-            this.AllTagsComboBox = allCustomModsInPath.CreateComboBoxFromList();
-            this.AllTagsComboBox.IsEditable = true;
-            this.AllTagsComboBox.LostFocus += AllTagsComboBox_LostFocus;
-            this.AllTagsComboBox.DropDownClosed += AllTagsComboBox_DropDownClosed;
-            this.AllTagsComboBox.Text = Properties.Settings.Default.ModTagSetting;
-            this.AllTagsComboBox.FontSize = 22;
-            FirstRowStackPanel.Children.Add(this.AllTagsComboBox);
+            ModInfoXmlPreviewAvalonEditor.Text = "\n\n" + textBoxBody;
+
+            ResetModNameComboBoxes(Properties.Settings.Default.ModTagSetting);
+            ModInfoNameBox.TextChanged += ModInfoBox_TextChanged;
+            ModInfoDescriptionBox.TextChanged += ModInfoBox_TextChanged;
+            ModInfoAuthorBox.TextChanged += ModInfoBox_TextChanged;
+            ModInfoVersionBox.TextChanged += ModInfoBox_TextChanged;
 
             SetTooltips();
             SetTextBoxsWithExistingModInfo();
@@ -82,53 +34,67 @@ namespace SevenDaysToDieModCreator.Views
             Closing += new CancelEventHandler(ModInfoDialogBox_Closing);
         }
 
-        private void SetBackgroundColor()
+        private void ResetModNameComboBoxes(string modNameToSetBox)
         {
-            this.Background = BackgroundColorController.GetBackgroundColor();
-            AllTagsComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
-            ModInfoNameBox.Background = BackgroundColorController.GetBackgroundColor();
-            ModInfoDescriptionBox.Background = BackgroundColorController.GetBackgroundColor();
-            ModInfoAuthorBox.Background = BackgroundColorController.GetBackgroundColor();
-            ModInfoVersionBox.Background = BackgroundColorController.GetBackgroundColor();
-            ChangeModTagCheckBox.Background = BackgroundColorController.GetBackgroundColor();
+            if (FirstRowStackPanel.Children.Contains(this.AllTagsComboBox)) FirstRowStackPanel.Children.Remove(this.AllTagsComboBox);
+            List<string> allCustomModsInPath = XmlFileManager.GetCustomModFoldersInOutput();
+            this.ChangeNameAllTagsComboBox.SetComboBox(allCustomModsInPath);
+            this.AllTagsComboBox = allCustomModsInPath.CreateComboBoxFromList(isEditable: false);
+            this.AllTagsComboBox.DropDownClosed += AllTagsComboBox_DropDownClosed;
+            this.AllTagsComboBox.SelectionChanged += AllTagsComboBox_SelectionChanged;
+            this.AllTagsComboBox.FontSize = 22;
+            this.AllTagsComboBox.SelectedItem = modNameToSetBox;
+            FirstRowStackPanel.Children.Add(this.AllTagsComboBox);
         }
 
         private void ModInfoDialogBox_Closing(object sender, CancelEventArgs e)
         {
             this.DialogResult = true;
         }
-
+        private void SetBackgroundColor()
+        {
+            this.Background = BackgroundColorController.GetBackgroundColor();
+            AllTagsComboBox.Background = BackgroundColorController.GetBackgroundColor();
+            AllTagsComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            ChangeNameAllTagsComboBox.Background = BackgroundColorController.GetBackgroundColor();
+            ChangeNameAllTagsComboBox.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            ModInfoNameBox.Background = BackgroundColorController.GetBackgroundColor();
+            ModInfoDescriptionBox.Background = BackgroundColorController.GetBackgroundColor();
+            ModInfoAuthorBox.Background = BackgroundColorController.GetBackgroundColor();
+            ModInfoVersionBox.Background = BackgroundColorController.GetBackgroundColor();
+            ModInfoXmlPreviewAvalonEditor.Background = BackgroundColorController.GetBackgroundColor();
+            CurrentSelectedModTextBox.Background = BackgroundColorController.GetBackgroundColor();
+        }
+        private void AllTagsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ModSelectionChanged();
+            ModInfo newModInfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
+            ModInfoXmlPreviewAvalonEditor.Text = newModInfo.ToString();
+        }
         private void AllTagsComboBox_DropDownClosed(object sender, EventArgs e)
         {
-            if (sender is ComboBox senderAsComboBox)
-            {
-                if (!String.IsNullOrEmpty(senderAsComboBox.Text.Trim()))
-                {
-                    this.CurrentSelectedModLabel.Content = senderAsComboBox.Text;
-                    Properties.Settings.Default.ModTagSetting = senderAsComboBox.Text;
-                    Properties.Settings.Default.Save();
-                    this.StartingModTagSetting = senderAsComboBox.Text;
-                    SetTextBoxsWithExistingModInfo();
-                }
-                else 
-                {
-                    ModInfoNameBox.Text = "";
-                    ModInfoDescriptionBox.Text = "";
-                    ModInfoAuthorBox.Text = "";
-                    ModInfoVersionBox.Text = "";
-                }
-            }
+            ModSelectionChanged();
+            ModInfo newModInfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
+            ModInfoXmlPreviewAvalonEditor.Text = newModInfo.ToString();
         }
-        private void AllTagsComboBox_LostFocus(object sender, RoutedEventArgs e)
+        private void ModInfoBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (sender is ComboBox senderAsComboBox)
-            {
-                VerifyTagNameCorrectness(senderAsComboBox);
-            }
+            ModInfo newModInfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
+            ModInfoXmlPreviewAvalonEditor.Text = newModInfo.ToString();
         }
+
+        private void ModSelectionChanged()
+        {
+            if (!String.IsNullOrEmpty(AllTagsComboBox.Text.Trim()))
+            {
+                this.CurrentSelectedModTextBox.Text = AllTagsComboBox.Text;
+            }
+            SetTextBoxsWithExistingModInfo();
+        }
+
         private void SetTextBoxsWithExistingModInfo()
         {
-            ModInfo currentModInfo = new ModInfo();
+            ModInfo currentModInfo = new ModInfo(this.AllTagsComboBox.Text);
             if (currentModInfo.ModInfoExists)
             {
                 ModInfoNameBox.Text = currentModInfo.Name;
@@ -136,19 +102,26 @@ namespace SevenDaysToDieModCreator.Views
                 ModInfoAuthorBox.Text = currentModInfo.Author;
                 ModInfoVersionBox.Text = currentModInfo.Version;
             }
+            else 
+            {
+                ModInfoNameBox.Text = "";
+                ModInfoDescriptionBox.Text = "";
+                ModInfoAuthorBox.Text = "";
+                ModInfoVersionBox.Text = "";
+            }
         }
-        private bool VerifyTagNameCorrectness(ComboBox allTagsComboBox, bool showMessageBox = true) 
+        private bool VerifyTagNameCorrectness(string nameToVerify, bool showMessageBox = true) 
         {
             bool isTagCorrect = true;
             try
             {
-                XmlConvert.VerifyName(allTagsComboBox.Text);
+                XmlConvert.VerifyName(nameToVerify);
             }
             catch (XmlException)
             {
                 if(showMessageBox)MessageBox.Show("The Mod Tag format was incorrect, the value must follow xml tag naming rules!\n" +
                     "Typical errors are spaces in the name, or unusable special characters.\n\n" +
-                    "You must correct this mistake before closing the window.",
+                    "You must correct this mistake before saving the name.",
                     "Format Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -157,7 +130,7 @@ namespace SevenDaysToDieModCreator.Views
             catch (ArgumentNullException)
             {
                 if (showMessageBox)MessageBox.Show("The Mod Tag format was incorrect, the Mod Tag cannot be empty! Please select or add a Mod Tag now.\n\n" +
-                    "You must correct this mistake before closing the window.",
+                    "You must correct this mistake before saving the name.",
                     "Format Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -167,26 +140,130 @@ namespace SevenDaysToDieModCreator.Views
         }
         private void SetTooltips()
         {
-            AllTagsComboBox.AddToolTip("Mod Tag\nThis is essentially the selected mod. This is also used as the directory and tag for the mod.\nThe mod selected here is what will be updated on save.");
+            AllTagsComboBox.AddToolTip("This is the selected mod. This is also used as the directory name and tag for the mod.\nThe mod selected here is what will be updated on save.");
             ModInfoNameBox.AddToolTip("Name\nThis is the name used in the ModInfo.xml file and the name of the mod seen in game.");
             ModInfoDescriptionBox.AddToolTip("Description\nThis is the description used in the ModInfo.xml file.");
             ModInfoAuthorBox.AddToolTip("Author\nThis is the Author for the mod, placed in the ModInfo.xml file.");
             ModInfoVersionBox.AddToolTip("Version\nThis is the current mod's version used in the ModInfo.xml file and the version seen in game.");
-            ChangeModTagCheckBox.AddToolTip("By checking this box, you can MODIFY the value of the existing Mod Tag.\nIf left unchecked, any NEW values put in the input box above will be used to create a new mod.");
+            ChangeModNameButton.AddToolTip("Click here to change the name of the selected mod using the value provided in the box just to the left.\n\nThis will also automatically replace old top tags with the new one. ");
+            ChangeNameAllTagsComboBox.AddToolTip("Any values placed here can be used to either create a new mod or change the selected mod by clicking the appropriate button.");
+            ModInfoXmlPreviewAvalonEditor.AddToolTip("This is just a preview of the ModInfo.xml file, direct changes here cannot be saved.");
+            OkButton.AddToolTip("Click here to save all changes to the current selected mod or a new mod");
         }
-        private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void SaveButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (VerifyTagNameCorrectness(this.AllTagsComboBox)) 
+            if (String.IsNullOrEmpty(ChangeNameAllTagsComboBox.Text)) 
             {
-                string modInfoXmlOut = this.ResponseText;
-                XmlFileManager.WriteStringToFile(XmlFileManager.ModDirectoryOutputPath, ModInfo.MOD_INFO_FILE_NAME, modInfoXmlOut);
-                MessageBox.Show("Saved mod info for " + this.AllTagsComboBox.Text + ".", "Saving Mod info", MessageBoxButton.OK, MessageBoxImage.Information);
+                string currentSelectedModTag = AllTagsComboBox.Text;
+                SaveModInfo(currentSelectedModTag);
+            }
+            else 
+            {
+                //prompt user to create new mod with text provided
+                string message = "The selected mod name provided does not exist, would you like to create it as a new mod now with all provided modinfo values?";
+                MessageBoxResult results = MessageBox.Show(message, "Create New Mod", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                switch (results)
+                {
+                    case MessageBoxResult.Yes:
+                        List<string> allCustomModsInPath = XmlFileManager.GetCustomModFoldersInOutput();
+                        //If the new name is not in te output path
+                        if (!allCustomModsInPath.Contains(ChangeNameAllTagsComboBox.Text)) 
+                        {
+                            SaveModInfo(ChangeNameAllTagsComboBox.Text);
+                        }
+                        else 
+                        {
+                            string modExistsMessage = "The new mod name cannot already exist in the output location.\n\n" +
+                                "You must use different name or delete the other mod folder in the output location.";
+                            MessageBox.Show(modExistsMessage, "Mod Name Exists", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        break;
+                    case MessageBoxResult.No:
+                        ChangeNameAllTagsComboBox.Text = "";
+                        break;
+
+                }
             }
         }
 
+        private void SaveModInfo(string modNameToUse)
+        {
+            ModInfo newModIfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
+            string modInfoXmlOut = newModIfo.ToString();
+            ModInfo.CreateModInfoFile(modNameToUse);
+            XmlFileManager.WriteStringToFile(XmlFileManager.Get_ModDirectoryOutputPath(modNameToUse), ModInfo.MOD_INFO_FILE_NAME, modInfoXmlOut);
+            ResetModNameComboBoxes(modNameToUse);
+            MessageBox.Show("Saved mod info for " + modNameToUse + ".", "Saving Mod info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void ChangeModTagName(string oldModtagName, string newTagName)
+        {
+            XmlFileManager.RenameModDirectory(oldModtagName, newTagName);
+            bool hasConfigTags = XmlFileManager.ReplaceTagsInModFiles(oldModtagName, newTagName);
+            if (hasConfigTags) 
+            {
+                string message = "Your mod files uses a config tag as the top tag, would you like to change them in each file to the new mod name?";
+                string title = "Change Top Tag in All Mod Files";
+                MessageBoxResult result = MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                switch (result) 
+                {
+                    case MessageBoxResult.Yes:
+                        XmlFileManager.ReplaceTagsInModFiles(oldModtagName, newTagName, true);
+                        break;
+                }
+            }
+        }
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void ChangeModTagButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> allCustomModsInPath = XmlFileManager.GetCustomModFoldersInOutput();
+            string currentSelectedModTag = AllTagsComboBox.Text;
+            string newModName  = ChangeNameAllTagsComboBox.Text;
+            //if the current selected mod name is not the last selected
+            if (!currentSelectedModTag.Equals(newModName))
+            {
+                // and is does not exist in the mod output folder already
+                if (!allCustomModsInPath.Contains(newModName))
+                {
+                    if (VerifyTagNameCorrectness(newModName))
+                    {
+                        try
+                        {
+                            //We can change the name
+                            ChangeModTagName(currentSelectedModTag, newModName);
+                            ResetModNameComboBoxes(currentSelectedModTag);
+                            string message = "Successfully changed the mod name from " + currentSelectedModTag + " to " + newModName + ".";
+                            MessageBox.Show(message, "Change Mod Name", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        catch (Exception exception)
+                        {
+                            XmlFileManager.WriteStringToLog("ERROR changing mod name. Exception:\n " + exception.ToString() + " \nMessage: " + exception.Message);
+                            string message = "Error attempting to change the name for the mod " + currentSelectedModTag + "."
+                                + "\nError:\n\n" +
+                                exception.Message;
+                            MessageBox.Show(message, "Change Mod Name Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+                //the name already exists
+                else 
+                {
+                    string message = "The new mod name cannot already exist in the output location.\n\n" +
+                        "You must use different name or delete the other mod folder in the output location.";
+                    MessageBox.Show(message, "Mod Name Exists", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                }
+            }
+            //The name is the same as the selected mod
+            else 
+            {
+                MessageBox.Show("The selected mod, and the new mod name must be different", "Mod Name Unchanged", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
         }
     }
 }

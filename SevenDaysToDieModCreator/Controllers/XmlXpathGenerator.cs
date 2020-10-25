@@ -143,10 +143,11 @@ namespace SevenDaysToDieModCreator.Models
         private static string GenerateXpathTagetPath(XmlNode currentXmlNode, string topTagName, string generatedXml, string xpathAction, string attributeInAction, string attributeName)
         {
             if (String.IsNullOrEmpty(generatedXml) && !xpathAction.Equals(XPATH_ACTION_REMOVE)) return "";
-
+            List<string> allXpathActions = new List<string> { XPATH_ACTION_APPEND, XPATH_ACTION_INSERT_AFTER, XPATH_ACTION_INSERT_BEFORE, XPATH_ACTION_REMOVE, XPATH_ACTION_REMOVE_ATTRIBUTE, XPATH_ACTION_SET, XPATH_ACTION_SET_ATTRIBUTE };
             string startingXml = "\t<" + xpathAction + " xpath=\"";
 
             XmlNode nextParentNode = currentXmlNode;
+            string nextParentNodeName;
             //
             string pathToParent = "";
             do
@@ -160,7 +161,8 @@ namespace SevenDaysToDieModCreator.Models
                 else pathToParent = "/" + nextParentNode.Name + pathToParent;
                 if (nextParentNode.ParentNode != null) nextParentNode = nextParentNode.ParentNode;
                 else break;
-            } while (!nextParentNode.Name.Equals(topTagName));
+                nextParentNodeName = nextParentNode.Name;
+            } while (!nextParentNode.Name.Equals(topTagName) && !allXpathActions.Contains(nextParentNodeName));
             if (!String.IsNullOrEmpty(attributeInAction)) attributeInAction = "/@" + attributeInAction;
             if (!String.IsNullOrEmpty(attributeName) && xpathAction.Equals(XPATH_ACTION_SET_ATTRIBUTE)) attributeInAction = "\" name=\"" + attributeName + "\"";
             else if(!String.IsNullOrEmpty(attributeName)) attributeInAction += "\" name=\"" + attributeName;

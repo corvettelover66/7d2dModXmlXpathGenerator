@@ -75,10 +75,18 @@ namespace SevenDaysToDieModCreator
 
         private void MyWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            string openingText = "Thank you for downloading the 7 days to die Mod Creator! \n" +
+                "If you have any issues please report them in the comments on the nexus page.\n\n" +
+                "IMPORTANT: If you lose work check the log.txt in the Output folder.\n" +
+                "Any time you close the app or clear the object view, the xml that could be generated is output in that log.\n\n" +
+                "If you like the application don't forget to leave me a comment or better yet drop an endorsment!\n" +
+                "Good luck with your mods!";
+            this.XmlOutputBox.Text = openingText;
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.MainWindowFileController = new MainWindowFileController(this.LoadedListWrappers);
             this.MainWindowViewController = new MainWindowViewController();
             MainWindowViewController.XmlOutputBox = this.XmlOutputBox;
+
             MainWindowViewController.LoadedListWrappers = this.LoadedListWrappers;
             SetPanels();
             SetCustomModViewElements();
@@ -91,7 +99,6 @@ namespace SevenDaysToDieModCreator
             this.IgnoreAllAttributesCheckBox.Click += IgnoreAllAttributesCheckBox_Click;
 
             MainWindowFileController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, CurrentModFilesCenterViewComboBox, LoadedModsSearchViewComboBox, CurrentGameFilesCenterViewComboBox);
-            if (Properties.Settings.Default.ModTagSetting.Equals("ThisNeedsToBeSet")) ModInfoDialogPopUp("", "Create/Edit a Mod!");
             this.LoadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             this.CurrentModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
             this.LoadedModsCenterViewComboBox.Text = Properties.Settings.Default.ModTagSetting;
@@ -159,6 +166,8 @@ namespace SevenDaysToDieModCreator
             LoadedModFilesButton.AddToolTip("Click to add a search tree for the mod file selected above");
             OpenGameFileDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected game file from the combo box to the left");
             DeleteModFileDirectEditViewButton.AddToolTip("Click to delete the file from the combo box to the left for the current mod");
+            DeleteModButton.AddToolTip("Click to get more information on deleting the mod.\n" +
+                "Does NOT delete the mod folder!");
             //Combo Boxes
             LoadedModFilesSearchViewComboBox.AddToolTip("Mod file used to generate a search tree when clicking the button below");
             LoadedModsSearchViewComboBox.AddToolTip("Select a mod here to generate search trees for its files");
@@ -333,7 +342,7 @@ namespace SevenDaysToDieModCreator
         private void LoadedModFilesButton_Click(object sender, RoutedEventArgs e)
         {
             this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.CurrentModFilesCenterViewComboBox);
-            this.MainWindowViewController.AddSearchTree(SearchTreeFormsPanel, LoadedModFilesSearchViewComboBox, doAddContextMenu: false, includeChildrenInOnHover: IncludeChildrenInOnHoverCheckBox.IsChecked.Value, includeComments: IncludeCommentsCheckBox.IsChecked.Value);
+            this.MainWindowViewController.AddSearchTree(SearchTreeFormsPanel, LoadedModFilesSearchViewComboBox, isGameFileTree: false, includeChildrenInOnHover: IncludeChildrenInOnHoverCheckBox.IsChecked.Value, includeComments: IncludeCommentsCheckBox.IsChecked.Value);
         }
         private void LoadedModsComboBox_DropDownClosed(object sender, EventArgs e)
         {
@@ -692,6 +701,14 @@ namespace SevenDaysToDieModCreator
             Properties.Settings.Default.SettingIsMediumModeActive = false;
             Properties.Settings.Default.Save();
             SetBackgroundFromSetting(true);
+        }
+
+        private void DeleteModButton_Click(object sender, RoutedEventArgs e)
+        {
+            string message = "Mod folders cannot be deleted directly in the app. To delete this mod you must restart the app, and delete the folder:\n\n" 
+                + XmlFileManager.Get_ModDirectoryOutputPath(LoadedModsCenterViewComboBox.Text);
+            string title = "Delete Mod Help";
+            MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)

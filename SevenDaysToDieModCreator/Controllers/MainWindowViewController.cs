@@ -21,7 +21,7 @@ namespace SevenDaysToDieModCreator.Controllers
         //The corressponding list wrapper
         public static Dictionary<string, XmlObjectsListWrapper> LoadedListWrappers { get; set; }
 
-        public void AddSearchTree(MyStackPanel searchTreeFormsPanel, ComboBox searchTreeLoadedFilesComboBox, bool doAddContextMenu = true, bool includeChildrenInOnHover = false, bool includeComments = false)
+        public void AddSearchTree(MyStackPanel searchTreeFormsPanel, ComboBox searchTreeLoadedFilesComboBox, bool isGameFileTree = true, bool includeChildrenInOnHover = false, bool includeComments = false)
         {
             string selectedObject = searchTreeLoadedFilesComboBox.Text;
             if (String.IsNullOrEmpty(selectedObject)) return;
@@ -41,9 +41,10 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
             XmlObjectsListWrapper leftObjectWrapper = searchTreeFormsPanel.StackPanelLoadedListWrappers.GetValueOrDefault(selectedObject);
+            string gameWrapperKey = selectedWrapper.GenerateDictionaryKey();
             if (leftObjectWrapper == null || leftObjectWrapper.XmlFile.FileSize < this.FILE_SIZE_THRESHOLD)
             {
-                TreeViewItem nextTreeView = TreeViewGenerator.GetSearchTreeViewRecursive(selectedWrapper, selectedObject, addContextMenu: doAddContextMenu, includeChildrenInOnHover: includeChildrenInOnHover, includeComments: includeComments);
+                TreeViewItem nextTreeView = TreeViewGenerator.GetSearchTreeViewRecursive(selectedWrapper, gameWrapperKey, isGameTree: isGameFileTree, includeChildrenInOnHover: includeChildrenInOnHover, includeComments: includeComments);
                 nextTreeView.Header = selectedObject;
                 searchTreeFormsPanel.Children.Add(nextTreeView);
             }
@@ -57,7 +58,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 switch (result)
                 {
                     case MessageBoxResult.Yes:
-                        TreeViewItem nextTreeView = TreeViewGenerator.GetSearchTreeViewRecursive(selectedWrapper, selectedObject, addContextMenu: doAddContextMenu, includeChildrenInOnHover: includeChildrenInOnHover, includeComments: includeComments);
+                        TreeViewItem nextTreeView = TreeViewGenerator.GetSearchTreeViewRecursive(selectedWrapper, gameWrapperKey, isGameTree: isGameFileTree, includeChildrenInOnHover: includeChildrenInOnHover, includeComments: includeComments);
                         nextTreeView.Header = selectedObject;
                         searchTreeFormsPanel.Children.Add(nextTreeView);
                         break;
@@ -121,6 +122,19 @@ namespace SevenDaysToDieModCreator.Controllers
                     if (nextTreeViewItem.Header is Button button)
                     {
                         if (button.FontSize > 4 || fontChange > 0) button.FontSize += fontChange;
+                    }
+                    if (nextTreeViewItem.Header is Grid grid)
+                    {
+                        if (grid.Children.Count > 0) 
+                        {
+                            foreach (Control nextGrdControl in grid.Children) 
+                            {
+                                if (nextGrdControl is TextBox nextGridBox) 
+                                {
+                                    if (nextGridBox.FontSize > 4 || fontChange > 0) nextGridBox.FontSize += fontChange;
+                                }
+                            }
+                        }
                     }
                     if (nextTreeViewItem.Header.GetType() == typeof(string))
                     {

@@ -21,19 +21,21 @@ namespace SevenDaysToDieModCreator.Models
         public static string LoadedFilesPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Game_XMLS/");
         public static string Xui_Folder_Name = "XUi";
 
-        internal static void ReplaceTagsInModFiles(string oldCustomTag, string newCustomTag)
+        internal static bool ReplaceTagsInModFiles(string oldCustomTag, string newCustomTag, bool replaceConfigTags = false)
         {
+            if (replaceConfigTags) return ReplaceTagsInModFiles("config", newCustomTag);
+            bool hasConfigTag;
             string customModFilesInOutputDirectory = Get_ModOutputPath(newCustomTag);
             Directory.CreateDirectory(customModFilesInOutputDirectory);
             string[] allXmlsInOutputPath = Directory.GetFiles(customModFilesInOutputDirectory, "*.xml");
-            TraverseFilesForReplace(allXmlsInOutputPath, oldCustomTag, newCustomTag);
+            hasConfigTag = TraverseFilesForReplace(allXmlsInOutputPath, oldCustomTag, newCustomTag);
 
             if (Directory.Exists(Path.Combine(customModFilesInOutputDirectory, Xui_Folder_Name)))
             {
                 string[] xuiFiles = Directory.GetFiles(Path.Combine(customModFilesInOutputDirectory, Xui_Folder_Name));
                 if (xuiFiles.Length > 0) 
                 {
-                    TraverseFilesForReplace(xuiFiles, oldCustomTag, newCustomTag);
+                    hasConfigTag = TraverseFilesForReplace(xuiFiles, oldCustomTag, newCustomTag);
                 }
             }
             if (Directory.Exists(Path.Combine(customModFilesInOutputDirectory, Xui_Menu_Folder_Name)))
@@ -41,25 +43,38 @@ namespace SevenDaysToDieModCreator.Models
                 string[] xuiMenuFiles = Directory.GetFiles(Path.Combine(customModFilesInOutputDirectory, Xui_Menu_Folder_Name));
                 if (xuiMenuFiles.Length > 0) 
                 {
-                    TraverseFilesForReplace(xuiMenuFiles, oldCustomTag, newCustomTag);
+                    hasConfigTag = TraverseFilesForReplace(xuiMenuFiles, oldCustomTag, newCustomTag);
                 }
             }
+            return hasConfigTag;
         }
 
-        private static void TraverseFilesForReplace(string[] allXmlsInOutputPath, string oldCustomTag, string newCustomTag)
+        private static bool TraverseFilesForReplace(string[] allXmlsInOutputPath, string oldCustomTag, string newCustomTag)
         {
+            bool hasConfigTag = false;
             foreach (string nextFilePath in allXmlsInOutputPath)
             {
                 string fileName = Path.GetFileName(nextFilePath);
                 string contents = GetFileContents(nextFilePath.Replace(fileName, ""), fileName);
+                if(!hasConfigTag) hasConfigTag = contents.Contains("config");
                 contents = contents.Replace("<" +oldCustomTag +">", "<" + newCustomTag + ">");
                 contents = contents.Replace("</" + oldCustomTag + ">", "</" + newCustomTag + ">");
                 WriteStringToFile(nextFilePath.Replace(fileName, ""), fileName, contents);
             }
+            return hasConfigTag;
         }
 
         public static string Xui_Menu_Folder_Name = "XUi_Menu";
         private static readonly string logFileName = "log.txt";
+        public static string Get_ModDirectoryOutputPath(string modDirectoryName)
+        {
+            return Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/", modDirectoryName);
+        }
+        public static string Get_ModDirectoryConfigPath(string modDirectoryName)
+        {
+            string combinedPath = Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + modDirectoryName + "/Config/");
+            return combinedPath ;
+        }
         public static string Get_ModOutputPath(string customTagName)
         {
             return Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + customTagName + "/Config/");
@@ -279,6 +294,14 @@ namespace SevenDaysToDieModCreator.Models
             else 
             {
                 Directory.Move(oldModDirectory, newModDirectory);
+            }
+            if (Directory.Exists(Path.Combine(oldModDirectory, "Config"))) 
+            {
+                Directory.Delete(Path.Combine(oldModDirectory, "Config"));
+            }
+            if (Directory.Exists(oldModDirectory)) 
+            {
+                Directory.Delete(oldModDirectory); 
             }
         }
         internal static void DeleteModFile(string modTagSetting, string fileName)
