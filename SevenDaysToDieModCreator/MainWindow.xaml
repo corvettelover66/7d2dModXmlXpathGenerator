@@ -123,7 +123,7 @@
                                     <Button x:Name="ReloadModOutputFolderButton" Click="ReloadModOutputFolderButton_Click" Content="_Reload Mods" FontSize="18"></Button>
                                 </Grid>
                                 <Grid Grid.Column="3">
-                                    <Button x:Name="OpenModsOutputFolderMenuItem" Click="OpenModsOutputFolderMenuItem_Click" FontSize="18">O_pen Mods Folder</Button>
+                                <Button x:Name="OpenModsOutputFolderButton" Click="OpenModsOutputFolderMenuItem_Click" FontSize="18">O_pen Mods Folder</Button>
                                 </Grid>
                         </Grid>
                             <Grid Grid.Row="1">

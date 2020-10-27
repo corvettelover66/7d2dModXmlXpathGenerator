@@ -169,6 +169,8 @@ namespace SevenDaysToDieModCreator
             DeleteModFileDirectEditViewButton.AddToolTip("Click to delete the file from the combo box to the left for the current mod");
             DeleteModButton.AddToolTip("Click to get more information on deleting the mod.\n" +
                 "Does NOT delete the mod folder!");
+            ReloadModOutputFolderButton.AddToolTip("Click here to reload the mods output folder. This is necessary to do after deleting mods while the app is running.");
+            OpenModsOutputFolderButton.AddToolTip("Click here to open the application's mod output folder in explorer.");
             //Combo Boxes
             LoadedModFilesSearchViewComboBox.AddToolTip("Mod file used to generate a search tree when clicking the button below");
             LoadedModsSearchViewComboBox.AddToolTip("Select a mod here to generate search trees for its files");
@@ -685,6 +687,7 @@ namespace SevenDaysToDieModCreator
             Properties.Settings.Default.IsDarkModeActive = false;
             Properties.Settings.Default.SettingIsMediumModeActive = false;
             Properties.Settings.Default.Save();
+            MainWindowFileController.RefreshMainUIComboboxes(CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
             SetBackgroundFromSetting(true);
         }
 
@@ -693,6 +696,7 @@ namespace SevenDaysToDieModCreator
             Properties.Settings.Default.IsDarkModeActive = false;
             Properties.Settings.Default.SettingIsMediumModeActive = true;
             Properties.Settings.Default.Save();
+            MainWindowFileController.RefreshMainUIComboboxes(CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
             SetBackgroundFromSetting(true);
         }
 
@@ -701,6 +705,7 @@ namespace SevenDaysToDieModCreator
             Properties.Settings.Default.IsDarkModeActive = true;
             Properties.Settings.Default.SettingIsMediumModeActive = false;
             Properties.Settings.Default.Save();
+            MainWindowFileController.RefreshMainUIComboboxes(CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
             SetBackgroundFromSetting(true);
         }
 
