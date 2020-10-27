@@ -7,7 +7,7 @@ namespace SevenDaysToDieModCreator.Models
     class XmlFileManager
     {
         private static string ReadFileContents;
-        public static string FileOutputPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output/");
+        public static string AllModsOutputPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "Output\\");
         public static string ModDirectoryOutputPath
         {
             get => Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/", Properties.Settings.Default.ModTagSetting);
@@ -94,8 +94,8 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static List<string> GetCustomModFoldersInOutput()
         {
-            if (!Directory.Exists(FileOutputPath + "/Mods/")) Directory.CreateDirectory(FileOutputPath + "/Mods/");
-            string[] allDirs = Directory.GetDirectories(FileOutputPath + "/Mods/", "*");
+            if (!Directory.Exists(AllModsOutputPath + "/Mods/")) Directory.CreateDirectory(AllModsOutputPath + "/Mods/");
+            string[] allDirs = Directory.GetDirectories(AllModsOutputPath + "/Mods/", "*");
             List<string> justChildrenPathNames = new List<string>();
             foreach (string nextDir in allDirs)
             {
@@ -133,13 +133,13 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static void WriteStringToLog(string xml, bool addTimeStamp = true)
         {
-            if (!Directory.Exists(FileOutputPath)) Directory.CreateDirectory(FileOutputPath);
-            string filePath = FileOutputPath + logFileName;
-            if (!File.Exists(filePath)) CreateFilePath(FileOutputPath, logFileName);
+            if (!Directory.Exists(AllModsOutputPath)) Directory.CreateDirectory(AllModsOutputPath);
+            string filePath = AllModsOutputPath + logFileName;
+            if (!File.Exists(filePath)) CreateFilePath(AllModsOutputPath, logFileName);
 
             if (addTimeStamp) xml = "<!-- Written " + DateTime.Now.ToString("MMMM dd, yyyy") + " at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + xml;
 
-            AppendToFile(FileOutputPath, logFileName, xml);
+            AppendToFile(AllModsOutputPath, logFileName, xml);
         }
         public static string GetFileContents(string path, string fileName)
         {
@@ -281,9 +281,9 @@ namespace SevenDaysToDieModCreator.Models
         internal static void RenameModDirectory(string oldModName, string newModName)
         {
             string tempDirName = "temp";
-            string oldModDirectory = Path.Combine(FileOutputPath, "Mods", oldModName);
-            string newModDirectory = Path.Combine(FileOutputPath, "Mods", newModName);
-            string tempModDirectory = Path.Combine(FileOutputPath, "Mods", tempDirName);
+            string oldModDirectory = Path.Combine(AllModsOutputPath, "Mods", oldModName);
+            string newModDirectory = Path.Combine(AllModsOutputPath, "Mods", newModName);
+            string tempModDirectory = Path.Combine(AllModsOutputPath, "Mods", tempDirName);
             //Handle edge case where directory names are the same when ignoreing case but they are actually different when taking in Case. Windows ignores the case and I don't want to.
             if (oldModName.ToLower().Equals(newModName.ToLower())
                 && !oldModName.Equals(newModName))

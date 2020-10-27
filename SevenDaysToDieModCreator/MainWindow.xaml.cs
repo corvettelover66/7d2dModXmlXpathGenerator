@@ -7,6 +7,7 @@ using SevenDaysToDieModCreator.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -435,7 +436,7 @@ namespace SevenDaysToDieModCreator
 
             if (dialog.ShowDialog() == true)
             {
-                MainWindowFileController.FinishModInfoSave(CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
+                MainWindowFileController.RefreshMainUIComboboxes(CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
             }
         }
         private void OpenDirectEditModXmlViewButton_Click(object sender, RoutedEventArgs e)
@@ -705,15 +706,31 @@ namespace SevenDaysToDieModCreator
 
         private void DeleteModButton_Click(object sender, RoutedEventArgs e)
         {
-            string message = "Mod folders cannot be deleted directly in the app. To delete this mod you must restart the app, and delete the folder:\n\n" 
+            string message = "Mod folders cannot be deleted directly in the app. To delete this mod, select a different mod in the combo box, open the output folder in explorer and delete it manually from the mods folder. After, to refresh the app click the reload mods button or you can just restart the app.:\n\n" 
                 + XmlFileManager.Get_ModDirectoryOutputPath(LoadedModsCenterViewComboBox.Text);
             string title = "Delete Mod Help";
             MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        //private void LoadGameModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
-        //{
-        //    MainWindowViewController.LoadGameModDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.CurrentModFilesCenterViewComboBox);
-        //}
+        private void ReloadModOutputFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindowFileController.RefreshMainUIComboboxes(CurrentModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
+            MessageBox.Show("Succesfully reloaded the Mods in the output folder.", "Reload Mods Output", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void OpenModsOutputFolderMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            string modsOutputPth = XmlFileManager.AllModsOutputPath + "Mods\\";
+            try
+            {
+                Process.Start("explorer.exe", @modsOutputPth);
+            }
+            catch (Exception exception) 
+            {
+                MessageBox.Show("There was an issue opening the mods folder. For more inforation check the log.txt.",
+                    "Error Opening Mods Folder", MessageBoxButton.OK, MessageBoxImage.Error);
+                XmlFileManager.WriteStringToLog(exception.StackTrace);
+            }
+        }
     }
 }

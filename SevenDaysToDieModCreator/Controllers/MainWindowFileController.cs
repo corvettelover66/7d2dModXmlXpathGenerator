@@ -83,7 +83,7 @@ namespace SevenDaysToDieModCreator.Controllers
                     Properties.Settings.Default.Save();
                     loadedModsSearchViewComboBox.SelectedItem = currentModName;
                     //Copy the files to the output path at Output/Mods/ModName
-                    string appOutputPath = Path.Combine(XmlFileManager.FileOutputPath, "Mods", currentModName);
+                    string appOutputPath = Path.Combine(XmlFileManager.AllModsOutputPath, "Mods", currentModName);
                     bool overwriteLocalAppFiles = false;
                     if (Directory.Exists(appOutputPath))
                     {
@@ -273,7 +273,7 @@ namespace SevenDaysToDieModCreator.Controllers
             }
             return wrapper;
         }
-        internal void FinishModInfoSave(ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox, ComboBox loadedModsSearchViewComboBox)
+        internal void RefreshMainUIComboboxes(ComboBox currentModLoadedFilesCenterViewComboBox, ComboBox loadedModsCenterViewComboBox, ComboBox loadedModsSearchViewComboBox)
         {
             currentModLoadedFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
             loadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());

@@ -25,17 +25,17 @@
                         <MenuItem Header="_Validate Mod Files" Name="ValidateXmlMenuItem" Click="ValidateXmlMenuItem_Click"/>
                     </MenuItem>
                     <MenuItem Header="S_ettings">
-                        <MenuItem Header="_Auto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
+                        <MenuItem Header="A_uto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
                         <MenuItem Header="_Game Mods Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
-                        <MenuItem Header="C_reate/Edit Mod" Name="CreateEditModInfoMenuItem" Click="CreateEditModInfoMenuItem_Click" />
+                        <MenuItem Header="_Create/Edit Mod" Name="CreateEditModInfoMenuItem" Click="CreateEditModInfoMenuItem_Click" />
                         <MenuItem Header="T_imestamp" Name="ChangeLogTimeStampMenuItem"  Click="ChangeLogTimeStampMenuItem_Click" />
-                        <MenuItem Header="O_pen Localization" Name="OpenLocalizationMenuItem"  Click="OpenLocalizationMenuItem_Click" />
-                        <MenuItem Header="_Check All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
+                        <MenuItem Header="Open Locali_zation" Name="OpenLocalizationMenuItem"  Click="OpenLocalizationMenuItem_Click" />
+                        <MenuItem Header="Chec_k All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
                     </MenuItem>
                     <MenuItem Header="Theme">
-                        <MenuItem Header="_Normal" Name="NormalThemeMenuItem" Click="NormalThemeMenuItem_Click" />
-                        <MenuItem Header="_Medium" Name="MediumThemeMenuItem" Click="MediumThemeMenuItem_Click"/>
-                        <MenuItem Header="_Dark" Name="DarkThemeMenuItem" Click="DarkThemeMenuItem_Click"/>
+                        <MenuItem Header="Light" Name="NormalThemeMenuItem" Click="NormalThemeMenuItem_Click" />
+                        <MenuItem Header="Medium" Name="MediumThemeMenuItem" Click="MediumThemeMenuItem_Click"/>
+                        <MenuItem Header="Dark" Name="DarkThemeMenuItem" Click="DarkThemeMenuItem_Click"/>
                     </MenuItem>
                     <MenuItem Header="_Help" Name="HelpMenuItem"  Click="HelpMenu_Click"/>
                 </Menu>
@@ -110,14 +110,22 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                     <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>  
                                 </Grid.ColumnDefinitions>
                                 <Grid Grid.Column="0">
                                     <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center"/>
                                 </Grid>
                                 <Grid Grid.Column="1">
                                     <Button x:Name="DeleteModButton" Click="DeleteModButton_Click" Content="Delete Mod" FontSize="18"></Button>
-                                </Grid> 
-                            </Grid>
+                                </Grid>
+                                <Grid Grid.Column="2">
+                                    <Button x:Name="ReloadModOutputFolderButton" Click="ReloadModOutputFolderButton_Click" Content="_Reload Mods" FontSize="18"></Button>
+                                </Grid>
+                                <Grid Grid.Column="3">
+                                    <Button x:Name="OpenModsOutputFolderMenuItem" Click="OpenModsOutputFolderMenuItem_Click" FontSize="18">O_pen Mods Folder</Button>
+                                </Grid>
+                        </Grid>
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
@@ -130,10 +138,10 @@
                                 <Grid Grid.Column="1">
                                     <Button x:Name="OpenModFileDirectEditViewButton" Click="OpenDirectEditModXmlViewButton_Click" FontSize="18">_Open Direct Editor Window</Button>
                                 </Grid>
-                                <Grid Grid.Column="2">
-                                    <Button x:Name="DeleteModFileDirectEditViewButton" Click="DeleteModFileXmlViewButton_Click" FontSize="18">_Delete File</Button>
-                                </Grid>
+                            <Grid Grid.Column="2">
+                                <Button x:Name="DeleteModFileDirectEditViewButton" Click="DeleteModFileXmlViewButton_Click" FontSize="18">_Delete File</Button>
                             </Grid>
+                        </Grid>
                         </Grid>
                 </Grid>
                 <Grid Grid.Row="1">

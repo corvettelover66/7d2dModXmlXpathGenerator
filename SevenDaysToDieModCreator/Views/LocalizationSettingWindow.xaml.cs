@@ -108,7 +108,7 @@ namespace SevenDaysToDieModCreator.Views
                 "localization headers will be included automatically");
             ModSelectionComboBox.AddToolTip("Use this box to switch between mods and modify the Localization of different Mods easily");
             SaveLocalizationTableButton.AddToolTip("Click here to write out all Localization changes");
-            AddEmptyRowButton.AddToolTip("Click here to add an empty row to te grid\n\n" +
+            AddEmptyRowButton.AddToolTip("Click here to add an empty row to the grid\n\n" +
                 "The first column in each row is a combobox that contains\n" +
                 "any added items/blocks from the curret selected mod.");
         }
