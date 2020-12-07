@@ -23,6 +23,15 @@ namespace SevenDaysToDieModCreator.Models
         //Key = "Attribute name" E.G. "name or count"
         //Value = "All common values for that attribute, exclusive to the Object Tag"
         public Dictionary<string, Dictionary<string, List<string>>> ObjectNameToAttributeValuesMap { get; private set; }
+        //Any Object's Common Attributes Note: Values are unique to the tag, the map above does not exclude xpath commands making other uses in the application more difficult. This map solves that problem. 
+        //First level Dictionary
+        //Key = "Tag Name" E.G. "recipe or ingredient"
+        //Value = "Attributes Dictionary "
+        //Attributes Dictionary
+        //Key = "Attribute name" E.G. "name or count"
+        //Value = "All common values for that attribute, exclusive to the Object Tag"
+        public Dictionary<string, Dictionary<string, List<string>>> ObjectNameToAttributeValuesMapNoXpath { get; private set; }
+
 
         //A dictionary of any Tag name to all children tag names
         //Key = "Tag Name" E.G. "recipe or ingredient"
@@ -36,9 +45,9 @@ namespace SevenDaysToDieModCreator.Models
             this.XmlFile = xmlFileObject;
             this.ObjectNameToAttributesMap = new Dictionary<string, List<string>>();
             this.ObjectNameToAttributeValuesMap = new Dictionary<string, Dictionary<string, List<string>>>();
+            this.ObjectNameToAttributeValuesMapNoXpath = new Dictionary<string, Dictionary<string, List<string>>>();
             this.ObjectNameToChildrenMap = new Dictionary<string, List<string>>();
             this.AllTopLevelTags = new List<string>();
-
             TraverseXml(false);
             SetTopLevelNodes();
         }
@@ -52,7 +61,7 @@ namespace SevenDaysToDieModCreator.Models
             this.ObjectNameToAttributesMap.Clear();
             this.ObjectNameToAttributeValuesMap.Clear();
             this.ObjectNameToChildrenMap.Clear();
-            AllTopLevelTags.Clear();
+            this.AllTopLevelTags.Clear();
         }
         public void TraverseXml(bool clearList = true)
         {
@@ -74,7 +83,10 @@ namespace SevenDaysToDieModCreator.Models
             XmlNodeList allObjects = this.XmlFile.xmlDocument.DocumentElement.ChildNodes;
             foreach (XmlNode nextObjectNode in allObjects)
             {
-                if (!nextObjectNode.Name.Contains("#")) AllTopLevelTags.AddUnique(nextObjectNode.Name);
+                if (!nextObjectNode.Name.Contains("#"))
+                {
+                    AllTopLevelTags.AddUnique(nextObjectNode.Name);
+                }
             }
         }
         public void TraverseXmlNodeList(XmlNodeList allObjects, String lastParentName)
@@ -90,7 +102,7 @@ namespace SevenDaysToDieModCreator.Models
             else if (lastParentName.Length > 0)
             {
                 List<string> childrenList = this.ObjectNameToChildrenMap.GetValueOrDefault(lastParentName);
-                childrenList.AddUnique(nextObjectNode.Name);
+                if(childrenList!= null)childrenList.AddUnique(nextObjectNode.Name);
             }
             if (nextObjectNode.Attributes != null) TraverseAttributes(nextObjectNode);
             if (nextObjectNode.HasChildNodes)
@@ -107,17 +119,21 @@ namespace SevenDaysToDieModCreator.Models
         {
             foreach (XmlAttribute nextAttribute in nextObjectNode.Attributes)
             {
-                if (nextAttribute.Name.Contains("name"))
+
+                if (!nextAttribute.Value.Contains("whitspace"))
                 {
                     this.ObjectNameToAttributesMap.AddUniqueValueToMap(nextObjectNode.Name, nextAttribute.Name);
                     this.ObjectNameToAttributeValuesMap.AddUniqueAttributeToMapOfMaps(nextObjectNode.Name, nextAttribute);
                 }
-                else if (!nextAttribute.Value.Contains("whitspace"))
+                if (XmlAttributeIsNotWhitspaceOrXpath(nextAttribute)) 
                 {
-                    this.ObjectNameToAttributesMap.AddUniqueValueToMap(nextObjectNode.Name, nextAttribute.Name);
-                    this.ObjectNameToAttributeValuesMap.AddUniqueAttributeToMapOfMaps(nextObjectNode.Name, nextAttribute);
+                    this.ObjectNameToAttributeValuesMapNoXpath.AddUniqueAttributeToMapOfMaps(nextObjectNode.Name, nextAttribute);
                 }
             }
+        }
+        private bool XmlAttributeIsNotWhitspaceOrXpath(XmlAttribute nextAttribute) 
+        {
+            return !nextAttribute.Name.Contains("xpath") && !nextAttribute.Value.Contains("whitspace");
         }
     }
 }

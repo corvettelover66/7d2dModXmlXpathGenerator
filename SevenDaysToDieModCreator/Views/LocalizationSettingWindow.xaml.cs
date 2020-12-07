@@ -360,12 +360,23 @@ namespace SevenDaysToDieModCreator.Views
         }
         private void AddEmptyRow_Click(object sender, RoutedEventArgs e)
         {
-            //Hard code the wrapper to the items.xml for the mod
-            XmlObjectsListWrapper selectedModItemsWrapper = LoadedListWrappers.GetValueOrDefault(ModSelectionComboBox.SelectedItem.ToString() + "_items");
-            //Hard code the wrapper to the blocks.xml for the mod
-            XmlObjectsListWrapper selectedModBlocksWrapper = LoadedListWrappers.GetValueOrDefault(ModSelectionComboBox.SelectedItem.ToString() + "_blocks");
+            List<XmlObjectsListWrapper> wrappersWithKeysToUse = new List<XmlObjectsListWrapper>();
+            //Hard code the wrappers, I have avoided this but here it seems acceptable as this component is highly decoupled from the main application
+            //This is also crash safe as it will do a dictionary lookup with the string and ignore it if it doesn't exist
+            AddWrapperToList("_items", wrappersWithKeysToUse);
+            AddWrapperToList("_blocks", wrappersWithKeysToUse);
+            AddWrapperToList("_entityclasses", wrappersWithKeysToUse);
+            AddWrapperToList("_loadingscreen", wrappersWithKeysToUse);
+            AddWrapperToList("_item_modifiers", wrappersWithKeysToUse);
+            AddWrapperToList("_progression", wrappersWithKeysToUse);
+            AddWrapperToList("_buffs", wrappersWithKeysToUse);
+            ModLocalizationGridUserControl.AddEmptyRow(wrappersWithKeysToUse, GameLocalizationFile);
+        }
 
-            ModLocalizationGridUserControl.AddEmptyRow(selectedModItemsWrapper, selectedModBlocksWrapper, GameLocalizationFile);
+        private void AddWrapperToList(string hardcodedXmlWrapperToUse, List<XmlObjectsListWrapper> wrappersWithKeysToUse)
+        {
+            XmlObjectsListWrapper loadedModFileWrapper = LoadedListWrappers.GetValueOrDefault(ModSelectionComboBox.SelectedItem.ToString() + hardcodedXmlWrapperToUse);
+            if (loadedModFileWrapper != null) wrappersWithKeysToUse.Add(loadedModFileWrapper);
         }
     }
 }

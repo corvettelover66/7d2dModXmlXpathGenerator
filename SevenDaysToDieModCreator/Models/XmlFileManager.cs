@@ -79,18 +79,22 @@ namespace SevenDaysToDieModCreator.Models
         {
             return Path.Combine(Directory.GetCurrentDirectory(), "Output/Mods/" + customTagName + "/Config/");
         }
-        public static void WriteStringToFile(string filePath, string fileName, string stringToWrite, bool addTimeStamp = false)
+        public static bool WriteStringToFile(string filePath, string fileName, string stringToWrite, bool addTimeStamp = false)
         {
+            bool didSucceed = true;
             if (!Directory.Exists(filePath)) Directory.CreateDirectory(filePath);
             if (addTimeStamp && !String.IsNullOrEmpty(stringToWrite)) stringToWrite = "<!-- Xml Written " + DateTime.Now.ToString("MMMM dd, yyyy") + " at " + DateTime.Now.ToString("HH:mm:ss") + " -->\n" + stringToWrite;
             try
             {
-                System.IO.File.WriteAllText(Path.Combine(filePath, fileName), stringToWrite);
+                string pathCombined = Path.Combine(filePath, fileName);
+                System.IO.File.WriteAllText(pathCombined, stringToWrite);
             }
-            catch (IOException)
+            catch (IOException e)
             {
+                didSucceed = false;
                 WriteStringToLog("ERROR Writing to file @" + filePath + fileName);
             }
+            return didSucceed;
         }
         public static List<string> GetCustomModFoldersInOutput()
         {

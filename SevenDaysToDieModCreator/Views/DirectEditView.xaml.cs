@@ -21,6 +21,7 @@ namespace SevenDaysToDieModCreator.Views
     /// </summary>
     public partial class DirectEditView : Window
     {
+        private bool IsIgnoringExternalChanges { get; set; }
         private XmlObjectsListWrapper Wrapper { get; set; }
         private string StartingFileContents { get; set; }
         private string UnchangedStartingFileContents { get; set; }
@@ -60,6 +61,8 @@ namespace SevenDaysToDieModCreator.Views
             this.ValidateXmlButton.AddToolTip("Click here to validate the xml");
             this.UndoAllChangesXmlButton.AddToolTip("Click here to undo any changes made since opening the window");
             this.CodeCompletionKeysHelpButton.AddToolTip("Click here to see the keys used for\nAuto Complete within this window");
+            this.CombineTagsXmlButton.AddToolTip("Click here to combine all top level APPEND tags, into a single APPEND tag.\n" +
+                                               "EX: In the file there are completly new RECIPES under seperate APPEND tags that can be combined.");
 
             SearchPanel.Install(XmlOutputBox);
 
@@ -87,13 +90,14 @@ namespace SevenDaysToDieModCreator.Views
                 "Click here to collapse all nodes in the document.");
             this.XmlOutputBox.AddContextMenu(ExpandAllContextMenu_Clicked,
                 "Expand All",
-                "Click here to expand  all nodes in the document.");
+                "Click here to expand all nodes in the document.");
 
             this.XmlOutputBox.GotMouseCapture += XmlOutputBox_GotMouseCapture;
             this.XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
             this.XmlOutputBox.TextChanged += XmlOutputBox_TextChanged;
             this.XmlOutputBox.TextArea.TextEntering += TextArea_TextEntering; 
             this.XmlOutputBox.TextArea.TextEntered += TextArea_TextEntered;
+            this.XmlOutputBox.Focus();
             SetBackgroundColor();
             Closing += new CancelEventHandler(DirectEditView_Closing);
         }
@@ -230,7 +234,7 @@ namespace SevenDaysToDieModCreator.Views
         }
         private void XmlOutputBox_GotMouseCapture(object sender, MouseEventArgs e)
         {
-            HandleExternalFileChanges();
+            if(!IsIgnoringExternalChanges) HandleExternalFileChanges();
         }
         private void XmlOutputBox_TextChanged(object sender, EventArgs e)
         {
@@ -243,7 +247,8 @@ namespace SevenDaysToDieModCreator.Views
         private void SaveXmlButton_Click(object sender, RoutedEventArgs e)
         {
             SaveFile();
-
+            //Reset the boolean to look for external changes again.
+            IsIgnoringExternalChanges = false;
         }
         private void ReloadFileXmlButton_Click(object sender, RoutedEventArgs e)
         {
@@ -307,8 +312,12 @@ namespace SevenDaysToDieModCreator.Views
                         {
                             XmlOutputBox.Text = fileContents;
                             StartingFileContents = fileContents;
-                            this.Title = Wrapper.XmlFile.FileName;
+                            this.Title = this.StartingTitle;
                         }
+                        break;
+                    case MessageBoxResult.No:
+                        IsIgnoringExternalChanges = true;
+                        this.Title ="*"+ this.StartingTitle ;
                         break;
                 }
             }
@@ -399,7 +408,6 @@ namespace SevenDaysToDieModCreator.Views
         {
             this.XmlOutputBox.Text = this.UnchangedStartingFileContents;
         }
-
         private void CodeCompletionKeys_Click(object sender, RoutedEventArgs e)
         {
             string message = "This window has many keys that open an auto complete window.\n\n" +

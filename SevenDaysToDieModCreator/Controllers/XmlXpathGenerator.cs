@@ -18,6 +18,10 @@ namespace SevenDaysToDieModCreator.Models
         public const string XPATH_ACTION_REMOVE = "remove";
         public const string XPATH_ACTION_INSERT_BEFORE = "insertBefore";
         public const string XPATH_ACTION_INSERT_AFTER = "insertAfter";
+        public static List<string> ALL_XPATH_ACTIONS = new List<string> { 
+            XPATH_ACTION_APPEND, XPATH_ACTION_SET, XPATH_ACTION_REMOVE_ATTRIBUTE, 
+            XPATH_ACTION_SET_ATTRIBUTE, XPATH_ACTION_REMOVE,
+            XPATH_ACTION_INSERT_BEFORE, XPATH_ACTION_INSERT_AFTER  };
         public const string ATTRIBUTE_NAME = "Attribute";
         public const string ATTRIBUTE_VALUE = "AttributeValue";
         public const string IGNORE_STRING = "IGNORE";
@@ -292,7 +296,8 @@ namespace SevenDaysToDieModCreator.Models
         public static string GenerateXmlViewOutput(MyStackPanel newObjectFormsPanel)
         {
             string addedViewTextStart = " <!--WARNING: Direct text edits made here will NOT be saved.-->\n\n" +
-             "<!--To make direct file edits you can select a file below and open the direct editor window for the file.-->\n\n" +
+             "<!--To make direct file edits you can select a file above and open the direct editor window for the file.-->\n\n" +
+             "\n\n" +
              "<!--You can also make direct changes to the file(s) at the current output location: \n" + XmlFileManager.ModConfigOutputPath + "-->\n";
             string unsavedGeneratedXmlStart = "<!-- -------------------------------------- Current Unsaved XML ----------------------------------- -->\n\n";
 
@@ -367,6 +372,7 @@ namespace SevenDaysToDieModCreator.Models
         }
         public static bool ValidateXml(string xmlToValidate, string errorPrependMessage = null, bool doShowValidationMessage = false)
         {
+            if (String.IsNullOrEmpty(xmlToValidate)) return false;
             bool isValid = true;
             string fileValidationString;
             try

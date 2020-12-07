@@ -16,19 +16,28 @@ namespace SevenDaysToDieModCreator.Extensions
         public static string GridAsCSV(this Grid gridToTraverse) 
         {
             string csvToReturn = "";
+            int startingRow = 0;
             foreach (UIElement element in gridToTraverse.Children)
             {
-                int columnCount = 0;
                 if (element is TextBox textbox && textbox.Tag != null)
                 {
-                    if (textbox.Text.Contains(",")) csvToReturn += "\"" + textbox.Text + "\"" + textbox.Tag;
-                    else csvToReturn += textbox.Text + textbox.Tag;
+                    int currentRow = int.Parse(textbox.Tag.ToString());
+                    if (startingRow != currentRow)
+                    {
+                        //Remove the last comma
+                        csvToReturn = csvToReturn.Trim(',');
+                        //Add a newline
+                        csvToReturn += "\n";
+                    }
+                    if (textbox.Text.Contains(",")) csvToReturn += "\"" + textbox.Text + "\"" + ",";
+                    else csvToReturn += textbox.Text + ",";
+                    //If the row has changed set the tracker
+                    if (startingRow != currentRow) startingRow = currentRow;
                 }
                 if (element is ComboBox comboBox) 
                 {
                     csvToReturn += comboBox.Text + comboBox.Tag;
                 }
-                columnCount++;
             }
             return csvToReturn;
         }
@@ -289,6 +298,22 @@ namespace SevenDaysToDieModCreator.Extensions
         public static void AddUniqueValueTo(this MyComboBox boxToAddTo, string valueToAdd)
         {
             AddUniqueValueTo(boxToAddTo as ComboBox, valueToAdd);
+        }
+        public static void AddUniqueValueTo(this ComboBox boxToAddTo, List<string> valuesToAdd)
+        {
+            if (boxToAddTo.ItemsSource == null)
+            {
+                ObservableCollection<string> allItems = new ObservableCollection<string>(valuesToAdd);
+                boxToAddTo.ItemsSource = allItems;
+                return;
+            }
+            else if (boxToAddTo.ItemsSource.GetType() == typeof(ObservableCollection<string>))
+            {
+                foreach (string value in valuesToAdd) 
+                {
+                    boxToAddTo.AddUniqueValueTo(value);
+                }
+            }
         }
         public static void AddUniqueValueTo(this ComboBox boxToAddTo, string valueToAdd)
         {

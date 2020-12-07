@@ -329,6 +329,28 @@ namespace SevenDaysToDieModCreator.Controllers
                 MessageBox.Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        internal void PreviewModFileInXmlOutput(ICSharpCode.AvalonEdit.TextEditor xmlOutputBox, string wrapperKey)
+        {
+            if (!String.IsNullOrEmpty(wrapperKey))
+            {
+                XmlObjectsListWrapper xmlObjectsListWrapper = this.LoadedListWrappers.GetValueOrDefault(wrapperKey);
+                xmlObjectsListWrapper ??= this.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + wrapperKey);
+                if (xmlObjectsListWrapper == null)
+                {
+                    MessageBox.Show(
+                        "The was an error in the file for " + Properties.Settings.Default.ModTagSetting + "_" + wrapperKey + ".\n\n" +
+                        "It is probably malformed xml, to check this, switch to the mod, open the \"File\" menu and click \"Validate Mod files\".",
+                        "File Loading Error!",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return;
+                }
+                string parentPath = xmlObjectsListWrapper.XmlFile.ParentPath ?? "";
+
+                xmlOutputBox.Text = XmlFileManager.ReadExistingFile(Path.Combine(parentPath, xmlObjectsListWrapper.XmlFile.FileName));
+            }
+        }
     }
 }
 //public void LoadGameModDirectoryViewControl(ComboBox loadedModsSearchViewComboBox, ComboBox loadedModsCenterViewComboBox, ComboBox currentModFilesCenterViewComboBox)

@@ -152,6 +152,7 @@ namespace SevenDaysToDieModCreator.Views
         }
         private void SaveButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            //Check if the name box is empty
             if (String.IsNullOrEmpty(ChangeNameAllTagsComboBox.Text)) 
             {
                 string currentSelectedModTag = AllTagsComboBox.Text;
@@ -160,13 +161,13 @@ namespace SevenDaysToDieModCreator.Views
             else 
             {
                 //prompt user to create new mod with text provided
-                string message = "The selected mod name provided does not exist, would you like to create it as a new mod now with all provided modinfo values?";
+                string message = "The selected mod name provided does not exist, would you like to create it as a new mod now?";
                 MessageBoxResult results = MessageBox.Show(message, "Create New Mod", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 switch (results)
                 {
                     case MessageBoxResult.Yes:
                         List<string> allCustomModsInPath = XmlFileManager.GetCustomModFoldersInOutput();
-                        //If the new name is not in te output path
+                        //If the new name is not in the output path
                         if (!allCustomModsInPath.Contains(ChangeNameAllTagsComboBox.Text)) 
                         {
                             SaveModInfo(ChangeNameAllTagsComboBox.Text);
@@ -178,22 +179,30 @@ namespace SevenDaysToDieModCreator.Views
                             MessageBox.Show(modExistsMessage, "Mod Name Exists", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                         break;
-                    case MessageBoxResult.No:
-                        ChangeNameAllTagsComboBox.Text = "";
-                        break;
 
                 }
+                ChangeNameAllTagsComboBox.Text = "";
             }
         }
 
         private void SaveModInfo(string modNameToUse)
         {
+            ModInfo.CreateModInfoFile(modNameToUse);
+            ResetModNameComboBoxes(modNameToUse);
             ModInfo newModIfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
             string modInfoXmlOut = newModIfo.ToString();
-            ModInfo.CreateModInfoFile(modNameToUse);
-            XmlFileManager.WriteStringToFile(XmlFileManager.Get_ModDirectoryOutputPath(modNameToUse), ModInfo.MOD_INFO_FILE_NAME, modInfoXmlOut);
-            ResetModNameComboBoxes(modNameToUse);
-            MessageBox.Show("Saved mod info for " + modNameToUse + ".", "Saving Mod info", MessageBoxButton.OK, MessageBoxImage.Information);
+            bool didSucceed = XmlFileManager.WriteStringToFile(XmlFileManager.Get_ModDirectoryOutputPath(modNameToUse), ModInfo.MOD_INFO_FILE_NAME, modInfoXmlOut);
+            if (didSucceed)
+            {
+                MessageBox.Show("Saved mod info for " + modNameToUse + ".", "Saving Mod info", MessageBoxButton.OK, MessageBoxImage.Information);
+                ResetModNameComboBoxes(modNameToUse);
+            }
+            else 
+            {
+                MessageBox.Show("Created new mod, with empty. Simply reselecting the mod in the combo box above may fix the issue. Alternatively, select another mod and reselect the mod you would like to edit.", 
+                    "Save Mod Info Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                ResetModNameComboBoxes(modNameToUse);
+            }
         }
 
         private void ChangeModTagName(string oldModtagName, string newTagName)

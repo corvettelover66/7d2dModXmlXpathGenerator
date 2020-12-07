@@ -74,20 +74,26 @@ namespace SevenDaysToDieModCreator.Views
                 columnCount++;
                 //Set the Headers
                 topGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                nextHeaderTextBox = new TextBox() { Text = headerField, FontSize = 22, Tag =",", Background = BackgroundColorController.GetBackgroundColor() };
+                nextHeaderTextBox = new TextBox() { 
+                    Text = headerField, 
+                    FontSize = 22, 
+                    Tag =row,
+                    Background = BackgroundColorController.GetBackgroundColor() };
                 Grid.SetRow(nextHeaderTextBox, row);
                 Grid.SetColumn(nextHeaderTextBox, columnCount);
                 topGrid.Children.Add(nextHeaderTextBox);
                 columnCount++;
                 topGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                nextHeaderTextBox = new TextBox() { Text = nextField, FontSize = 22, Tag = ",", Background = BackgroundColorController.GetBackgroundColor() };
+                nextHeaderTextBox = new TextBox() { 
+                    Text = nextField, FontSize = 22, 
+                    Tag = row,
+                    Background = BackgroundColorController.GetBackgroundColor() };
                 Grid.SetRow(nextHeaderTextBox, row);
                 Grid.SetColumn(nextHeaderTextBox, columnCount);
                 topGrid.Children.Add(nextHeaderTextBox);
             }
-            if (nextHeaderTextBox != null) nextHeaderTextBox.Tag = "\n";
         }
-        public void AddEmptyRow(XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper, LocalizationFileObject gameLocalizationFile) 
+        public void AddEmptyRow(List<XmlObjectsListWrapper> allWrappersToUseForKeys, LocalizationFileObject gameLocalizationFile) 
         {
             int lastRowPlusOne = TextBoxRowDictionary.Keys.Count + 1;
             List<Control> controlsAddedInRow = new List<Control>();
@@ -98,7 +104,7 @@ namespace SevenDaysToDieModCreator.Views
             columnCount++;
             AddClearButton(lastRowPlusOne, columnCount);
             columnCount++;
-            AddModKeysColumn(lastRowPlusOne, columnCount, selectedModItemsWrapper, selectedModBlocksWrapper);
+            AddModKeysColumn(lastRowPlusOne, columnCount, allWrappersToUseForKeys);
             columnCount++;
             //In the game file it is file, in the mod file it is source
             string headerKey = "file";
@@ -181,20 +187,27 @@ namespace SevenDaysToDieModCreator.Views
             {
                 //Set the Headers
                 topGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                nextHeaderTextBox = new TextBox() { Text = headerField, FontSize = 22, Background = BackgroundColorController.GetBackgroundColor() };
+                nextHeaderTextBox = new TextBox() { 
+                    Text = headerField, 
+                    FontSize = 22, 
+                    Tag = row,
+                    Background = BackgroundColorController.GetBackgroundColor() };
                 Grid.SetRow(nextHeaderTextBox, row);
                 Grid.SetColumn(nextHeaderTextBox, columnCount);
                 topGrid.Children.Add(nextHeaderTextBox);
-                nextHeaderTextBox.Tag = ",";
+
                 columnCount++;
             }
-            if(nextHeaderTextBox != null)nextHeaderTextBox.Tag = "\n";
         }
         private void AddDummyColumn(int row, int columnCount, string textForTextBox = "", int fontSize = 18)
         {
             //Add a dummy column for the clear button.
             topGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            TextBox emptyTextBox = new TextBox() { Text = textForTextBox, FontSize = fontSize, Background = BackgroundColorController.GetBackgroundColor() };
+            TextBox emptyTextBox = new TextBox() { 
+                Text = textForTextBox, 
+                FontSize = fontSize, 
+                Background = BackgroundColorController.GetBackgroundColor() 
+            };
             Grid.SetRow(emptyTextBox, row);
             Grid.SetColumn(emptyTextBox, columnCount);
             topGrid.Children.Add(emptyTextBox);
@@ -204,7 +217,8 @@ namespace SevenDaysToDieModCreator.Views
             int numberForColumn = rowCount + 1;
             //Need to increase the row count to make sure the numbers line up with the file
             topGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            TextBox clearRowButton = new TextBox { Text = numberForColumn+ "", FontSize = 18, Background = BackgroundColorController.GetBackgroundColor() };
+            TextBox clearRowButton = new TextBox { 
+                Text = numberForColumn+ "", FontSize = 18, Background = BackgroundColorController.GetBackgroundColor() };
             Grid.SetRow(clearRowButton, rowCount);
             Grid.SetColumn(clearRowButton, column);
             topGrid.Children.Add(clearRowButton);
@@ -257,17 +271,17 @@ namespace SevenDaysToDieModCreator.Views
             TextBox newRecordTextbox = null;
             foreach (string nextRecordField in record)
             {
+                ColumnDefinition columnDefinition = new ColumnDefinition();
                 topGrid.ColumnDefinitions.Add(new ColumnDefinition());
                 newRecordTextbox = new TextBox()
                 {
                     Text = nextRecordField,
-                    Tag = ",",
+                    Tag = rowCount,
                     FontSize = 18,
                     Background = BackgroundColorController.GetBackgroundColor()
                 };
                 if(skipHeadersCount < this.LocalizationFileObject.HeaderValues.Length) newRecordTextbox.AddToolTip((rowCount +1) + " : " +this.LocalizationFileObject.HeaderValues[skipHeadersCount]);
                 newRecordTextbox.TextChanged += NewRecordTextbox_TextChanged;
-                newRecordTextbox.LostFocus += NewRecordTextbox_LostFocus;
                 Grid.SetRow(newRecordTextbox, rowCount);
                 Grid.SetColumn(newRecordTextbox, columnCount);
                 topGrid.Children.Add(newRecordTextbox);
@@ -275,24 +289,13 @@ namespace SevenDaysToDieModCreator.Views
                 columnCount++;
                 skipHeadersCount++;
             }
-            if(newRecordTextbox != null)newRecordTextbox.Tag = "\n";
             if (allBoxesInRow.Count > 0) TextBoxRowDictionary.Add(rowCount, allBoxesInRow);
         }
-
-        private void NewRecordTextbox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is TextBox recordTextBox) 
-            {
-                if (String.IsNullOrEmpty(recordTextBox.Text)) recordTextBox.Tag = "";
-                else recordTextBox.Tag = ",";
-            }
-        }
-
         private void NewRecordTextbox_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.GridHasChanged = true;
         }
-        private Control AddModKeysColumn(int lastRowPlusOne, int columnCount, XmlObjectsListWrapper selectedModItemsWrapper, XmlObjectsListWrapper selectedModBlocksWrapper)
+        private Control AddModKeysColumn(int lastRowPlusOne, int columnCount, List<XmlObjectsListWrapper> xmlWrappersForGameKeys)
         {
             topGrid.ColumnDefinitions.Add(new ColumnDefinition());
             ComboBox newCommonValuesBox = new ComboBox
@@ -305,23 +308,33 @@ namespace SevenDaysToDieModCreator.Views
             newCommonValuesBox.AddToolTip("key");
             newCommonValuesBox.DropDownClosed += NewCommonValuesBox_DropDownClosed;
             newCommonValuesBox.LostFocus += NewCommonValuesBox_LostFocus;
-            if (selectedModItemsWrapper != null) 
+            //Go through all mod files
+            foreach (XmlObjectsListWrapper xmlObjectsListWrapper in xmlWrappersForGameKeys) 
             {
-                Dictionary<string, List<string>> attributeDictinaryForItems = selectedModItemsWrapper.ObjectNameToAttributeValuesMap.GetValueOrDefault("item");
-                if (attributeDictinaryForItems != null) 
+                if (xmlObjectsListWrapper != null)
                 {
-                    List<string> commonAttributes = attributeDictinaryForItems.GetValueOrDefault("name");
-                    commonAttributes.Insert(0, "");
-                    newCommonValuesBox.SetComboBox(commonAttributes);
-                }            
-            }
-            if (selectedModBlocksWrapper != null) 
-            { 
-                Dictionary<string, List<string>> attributeDictinaryForBlocks = selectedModBlocksWrapper.ObjectNameToAttributeValuesMap.GetValueOrDefault("block");
-                if (attributeDictinaryForBlocks != null)
-                {
-                    List<string> commonAttributes = attributeDictinaryForBlocks.GetValueOrDefault("name");
-                    newCommonValuesBox.SetComboBox(commonAttributes);
+                    foreach (string tagNameKey in xmlObjectsListWrapper.ObjectNameToAttributeValuesMapNoXpath.Keys) 
+                    {
+                        //Get the next top tag attribute mao
+                        Dictionary<string, List<string>> attributeDictinaryForItems = xmlObjectsListWrapper.ObjectNameToAttributeValuesMapNoXpath.GetValueOrDefault(tagNameKey);
+                        if (attributeDictinaryForItems != null)
+                        {
+                            //Get the first key in the attribute dictinary because we only want the first attribute
+                            //Probably a better way than a loop and break
+                            foreach(string key in attributeDictinaryForItems.Keys) 
+                            {
+                                List<string> commonAttributes = attributeDictinaryForItems.GetValueOrDefault(key);
+                                if (commonAttributes != null)
+                                {
+                                    newCommonValuesBox.AddUniqueValueTo(commonAttributes);
+                                    //We only want the name, or key attribute. Essentially the first attribute in the wrapper.
+                                    break;
+                                }
+                            }
+                        }
+                        //We only want the first tag found.
+                        break;
+                    }
                 }
             }
             Grid.SetRow(newCommonValuesBox, lastRowPlusOne);
@@ -385,7 +398,6 @@ namespace SevenDaysToDieModCreator.Views
                 }
             }
         }
-
         private void NewCommonValuesBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if (sender is ComboBox modKeyComboBox) 

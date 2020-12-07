@@ -24,12 +24,14 @@
                         <MenuItem Header="Stage _All" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
                         <MenuItem Header="_Validate Mod Files" Name="ValidateXmlMenuItem" Click="ValidateXmlMenuItem_Click"/>
                     </MenuItem>
+                    <MenuItem Header="_Tools">
+                        <MenuItem Header="_Create/Edit Mod" Name="CreateEditModInfoMenuItem" Click="CreateEditModInfoMenuItem_Click" />
+                        <MenuItem Header="Open Locali_zation" Name="OpenLocalizationMenuItem"  Click="OpenLocalizationMenuItem_Click" />
+                    </MenuItem>
                     <MenuItem Header="S_ettings">
                         <MenuItem Header="A_uto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
                         <MenuItem Header="_Game Mods Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
-                        <MenuItem Header="_Create/Edit Mod" Name="CreateEditModInfoMenuItem" Click="CreateEditModInfoMenuItem_Click" />
                         <MenuItem Header="T_imestamp" Name="ChangeLogTimeStampMenuItem"  Click="ChangeLogTimeStampMenuItem_Click" />
-                        <MenuItem Header="Open Locali_zation" Name="OpenLocalizationMenuItem"  Click="OpenLocalizationMenuItem_Click" />
                         <MenuItem Header="Chec_k All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
                     </MenuItem>
                     <MenuItem Header="Theme">
@@ -101,48 +103,62 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" >
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                            </Grid.RowDefinitions>
-                            <Grid Grid.Row="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
-                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                    <ColumnDefinition Width="Auto"></ColumnDefinition>  
-                                </Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0">
-                                    <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center"/>
-                                </Grid>
-                                <Grid Grid.Column="1">
-                                    <Button x:Name="DeleteModButton" Click="DeleteModButton_Click" Content="Delete Mod" FontSize="18"></Button>
-                                </Grid>
-                                <Grid Grid.Column="2">
-                                    <Button x:Name="ReloadModOutputFolderButton" Click="ReloadModOutputFolderButton_Click" Content="_Reload Mods" FontSize="18"></Button>
-                                </Grid>
-                                <Grid Grid.Column="3">
-                                <Button x:Name="OpenModsOutputFolderButton" Click="OpenModsOutputFolderMenuItem_Click" FontSize="18">O_pen Mods Folder</Button>
-                                </Grid>
-                        </Grid>
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
-                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0">
-                                    <ComboBox Name="CurrentModFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
-                                </Grid>
-                                <Grid Grid.Column="1">
-                                    <Button x:Name="OpenModFileDirectEditViewButton" Click="OpenDirectEditModXmlViewButton_Click" FontSize="18">_Open Direct Editor Window</Button>
-                                </Grid>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <ComboBox Name="LoadedModsCenterViewComboBox" IsEditable="True" FontSize="24" HorizontalContentAlignment="Center"/>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Button x:Name="LoadedModsCenterViewLockButton" Click="ChangeEditableButton_Click" FontSize="18" >Lock</Button>
+                            </Grid>
                             <Grid Grid.Column="2">
+                                <Button x:Name="DeleteModButton" Click="DeleteModButton_Click" Content="Delete Mod" FontSize="18" Grid.RowSpan="2"></Button>
+                            </Grid>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <Button x:Name="ReloadModOutputFolderButton" Click="ReloadModOutputFolderButton_Click" Content="_Reload Mods" FontSize="18"></Button>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Button x:Name="OpenModsOutputFolderButton" Click="OpenModsOutputFolderMenuItem_Click" FontSize="18">O_pen Mods Folder</Button>
+                            </Grid>
+                        </Grid>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <ComboBox Name="LoadedModFilesCenterViewComboBox" FontSize="20" HorizontalContentAlignment="Center" />
+                            </Grid>
+                        </Grid>
+                        <Grid Grid.Row="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <Button x:Name="OpenModFileDirectEditViewButton" Click="OpenDirectEditModXmlViewButton_Click" FontSize="18">_Open Direct Editor Window</Button>
+                            </Grid>
+                            <Grid Grid.Column="1">
                                 <Button x:Name="DeleteModFileDirectEditViewButton" Click="DeleteModFileXmlViewButton_Click" FontSize="18">_Delete File</Button>
                             </Grid>
                         </Grid>
-                        </Grid>
+                    </Grid>
                 </Grid>
                 <Grid Grid.Row="1">
                     <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="XmlOutputBox" FontSize="20">
@@ -203,7 +219,7 @@
                                     <RowDefinition></RowDefinition>
                                     <RowDefinition></RowDefinition>
                                     <RowDefinition></RowDefinition>
-                                </Grid.RowDefinitions> 
+                                </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
                                     <CheckBox x:Name="IncludeChildrenInOnHoverCheckBox" Content="Include Children" IsChecked="False" FontSize="16" />
                                 </Grid>
@@ -216,7 +232,7 @@
                             </Grid>
                         </Grid>
                         <Button x:Name="AddNewTreeViewButton"  Click="AddNewSearchTreeView_Click" FontSize="18" HorizontalContentAlignment="Center">Add Game Search Tree</Button>
-                        <ComboBox Name="LoadedModsSearchViewComboBox" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
+                        <ComboBox Name="LoadedModsSearchViewComboBox" IsEditable="True" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1" VerticalAlignment="Top">
