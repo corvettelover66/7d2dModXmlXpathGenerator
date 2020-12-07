@@ -33,8 +33,9 @@ namespace SevenDaysToDieModCreator
         private MyStackPanel SearchTreeFormsPanel { get; set; }
         public ComboBox LoadedModFilesSearchViewComboBox { get; private set; }
         public Button LoadedModFilesButton { get; private set; }
-        //Key:items_MyMod
-        //Value:DirectEditView with the contents of the mod file and name
+        //A dictionary of open direct edit views
+        //Key:the value in the mod file selection combo box
+        //Value: The first open DirectEditView window for the mod and file.
         private Dictionary<string, DirectEditView> OpenDirectEditWindows { get; set; }
 
         public MainWindow()
@@ -85,13 +86,12 @@ namespace SevenDaysToDieModCreator
                 "Any time you close the app or clear the object view, the xml that could be generated is output in that log.\n\n" +
                 "If you like the application don't forget to leave me a comment or better yet drop an endorsment!\n" +
                 "Good luck with your mods!";
-            this.OpenDirectEditWindows = new Dictionary<string, DirectEditView>();
             this.XmlOutputBox.Text = openingText;
+            this.OpenDirectEditWindows = new Dictionary<string, DirectEditView>();
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.MainWindowFileController = new MainWindowFileController(this.LoadedListWrappers);
             this.MainWindowViewController = new MainWindowViewController();
             MainWindowViewController.XmlOutputBox = this.XmlOutputBox;
-
             MainWindowViewController.LoadedListWrappers = this.LoadedListWrappers;
             SetPanels();
             SetCustomModViewElements();
@@ -262,7 +262,6 @@ namespace SevenDaysToDieModCreator
                 }
             }
         }
-        
         private void PromptForNewMod(string customModFile)
         {
             string message = "The provided value does not exist in the output and can be used to create a new mod." +
@@ -300,7 +299,6 @@ namespace SevenDaysToDieModCreator
                 UpdateModFilesBoxInSearchTreeView(modToLoad);
             }
         }
-
         private void LoadedModsSearchViewComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Return) 
@@ -577,10 +575,9 @@ namespace SevenDaysToDieModCreator
                 PromptForNewModFileDirectEditWindow(selectedWrapper, selectedObject);
             }
         }
-
         private void PromptForNewModFileDirectEditWindow(XmlObjectsListWrapper selectedWrapper, string selectedModFile)
         {
-            string message = "That file is already open, would you like to switch to it?";
+            string message = "That file is already open, would you like to switch to the open window?";
             string caption = "File Already Open";
             MessageBoxResult results = MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
             switch (results) 
@@ -855,7 +852,8 @@ namespace SevenDaysToDieModCreator
 
         private void ReloadModOutputFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindowFileController.RefreshMainUIComboboxes(LoadedModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
+            this.MainWindowFileController.RefreshMainUIComboboxes(LoadedModFilesCenterViewComboBox, LoadedModsCenterViewComboBox, LoadedModsSearchViewComboBox);
+            this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.LoadedModFilesCenterViewComboBox);
             MessageBox.Show("Succesfully reloaded the Mods in the output folder.", "Reload Mods Output", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

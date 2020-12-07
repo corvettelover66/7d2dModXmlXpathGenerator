@@ -22,11 +22,11 @@
                         <!--<MenuItem Header="Load Mods _Directory" Name="LoadGameModDirectoryMenuItem" Click="LoadGameModDirectoryMenuItem_Click"/>-->
                         <MenuItem Header="_Save All" Name="SaveFileMenuItem" Click="SaveXmlFile_Click"/>
                         <MenuItem Header="Stage _All" Name="MoveFileMenuItem" Click="MoveFileMenuHeader_Click"/>
-                        <MenuItem Header="_Validate Mod Files" Name="ValidateXmlMenuItem" Click="ValidateXmlMenuItem_Click"/>
                     </MenuItem>
                     <MenuItem Header="_Tools">
                         <MenuItem Header="_Create/Edit Mod" Name="CreateEditModInfoMenuItem" Click="CreateEditModInfoMenuItem_Click" />
                         <MenuItem Header="Open Locali_zation" Name="OpenLocalizationMenuItem"  Click="OpenLocalizationMenuItem_Click" />
+                        <MenuItem Header="_Validate Mod Files" Name="ValidateXmlMenuItem" Click="ValidateXmlMenuItem_Click"/>
                     </MenuItem>
                     <MenuItem Header="S_ettings">
                         <MenuItem Header="A_uto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />

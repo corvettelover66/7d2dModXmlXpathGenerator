@@ -400,7 +400,6 @@ namespace SevenDaysToDieModCreator.Views
         {
             XmlXpathGenerator.ValidateXml(XmlOutputBox.Text, doShowValidationMessage: true);
         }
-
         private void CombineTagsXmlButton_Click(object sender, RoutedEventArgs e)
         {
             string allXml = this.XmlOutputBox.Text;
