@@ -9,7 +9,8 @@ namespace SevenDaysToDieModCreator.Controllers
     {
         public static SolidColorBrush NORMAL_MODE = Brushes.White;
         public static SolidColorBrush MEDUM_MODE = Brushes.Bisque;
-        public static SolidColorBrush DARK_MODE = Brushes.Silver;
+        public static SolidColorBrush DARK_MODE = Brushes.DarkGray;
+
         public static bool IsModeActivated() 
         {
             return Properties.Settings.Default.IsDarkModeActive || Properties.Settings.Default.SettingIsMediumModeActive;
