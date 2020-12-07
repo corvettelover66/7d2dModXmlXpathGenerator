@@ -26,16 +26,21 @@ namespace SevenDaysToDieModCreator.Views
         private string StartingFileContents { get; set; }
         private string UnchangedStartingFileContents { get; set; }
         private string StartingTitle { get; set; }
+        public string DictionaryKey { get; private set; }
         private string FileLocationPath { get; set; }
         private bool IsGameFile { get; set; }
+        public bool IsFirstWindowOpen { get; private set; }
+
         private FoldingManager FoldingManager { get; }
         private XmlFoldingStrategy FoldingStrategy { get; }
-        public DirectEditView(XmlObjectsListWrapper wrapperToUse, bool isGameFile, string title = null, string contentsForXmlOutputBox = null, string fileLocationPath = "", string unchangedStartingFileContents = null)
+        public DirectEditView(XmlObjectsListWrapper wrapperToUse, string dictionaryKey, bool isGameFile, bool isFirstWindowOpen = true, string title = null, string contentsForXmlOutputBox = null, string fileLocationPath = "", string unchangedStartingFileContents = null)
         {
             InitializeComponent();
             this.Wrapper = wrapperToUse;
             this.IsGameFile = isGameFile;
             this.FileLocationPath = fileLocationPath;
+            this.DictionaryKey = dictionaryKey;
+            this.IsFirstWindowOpen = isFirstWindowOpen;
             if (contentsForXmlOutputBox == null)
             {
                 string parentString = Wrapper.XmlFile.ParentPath ?? "";
@@ -289,7 +294,7 @@ namespace SevenDaysToDieModCreator.Views
                         if (!String.IsNullOrEmpty(xmlOut)) XmlFileManager.WriteStringToFile(Path.Combine(XmlFileManager.ModConfigOutputPath, parentString), Wrapper.XmlFile.FileName, xmlOut, true);
                         break;
                     case MessageBoxResult.Cancel:
-                        DirectEditView directEditView = new DirectEditView(this.Wrapper, this.IsGameFile, this.StartingTitle, XmlOutputBox.Text, FileLocationPath, this.UnchangedStartingFileContents);
+                        DirectEditView directEditView = new DirectEditView(this.Wrapper, this.DictionaryKey, this.IsGameFile, this.IsFirstWindowOpen, this.StartingTitle, XmlOutputBox.Text, FileLocationPath, this.UnchangedStartingFileContents);
                         directEditView.Show();
                         break;
                 }

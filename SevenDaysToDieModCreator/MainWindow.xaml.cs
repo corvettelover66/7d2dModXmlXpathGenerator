@@ -33,6 +33,9 @@ namespace SevenDaysToDieModCreator
         private MyStackPanel SearchTreeFormsPanel { get; set; }
         public ComboBox LoadedModFilesSearchViewComboBox { get; private set; }
         public Button LoadedModFilesButton { get; private set; }
+        //Key:items_MyMod
+        //Value:DirectEditView with the contents of the mod file and name
+        private Dictionary<string, DirectEditView> OpenDirectEditWindows { get; set; }
 
         public MainWindow()
         {
@@ -82,6 +85,7 @@ namespace SevenDaysToDieModCreator
                 "Any time you close the app or clear the object view, the xml that could be generated is output in that log.\n\n" +
                 "If you like the application don't forget to leave me a comment or better yet drop an endorsment!\n" +
                 "Good luck with your mods!";
+            this.OpenDirectEditWindows = new Dictionary<string, DirectEditView>();
             this.XmlOutputBox.Text = openingText;
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.MainWindowFileController = new MainWindowFileController(this.LoadedListWrappers);
@@ -558,12 +562,50 @@ namespace SevenDaysToDieModCreator
 
                 }
             }
-            DirectEditView directEdit = new DirectEditView(selectedWrapper, false, fileLocationPath: XmlFileManager.ModConfigOutputPath);
-            directEdit.Closed += DirectEdit_Closed;
-            directEdit.Show();
+            DirectEditView directEdit = this.OpenDirectEditWindows.GetValueOrDefault(selectedObject);
+            //Just run as normal and add it to the dictionary
+            if (directEdit == null)
+            {
+                directEdit = new DirectEditView(selectedWrapper, selectedObject, false, fileLocationPath: XmlFileManager.ModConfigOutputPath);
+                directEdit.Closed += DirectEdit_Closed;
+                directEdit.Show();
+                this.OpenDirectEditWindows.Add(selectedObject, directEdit);
+            }
+            //Prompt the user to focus the existing window, open a new window or cancel.
+            else 
+            {
+                PromptForNewModFileDirectEditWindow(selectedWrapper, selectedObject);
+            }
         }
+
+        private void PromptForNewModFileDirectEditWindow(XmlObjectsListWrapper selectedWrapper, string selectedModFile)
+        {
+            string message = "That file is already open, would you like to switch to it?";
+            string caption = "File Already Open";
+            MessageBoxResult results = MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+            switch (results) 
+            {
+                case MessageBoxResult.Yes:
+                    DirectEditView openedView = this.OpenDirectEditWindows.GetValueOrDefault(selectedModFile);
+                    if (openedView != null) openedView.Focus();
+                    break;
+                case MessageBoxResult.No:
+                    DirectEditView directEdit = new DirectEditView(selectedWrapper, selectedModFile, isGameFile: false, isFirstWindowOpen: false, fileLocationPath: XmlFileManager.ModConfigOutputPath);
+                    directEdit.Closed += DirectEdit_Closed;
+                    directEdit.Show();
+                    break;
+            }
+        }
+
         private void DirectEdit_Closed(object sender, EventArgs e)
         {
+            if (sender is DirectEditView senderAsDirectEditView) 
+            {
+                if (senderAsDirectEditView.IsFirstWindowOpen) 
+                {
+                    this.OpenDirectEditWindows.Remove(senderAsDirectEditView.DictionaryKey);
+                }
+            } 
             string currentLoadedMod = Properties.Settings.Default.ModTagSetting;
             this.MainWindowFileController.LoadCustomTagWrappers(currentLoadedMod, this.LoadedModFilesCenterViewComboBox);
             this.LoadedModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentLoadedMod, currentLoadedMod + "_"));
@@ -593,9 +635,20 @@ namespace SevenDaysToDieModCreator
                     return;
                 }
             }
-            DirectEditView directEdit = new DirectEditView(selectedWrapper, true, fileLocationPath: XmlFileManager.LoadedFilesPath);
-            directEdit.Closed += DirectEdit_Closed;
-            directEdit.Show();
+            DirectEditView directEdit = this.OpenDirectEditWindows.GetValueOrDefault(selectedObject);
+            //Just run as normal and add it to the dictionary
+            if (directEdit == null)
+            {
+                directEdit = new DirectEditView(selectedWrapper, selectedObject, isGameFile: false, fileLocationPath: XmlFileManager.ModConfigOutputPath);
+                directEdit.Closed += DirectEdit_Closed;
+                directEdit.Show();
+                this.OpenDirectEditWindows.Add(selectedObject, directEdit);
+            }
+            //Prompt the user to focus the existing window, open a new window or cancel.
+            else
+            {
+                PromptForNewModFileDirectEditWindow(selectedWrapper, selectedObject);
+            }
         }
         private void HelpMenu_Click(object sender, RoutedEventArgs e)
         {
