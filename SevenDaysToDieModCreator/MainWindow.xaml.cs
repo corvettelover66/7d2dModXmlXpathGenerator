@@ -87,22 +87,14 @@ namespace SevenDaysToDieModCreator
                 "If you like the application don't forget to leave me a comment or better yet drop an endorsment!\n" +
                 "Good luck with your mods!";
             this.XmlOutputBox.Text = openingText;
-            this.OpenDirectEditWindows = new Dictionary<string, DirectEditView>();
-            this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
-            this.MainWindowFileController = new MainWindowFileController(this.LoadedListWrappers);
-            this.MainWindowViewController = new MainWindowViewController();
+            InitializeClassObjects();
             MainWindowViewController.XmlOutputBox = this.XmlOutputBox;
             MainWindowViewController.LoadedListWrappers = this.LoadedListWrappers;
+            MainWindowViewController.IncludeAllModsCheckBox = this.IncludeAllModsInBoxesCheckBox;
             SetPanels();
             SetCustomModViewElements();
             SetEvents();
-            MainWindowViewController.IncludeAllModsCheckBox = this.IncludeAllModsInBoxesCheckBox;
-            this.IncludeCommentsCheckBox.IsChecked = Properties.Settings.Default.IncludeCommentsSearchTreeTooltip;
-            this.IncludeChildrenInOnHoverCheckBox.IsChecked = Properties.Settings.Default.IncludeChildrenSearchTreeTooltip;
-            this.IncludeAllModsInBoxesCheckBox.IsChecked = Properties.Settings.Default.IncludeAllModsObjectTreeAttributes;
-            this.IgnoreAllAttributesCheckBox.IsChecked = Properties.Settings.Default.IgnoreAllAttributesCheckbox;
-            this.IgnoreAllAttributesCheckBox.Click += IgnoreAllAttributesCheckBox_Click;
-
+            SetUIComponentsFromProperties();
             MainWindowFileController.LoadStartingDirectory(SearchTreeLoadedFilesComboBox, NewObjectViewLoadedFilesComboBox, LoadedModFilesCenterViewComboBox, LoadedModsSearchViewComboBox, CurrentGameFilesCenterViewComboBox);
             this.LoadedModsCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFoldersInOutput());
             this.LoadedModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
@@ -110,12 +102,15 @@ namespace SevenDaysToDieModCreator
             SetMainWindowToolTips();
             SetBackgroundFromSetting();
         }
-        private void IgnoreAllAttributesCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            Properties.Settings.Default.IgnoreAllAttributesCheckbox = IgnoreAllAttributesCheckBox.IsChecked.Value;
-            Properties.Settings.Default.Save();
-        }
 
+
+        private void InitializeClassObjects()
+        {
+            this.OpenDirectEditWindows = new Dictionary<string, DirectEditView>();
+            this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
+            this.MainWindowFileController = new MainWindowFileController(this.LoadedListWrappers);
+            this.MainWindowViewController = new MainWindowViewController();
+        }
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel);
@@ -124,6 +119,8 @@ namespace SevenDaysToDieModCreator
             Properties.Settings.Default.IncludeCommentsSearchTreeTooltip = IncludeCommentsCheckBox.IsChecked.Value;
             Properties.Settings.Default.IncludeAllModsObjectTreeAttributes = IncludeAllModsInBoxesCheckBox.IsChecked.Value;
             Properties.Settings.Default.IgnoreAllAttributesCheckbox = IgnoreAllAttributesCheckBox.IsChecked.Value;
+            Properties.Settings.Default.IsLoadedModsCenterViewComboBoxEditable = this.LoadedModsCenterViewComboBox.IsEditable;
+            Properties.Settings.Default.IsLoadedModsSearchViewComboBoxEditable = this.LoadedModsSearchViewComboBox.IsEditable;
             Properties.Settings.Default.Save();
             //SaveExternalXaml();
         }
@@ -139,6 +136,7 @@ namespace SevenDaysToDieModCreator
             string xmltoWrite = XmlXpathGenerator.GenerateXmlForObjectView(NewObjectFormsPanel);
             if (!String.IsNullOrEmpty(xmltoWrite)) XmlFileManager.WriteStringToLog(xmltoWrite, true);
         }
+        
         private void SetMainWindowToolTips()
         {
             //Menu Item
@@ -176,6 +174,7 @@ namespace SevenDaysToDieModCreator
             ReloadModOutputFolderButton.AddToolTip("Click here to reload the mods output folder. This is necessary to do after deleting mods while the app is running.");
             OpenModsOutputFolderButton.AddToolTip("Click here to open the application's mod output folder in explorer");
             LoadedModsCenterViewLockButton.AddToolTip("Click here to toggle typing capabilities in the mod selection box");
+            LoadedModsSearchViewLockButton.AddToolTip("Click here to toggle typing capabilities in the mod selection box");
             //Combo Boxes
             LoadedModFilesSearchViewComboBox.AddToolTip("Mod file used to generate a search tree when clicking the button below");
             LoadedModsSearchViewComboBox.AddToolTip("Select a mod here to generate search trees for its files");
@@ -192,6 +191,7 @@ namespace SevenDaysToDieModCreator
             IncludeAllModsInBoxesCheckBox.AddToolTip("Keeping this checked will use common attributes from all mods\nLeaving this unchecked will use the common attributes from only the selected mod file");
             IgnoreAllAttributesCheckBox.AddToolTip("Keeping this checked will flag the \"copy\" function to Hide Unused Attributes for all children automatically.");
         }
+        
         private void SetPanels()
         {
             NewObjectFormsPanel = new MyStackPanel(this.LoadedListWrappers);
@@ -204,6 +204,8 @@ namespace SevenDaysToDieModCreator
         }
         private void SetEvents()
         {
+            IgnoreAllAttributesCheckBox.Click += IgnoreAllAttributesCheckBox_Click;
+
             XmlOutputBox.GotKeyboardFocus += XmlOutputBoxGotKeyboardFocus_Handler;
             XmlOutputBox.PreviewMouseWheel += XmlOutputBox_PreviewMouseWheel;
             SearchTreeFormsPanel.PreviewMouseWheel += SearchObjectScrollViewer_PreviewMouseWheel;
@@ -219,7 +221,24 @@ namespace SevenDaysToDieModCreator
             LoadedModsSearchViewComboBox.PreviewKeyDown += LoadedModsSearchViewComboBox_PreviewKeyDown;
             LoadedModsSearchViewComboBox.LostFocus += LoadedModsSearchViewComboBox_LostFocus;
         }
+        private void SetUIComponentsFromProperties()
+        {
+            this.IncludeCommentsCheckBox.IsChecked = Properties.Settings.Default.IncludeCommentsSearchTreeTooltip;
+            this.IncludeChildrenInOnHoverCheckBox.IsChecked = Properties.Settings.Default.IncludeChildrenSearchTreeTooltip;
+            this.IncludeAllModsInBoxesCheckBox.IsChecked = Properties.Settings.Default.IncludeAllModsObjectTreeAttributes;
+            this.IgnoreAllAttributesCheckBox.IsChecked = Properties.Settings.Default.IgnoreAllAttributesCheckbox;
 
+            this.LoadedModsCenterViewComboBox.IsEditable = Properties.Settings.Default.IsLoadedModsCenterViewComboBoxEditable;
+            this.LoadedModsCenterViewLockButton.Content = this.LoadedModsCenterViewComboBox.IsEditable ? "Lock" : "Unlock";
+
+            this.LoadedModsSearchViewComboBox.IsEditable = Properties.Settings.Default.IsLoadedModsSearchViewComboBoxEditable;
+            this.LoadedModsSearchViewLockButton.Content = this.LoadedModsSearchViewComboBox.IsEditable ? "Lock" : "Unlock";
+        }
+        private void IgnoreAllAttributesCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.IgnoreAllAttributesCheckbox = IgnoreAllAttributesCheckBox.IsChecked.Value;
+            Properties.Settings.Default.Save();
+        }
         private void LoadedModsCenterViewComboBox_LostFocus(object sender, RoutedEventArgs e)
         {
             ComboBox senderAsBox = sender as ComboBox;
@@ -239,7 +258,6 @@ namespace SevenDaysToDieModCreator
                 PromptForNewMod(customModFile);
             }
         }
-
         private void LoadedModsCenterViewComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Return) 
@@ -593,7 +611,6 @@ namespace SevenDaysToDieModCreator
                     break;
             }
         }
-
         private void DirectEdit_Closed(object sender, EventArgs e)
         {
             if (sender is DirectEditView senderAsDirectEditView) 
@@ -872,14 +889,22 @@ namespace SevenDaysToDieModCreator
             }
         }
 
-        private void ChangeEditableButton_Click(object sender, RoutedEventArgs e)
+        private void LoadedModsCenterViewLockButton_Click(object sender, RoutedEventArgs e)
         {
-            if(sender is Button senderAsButton)
-            {
-                if (LoadedModsCenterViewComboBox.IsEditable) senderAsButton.Content = "Unlock";
-                else senderAsButton.Content = "Lock";
-            }
             LoadedModsCenterViewComboBox.IsEditable = !LoadedModsCenterViewComboBox.IsEditable;
+            if (sender is Button senderAsButton)
+            {
+                senderAsButton.Content = LoadedModsCenterViewComboBox.IsEditable ? "Lock" : "Unlock";
+            }
+        }
+
+        private void LoadedModsSearchViewLockButton_Click(object sender, RoutedEventArgs e)
+        {
+            LoadedModsSearchViewComboBox.IsEditable = !LoadedModsSearchViewComboBox.IsEditable;
+            if (sender is Button senderAsButton)
+            {
+                senderAsButton.Content = LoadedModsSearchViewComboBox.IsEditable ? "Lock" : "Unlock" ;
+            }
         }
     }
 }

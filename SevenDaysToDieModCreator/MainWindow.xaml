@@ -117,10 +117,10 @@
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Grid Grid.Column="0">
-                                <ComboBox Name="LoadedModsCenterViewComboBox" IsEditable="True" FontSize="24" HorizontalContentAlignment="Center"/>
+                                <ComboBox Name="LoadedModsCenterViewComboBox" FontSize="24" HorizontalContentAlignment="Center"/>
                             </Grid>
                             <Grid Grid.Column="1">
-                                <Button x:Name="LoadedModsCenterViewLockButton" Click="ChangeEditableButton_Click" FontSize="18" >Lock</Button>
+                                <Button x:Name="LoadedModsCenterViewLockButton" Click="LoadedModsCenterViewLockButton_Click" FontSize="18" ></Button>
                             </Grid>
                             <Grid Grid.Column="2">
                                 <Button x:Name="DeleteModButton" Click="DeleteModButton_Click" Content="Delete Mod" FontSize="18" Grid.RowSpan="2"></Button>
@@ -232,7 +232,18 @@
                             </Grid>
                         </Grid>
                         <Button x:Name="AddNewTreeViewButton"  Click="AddNewSearchTreeView_Click" FontSize="18" HorizontalContentAlignment="Center">Add Game Search Tree</Button>
-                        <ComboBox Name="LoadedModsSearchViewComboBox" IsEditable="True" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <ComboBox Name="LoadedModsSearchViewComboBox" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Button x:Name="LoadedModsSearchViewLockButton" Click="LoadedModsSearchViewLockButton_Click" FontSize="18" ></Button>
+                            </Grid>
+                        </Grid>
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="1" VerticalAlignment="Top">

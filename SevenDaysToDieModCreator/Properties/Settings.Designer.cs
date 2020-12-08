@@ -154,5 +154,29 @@ namespace SevenDaysToDieModCreator.Properties {
                 this["SettingIsMediumModeActive"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsLoadedModsCenterViewComboBoxEditable {
+            get {
+                return ((bool)(this["IsLoadedModsCenterViewComboBoxEditable"]));
+            }
+            set {
+                this["IsLoadedModsCenterViewComboBoxEditable"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsLoadedModsSearchViewComboBoxEditable {
+            get {
+                return ((bool)(this["IsLoadedModsSearchViewComboBoxEditable"]));
+            }
+            set {
+                this["IsLoadedModsSearchViewComboBoxEditable"] = value;
+            }
+        }
     }
 }
