@@ -58,7 +58,6 @@ namespace SevenDaysToDieModCreator.Views
                 : wrapperToUse.XmlFile.GetFileNameWithoutExtension() + " : " + Properties.Settings.Default.ModTagSetting;
 
             this.Title = StartingTitle;
-            ModNameLabel.Content = String.IsNullOrEmpty(title) ? labelContents : title;
 
             this.SaveXmlButton.AddToolTip("Click to save all changes");
             this.ReloadFileXmlButton.AddToolTip("Click here to reload the file from disk");
@@ -88,7 +87,6 @@ namespace SevenDaysToDieModCreator.Views
             this.XmlOutputBox.TextArea.Options = newOptions;
             
             this.XmlOutputBox.ShowLineNumbers = true;
-            //this.XmlOutputBox.PreviewKeyDown += XmlOutputBox_PreviewKeyDown;
 
             this.XmlOutputBox.AddContextMenu(CollapseAllContextMenu_Clicked, 
                 "Collapse All", 
@@ -110,7 +108,6 @@ namespace SevenDaysToDieModCreator.Views
         private void SetBackgroundColor()
         {
             this.XmlOutputBox.Background = BackgroundColorController.GetBackgroundColor();
-            this.ModNameLabel.Background = BackgroundColorController.GetBackgroundColor(); 
         }
 
         CompletionWindow completionWindow;
@@ -152,8 +149,7 @@ namespace SevenDaysToDieModCreator.Views
             else if (textCompositionEvent.Text == "/")
             {
                 completionWindow = new CompletionWindow(this.XmlOutputBox.TextArea);
-                IList<ICompletionData> data = completionWindow.CompletionList.CompletionData;
-                data.Add(new MyCompletionData(">", "Single Line tag close "));
+                IList<ICompletionData> data = CodeCompletionGenerator.GenerateEndTagListAfterSlash(completionWindow, this.Wrapper);
                 completionWindow.Show();
                 completionWindow.Closed += delegate
                 {
