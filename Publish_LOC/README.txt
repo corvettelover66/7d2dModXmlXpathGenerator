@@ -97,6 +97,34 @@ HARD:
 +Add side by side search trees for easier comparison.
 
 Version History
+1.7.1
+-Fixed when making external changes to a file and coming back into a direct edit window the popup would continue to popup even if no is clicked.
+-Changed when opening a "Direct Edit Window", if the file is already open the user is prompted to switch focus to the window, open a new window, or cancel the operation entirely.
+-Fixed bug that changed the window title for the "Direct Edit View" incorrectly, removing the mod name and leaving only the file name.
+-Changed the Mod selection boxes to be editable, making them easier to use with many mods loaded. Now you can start typing and existing mods will be auto-filled.
+	- With this change comes the ability to easily create a new mod. All you need to do is type any value into the box and you will be prompted with an appropriate message.
+	- With this change there are two new "Lock" buttons to the UI to toggle the typing ability of the combo boxes. These buttons are tied to properties so the last state when closing the app will be persisted. 
+-Changed when opening a direct edit view the Main Text Box in the window gets focus. This is  nice for opening a direct edit window and being able to search(ctrl-f) without needed to click in to the window.
+-Fixed when adding a new mod to the output location manually and clicking reload. On selecting files and an error pops-up saying the xml is invalid. After using the tool to validate the xml you the error would disappear . This was an internal issue of the files not being loaded correctly when clicking Reload, that would happen when clicking validate. This is now fixed and clicking reload will also reload the internal map for the files that was causing the error. 
+-Changed moved "Validate Mod Files" menu item to "Tools" menu. From "File" menu.
+-Fixed localization window issue when directly editing the CSV, on occasion some rows would be unintentionally combined. This is now fixed.
+-Changed Create/Edit ModInfo window is better about displaying issues. 
+-Changed Create/Edit ModInfo on saving the New Mod Name Box is cleared.
+-Fix added missing tooltip to combine function in direct edit view.
+-Reorganized main app center view so the Mod Selection box is not hidden as easily when resizing the window.
+-Revisted code completion in direct edit view and made adding tags more user friendly.
+-Filter any numbers from the code completion as this uses unfiltered attribute maps of the XML.
+-Save All XML tooltip has been changed
+-Changed tooltip for the reload button
+-Auto Move Directory Prompt has been cleaned up
+-Changed Setting Header for the Auto Move Directory from "Game Mods Directory" to "Auto Move Directory"
+-Remove the mod and file name label from the direct edit view as the title contains the information.
+1.7
+- Fixed small typo in tooltip in the localization window.
+- Added a Reload Mods button to the main ui	
+	- This is to easily refreshes the mod output folder. Mostly useful and necessary when deleting mods.
+- Added an Open Mods Folder button to the main UI to quickly open the application mods output folder in explorer.
+- Verified and changed unworking shortcuts. These are easily identified in app by holding alt.
 1.6.9
 - Added small fix to loading the output path to prevent crashing if directories are modified manually incorrectly.
 - Completely refactored and rebuit the create/edit mod window. Comes with a varety of changes.
