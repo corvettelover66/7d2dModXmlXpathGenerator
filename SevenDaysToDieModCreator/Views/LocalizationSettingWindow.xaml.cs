@@ -35,9 +35,8 @@ namespace SevenDaysToDieModCreator.Views
             InitializeComponent();
 
             Closing += new CancelEventHandler(LocalizatonSettingWindow_Closing);
-
+            SetupExceptionHandling();
             AddTooltips();
-
             StartingMod = Properties.Settings.Default.ModTagSetting;
             WindowTitle = StartingMod.ToString();
             this.Title = GetTitleForWindow();
@@ -53,9 +52,9 @@ namespace SevenDaysToDieModCreator.Views
                 ModSelectionComboBox.AddUniqueValueTo(nextModTag);
             }
             ModSelectionComboBox.SelectedItem = Properties.Settings.Default.ModTagSetting;
-            
-            ModSelectionComboBox.DropDownClosed += ModSelectionComboBox_DropDownClosed;
 
+            ModSelectionComboBox.LostFocus += ModSelectionComboBox_LostFocus;
+            ModSelectionComboBox.PreviewKeyDown += ModSelectionComboBox_PreviewKeyDown;
             ModLocalizationScrollViewer.Content = ModLocalizationGridUserControl;
 
             string pathToGameLocalizationFile = XmlFileManager.LoadedFilesPath + LocalizationFileObject.LOCALIZATION_FILE_NAME;
@@ -84,7 +83,65 @@ namespace SevenDaysToDieModCreator.Views
 
             SetBackgroundColor();
         }
+        //
+        private void SetupExceptionHandling()
+        {
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        }
+        //Global Error Processing happens in the APP view 
+        //but here I want to catch it as well to save any possible generated localization to the log
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs exception)
+        {
+            string prepend = "Localization for " + this.GetTitleForWindow() + ":\n";
+            XmlFileManager.WriteStringToLog(prepend + LocalizationPreviewBox.Text, false);
+        }
+        private void ModSelectionComboBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is ComboBox modSelectionComboBox)
+            {
+                LoadModLocalization(modSelectionComboBox);
 
+            }
+        }
+
+        private void ModSelectionComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Return) 
+            {
+                if (sender is ComboBox modSelectionComboBox)
+                { 
+                    LoadModLocalization(modSelectionComboBox);
+                }
+            }
+        }
+        private void LoadModLocalization(ComboBox modSelectionComboBox)
+        {
+            //If the grid has changed, is unsaved and the current text of the box is one of the mods within, make sure they are okay losing changes.
+            if (HasGridChanged())
+            {
+                if (modSelectionComboBox.Items.Contains(modSelectionComboBox.Text))
+                {
+                    string message = "You have unsaved changes below, for the localization of " + StartingMod + ".\n" +
+                        "Are you sure you want to change mods, and LOSE any work made on the current localization?";
+                    string caption = "Lose Unsaved Changes";
+                    MessageBoxResult results = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    switch (results)
+                    {
+                        case MessageBoxResult.Yes:
+                            ReloadModLocalizationGrid(modSelectionComboBox);
+                            break;
+                        case MessageBoxResult.No:
+                            modSelectionComboBox.SelectedItem = StartingMod;
+                            break;
+                    }
+                }
+            }
+            else if (modSelectionComboBox.Items.Contains(modSelectionComboBox.Text))
+            {
+                ReloadModLocalizationGrid(modSelectionComboBox);
+            }
+        }
         private void SetBackgroundColor()
         {
             GameRecordScrollViewer.Background = BackgroundColorController.GetBackgroundColor();
@@ -226,34 +283,6 @@ namespace SevenDaysToDieModCreator.Views
         {
             return !LocalizationPreviewBox.Text.Equals(GridAsCSVAfterUpdate);
         }
-        private void ModSelectionComboBox_DropDownClosed(object sender, EventArgs e)
-        {
-            if (sender is ComboBox modSelectionComboBox) 
-            {
-                string message = "You have unsaved changes below, for the localization of " + StartingMod + ".\n" +
-                    "Are you sure you want to change mods, and LOSE any work made on the current localization?";
-                string caption = "Lose Unsaved Changes";
-
-                //If the grid has changed and is unsaved, make sure they are okay losing changes.
-                if (HasGridChanged())
-                {
-                    MessageBoxResult results = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    switch (results)
-                    {
-                        case MessageBoxResult.Yes:
-                            ReloadModLocalizationGrid(modSelectionComboBox);
-                            break;
-                        case MessageBoxResult.No:
-                            modSelectionComboBox.SelectedItem = StartingMod;
-                            break;
-                    }
-                }
-                else 
-                {
-                    ReloadModLocalizationGrid(modSelectionComboBox);
-                }
-            }
-        }
         private void ReloadModLocalizationGrid(string pathToLocalizatioFile, bool deleteFileAfterLoadingGrid = true)
         {
             LocalizationFileObject testParse = new LocalizationFileObject(pathToLocalizatioFile);
@@ -370,6 +399,7 @@ namespace SevenDaysToDieModCreator.Views
             AddWrapperToList("_item_modifiers", wrappersWithKeysToUse);
             AddWrapperToList("_progression", wrappersWithKeysToUse);
             AddWrapperToList("_buffs", wrappersWithKeysToUse);
+            
             ModLocalizationGridUserControl.AddEmptyRow(wrappersWithKeysToUse, GameLocalizationFile);
         }
 
@@ -377,6 +407,15 @@ namespace SevenDaysToDieModCreator.Views
         {
             XmlObjectsListWrapper loadedModFileWrapper = LoadedListWrappers.GetValueOrDefault(ModSelectionComboBox.SelectedItem.ToString() + hardcodedXmlWrapperToUse);
             if (loadedModFileWrapper != null) wrappersWithKeysToUse.Add(loadedModFileWrapper);
+        }
+
+        private void ModSelectionComboBoxLockButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button senderAsButton) 
+            {
+                this.ModSelectionComboBox.IsEditable = !this.ModSelectionComboBox.IsEditable;
+                senderAsButton.Content = this.ModSelectionComboBox.IsEditable ? "Lock" : "Unlock";
+            }
         }
     }
 }

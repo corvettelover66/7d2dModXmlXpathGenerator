@@ -17,6 +17,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
@@ -65,11 +66,23 @@
                 </Grid>
             </Grid>
             <Grid Grid.Row="1">
-                <StackPanel>
-                    <ComboBox Name="ModSelectionComboBox" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
-                    <Button x:Name="SaveLocalizationTableButton" Content="_Save" FontSize="20" Click="SaveLocalizationTableButton_Click"></Button>
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <ComboBox Name="ModSelectionComboBox" FontSize="20" HorizontalContentAlignment="Center"></ComboBox>
+                    </Grid>
+                    <Grid Grid.Column="1">
+                        <Button x:Name="ModSelectionComboBoxLockButton" FontSize="17" Click="ModSelectionComboBoxLockButton_Click">Unlock</Button>
+                    </Grid>
+                </Grid>
             </Grid>
+            <Grid Grid.Row="2">
+                 <Button x:Name="SaveLocalizationTableButton" Content="_Save" FontSize="20" Click="SaveLocalizationTableButton_Click"></Button>
+            </Grid>
+
         </Grid>
         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
         <Grid Grid.Row="2">
