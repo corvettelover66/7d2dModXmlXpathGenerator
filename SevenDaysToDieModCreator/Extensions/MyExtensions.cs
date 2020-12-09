@@ -34,11 +34,24 @@ namespace SevenDaysToDieModCreator.Extensions
                     //If the row has changed set the tracker
                     if (startingRow != currentRow) startingRow = currentRow;
                 }
-                if (element is ComboBox comboBox) 
+                if (element is ComboBox comboBox && comboBox.Tag != null) 
                 {
-                    csvToReturn += comboBox.Text + comboBox.Tag;
+                    int currentRow = int.Parse(comboBox.Tag.ToString());
+                    if (startingRow != currentRow)
+                    {
+                        //Remove the last comma
+                        csvToReturn = csvToReturn.Trim(',');
+                        //Add a newline
+                        csvToReturn += "\n";
+                    }
+                    if (comboBox.Text.Contains(",")) csvToReturn += "\"" + comboBox.Text + "\"" + ",";
+                    else csvToReturn += comboBox.Text + ",";
+                    //If the row has changed set the tracker
+                    if (startingRow != currentRow) startingRow = currentRow;
                 }
             }
+            //Trim the last comma
+            csvToReturn = csvToReturn.Trim(',');
             return csvToReturn;
         }
         public static List<TreeViewItem> GetTreeViewChildren(this ItemsControl parent)

@@ -30,7 +30,7 @@
                     </MenuItem>
                     <MenuItem Header="S_ettings">
                         <MenuItem Header="A_uto Move" Name="AutoMoveMenuItem"  Click="ChangeAutoMoveMenuItem_Click" />
-                        <MenuItem Header="_Game Mods Directory" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
+                        <MenuItem Header="Auto Move Director_y" Name="ChangeModGameDirectoryMenu" Click="ChangeModGameDirectoryMenu_Click"/>
                         <MenuItem Header="T_imestamp" Name="ChangeLogTimeStampMenuItem"  Click="ChangeLogTimeStampMenuItem_Click" />
                         <MenuItem Header="Chec_k All Settings" Name="CheckAllSettingsMenuItem"  Click="CheckAllSettingsMenuItem_Click" />
                     </MenuItem>

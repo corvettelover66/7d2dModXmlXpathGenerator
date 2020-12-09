@@ -160,7 +160,8 @@ namespace SevenDaysToDieModCreator
             SaveXmlViewButton.AddToolTip("Click here to save all generated XML into the appropriate files in the output location");
             Stage_AllViewButton.AddToolTip("Click here to move all mod files from the current selected mod directly to the User Set \"Auto Move\" Directory");
             OpenModFileDirectEditViewButton.AddToolTip("Click to open a window to make direct edits to the selected mod file from the combo box above");
-            AddObjectViewButton.AddToolTip("Click to add a new object creation view using the game file from above\nWARNING: This could take awhile");
+            AddObjectViewButton.AddToolTip("Click to add a new object creation view using the game file from above\n" +
+                "These objects are useful for creating Game XML items from scratch");
             AddNewTreeViewButton.AddToolTip("Click to add a new searchable tree view using the game file from above" +
                 "\nWith this tree you can perform any xpath command on any in game object" +
                 " \nWARNING: This could take awhile");
@@ -171,7 +172,8 @@ namespace SevenDaysToDieModCreator
             DeleteModFileDirectEditViewButton.AddToolTip("Click to delete the file from the combo box above for the current mod");
             DeleteModButton.AddToolTip("Click to get more information on deleting the mod\n" +
                 "Does NOT delete the mod folder!");
-            ReloadModOutputFolderButton.AddToolTip("Click here to reload the mods output folder. This is necessary to do after deleting mods while the app is running.");
+            ReloadModOutputFolderButton.AddToolTip("Click here to reload the mods output folder for the app\n" +
+                "This is useful when adding or deleting mods manually while the app is running.");
             OpenModsOutputFolderButton.AddToolTip("Click here to open the application's mod output folder in explorer");
             LoadedModsCenterViewLockButton.AddToolTip("Click here to toggle typing capabilities in the mod selection box");
             LoadedModsSearchViewLockButton.AddToolTip("Click here to toggle typing capabilities in the mod selection box");
@@ -348,11 +350,8 @@ namespace SevenDaysToDieModCreator
         private void HandleMissingGameModDirectory()
         {
             MessageBoxResult result = MessageBox.Show(
-             "For the Auto Move function to work you must set the Game Folder Directory.\n\n" +
-             "HELP: This is usually a \"Mods\" folder located directly in your 7 Days to Die game folder installation.\n\n" +
-             "Example: PathToGame \"7 Days To Die\\Mods\\\" \n\n" +
-             "If that folder does not exist please create it first. ",
-             "Set Game Mod Folder Location",
+             "For the Auto Move function to work you must set the Auto Move Directory. The auto move directory is also used when clicking Stage all",
+             "Set Auto Move Location",
              MessageBoxButton.OK,
              MessageBoxImage.Warning);
             switch (result)
@@ -374,7 +373,10 @@ namespace SevenDaysToDieModCreator
             {
                 if (!String.IsNullOrEmpty(dialog.FileName))
                 {
-                    MessageBox.Show("Success!");
+                    string message = "Successfully set the Auto Move directory to \n\n" +
+                        dialog.FileName +"\n\n" +
+                        "This will be the directory a mod is sent to when Clicking \"Stage All\"";
+                    MessageBox.Show(message, "Auto Move Directory Set", MessageBoxButton.OK, MessageBoxImage.Information);
                     Properties.Settings.Default.GameFolderModDirectory = dialog.FileName + "/";
                     Properties.Settings.Default.AutoMoveDecisionMade = true;
                     Properties.Settings.Default.Save();
@@ -486,15 +488,15 @@ namespace SevenDaysToDieModCreator
             if (Properties.Settings.Default.AutoMoveMod) autoMoveString = "Auto move is active! This will also automatically move the files to \n" +
                                                                                     Properties.Settings.Default.GameFolderModDirectory;
             MessageBoxResult result = MessageBox.Show(
-                "This will write all current generated xml to the appropriate files in the output location.\n\n" +
+                "Saves all staged XML in the Left Object Panel to the appropriate file for the Current Mod.\n\n" +
                 "Are you sure?\n" +
                 autoMoveString,
-                "Save Generated XML",
-                MessageBoxButton.OKCancel,
+                "Save staged XML",
+                MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
             switch (result)
             {
-                case MessageBoxResult.OK:
+                case MessageBoxResult.Yes:
                     XmlXpathGenerator.SaveAllGeneratedXmlToPath(NewObjectFormsPanel, XmlFileManager.ModConfigOutputPath, true);
                     if (Properties.Settings.Default.AutoMoveMod) XmlFileManager.CopyAllOutputFiles();
                     this.MainWindowFileController.LoadCustomTagWrappers(Properties.Settings.Default.ModTagSetting, this.LoadedModFilesCenterViewComboBox);
@@ -715,7 +717,7 @@ namespace SevenDaysToDieModCreator
             string currentStatus = Properties.Settings.Default.AutoMoveMod ? "Activated" : "Deactived";
             MessageBoxResult innerResult = MessageBox.Show("Would you like to change the status of the Auto Move feature?\n\n" +
                 "Current status " + currentStatus + "\n\n" +
-                "When activated, on saving, the application automatically moves all files to the Games Mod Folder chosen as well.\n" +
+                "When activated, on saving, the application automatically moves all files to the Auto Move folder chosen.\n" +
                 appendMessage,
                 "Auto Move Game Files",
                 MessageBoxButton.YesNo,
@@ -905,6 +907,11 @@ namespace SevenDaysToDieModCreator
             {
                 senderAsButton.Content = LoadedModsSearchViewComboBox.IsEditable ? "Lock" : "Unlock" ;
             }
+        }
+
+        private void CreateEmptyFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }
