@@ -188,7 +188,6 @@ namespace SevenDaysToDieModCreator.Views
         private void SaveModInfo(string modNameToUse)
         {
             ModInfo.CreateModInfoFile(modNameToUse);
-            ResetModNameComboBoxes(modNameToUse);
             ModInfo newModIfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
             string modInfoXmlOut = newModIfo.ToString();
             bool didSucceed = XmlFileManager.WriteStringToFile(XmlFileManager.Get_ModDirectoryOutputPath(modNameToUse), ModInfo.MOD_INFO_FILE_NAME, modInfoXmlOut);
@@ -196,12 +195,18 @@ namespace SevenDaysToDieModCreator.Views
             {
                 MessageBox.Show("Saved mod info for " + modNameToUse + ".", "Saving Mod info", MessageBoxButton.OK, MessageBoxImage.Information);
                 ResetModNameComboBoxes(modNameToUse);
+                SetTextBoxsWithExistingModInfo();
+                ModInfo newModInfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
+                ModInfoXmlPreviewAvalonEditor.Text = newModInfo.ToString();
             }
             else 
             {
                 MessageBox.Show("Created new mod, with empty. Simply reselecting the mod in the combo box above may fix the issue. Alternatively, select another mod and reselect the mod you would like to edit.", 
                     "Save Mod Info Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 ResetModNameComboBoxes(modNameToUse);
+                SetTextBoxsWithExistingModInfo();
+                ModInfo newModInfo = new ModInfo(ModInfoNameBox.Text, ModInfoDescriptionBox.Text, ModInfoAuthorBox.Text, ModInfoVersionBox.Text);
+                ModInfoXmlPreviewAvalonEditor.Text = newModInfo.ToString();
             }
         }
 
