@@ -222,6 +222,7 @@ namespace SevenDaysToDieModCreator
             LoadedModsSearchViewComboBox.DropDownClosed += LoadedModsSearchViewComboBox_DropDownClosed;
             LoadedModsSearchViewComboBox.PreviewKeyDown += LoadedModsSearchViewComboBox_PreviewKeyDown;
             LoadedModsSearchViewComboBox.LostFocus += LoadedModsSearchViewComboBox_LostFocus;
+            LoadedModFilesSearchViewComboBox.DropDownClosed += CurrentModFilesCenterViewComboBox_DropDownClosed;
         }
         private void SetUIComponentsFromProperties()
         {
