@@ -29,7 +29,7 @@ namespace SevenDaysToDieModCreator.Models
             XmlObjectsListWrapper wrapperToUse = MainWindowViewController.LoadedListWrappers.GetValueOrDefault(this.Uid);
             if (IsGameFileSearchTree) TreeViewGenerator.AddTargetContextMenuToControl(MyTextBox, wrapperToUse);
             MyTextBox.Background = BackgroundColorController.GetBackgroundColor();
-            this.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
+            if(!this.Resources.Contains(SystemColors.WindowBrushKey)) this.Resources.Add(SystemColors.WindowBrushKey, BackgroundColorController.GetBackgroundColor());
         }
     }
 }
