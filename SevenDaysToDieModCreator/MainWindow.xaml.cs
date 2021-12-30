@@ -653,6 +653,7 @@ namespace SevenDaysToDieModCreator
             {
                 List<DirectEditView> allSameModFileOpenDirectEditViewList = this.OpenDirectEditWindows.GetValueOrDefault(senderAsDirectEditView.DictionaryKey);
                 if(allSameModFileOpenDirectEditViewList != null) allSameModFileOpenDirectEditViewList.Remove(senderAsDirectEditView);
+                if(allSameModFileOpenDirectEditViewList.Count == 0) this.OpenDirectEditWindows.Remove(senderAsDirectEditView.DictionaryKey);
             } 
             string currentLoadedMod = Properties.Settings.Default.ModTagSetting;
             this.MainWindowFileController.LoadCustomTagWrappers(currentLoadedMod, this.LoadedModFilesCenterViewComboBox);
