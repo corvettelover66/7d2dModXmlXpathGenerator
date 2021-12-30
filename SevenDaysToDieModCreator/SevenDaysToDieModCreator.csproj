@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>7dtd_icon.ico</ApplicationIcon>
     <Win32Resource />
-    <Version>1.7.1</Version>
+    <Version>1.7.4</Version>
     <NeutralLanguage></NeutralLanguage>
     <PackageId>7d2dModEdit</PackageId>
     <StartupObject>SevenDaysToDieModCreator.App</StartupObject>
