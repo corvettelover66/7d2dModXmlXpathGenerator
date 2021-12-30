@@ -389,5 +389,5 @@ namespace SevenDaysToDieModCreator.Controllers
 //                "Failed files:\n\n");
 //            MessageBox.Show(builder.ToString(), "Failed Mod Directories", MessageBoxButton.OK, MessageBoxImage.Error);
 //        }
-//    }
+//    }     
 //}

@@ -1102,7 +1102,8 @@ namespace SevenDaysToDieModCreator.Controllers
                 if (nextTreeViewItem.Header.GetType() == typeof(MyComboBox))
                 {
                     XmlNode myNode = (XmlNode)nextTreeViewItem.Tag;
-                    treeIdentifier = myNode.GetAvailableAttribute().Value.ToLower();
+                    XmlAttribute attribute = myNode.GetAvailableAttribute();
+                    treeIdentifier = attribute == null ? "" : attribute.Value.ToLower();
                 }
                 if (treeIdentifier.Contains(searchText.ToLower()))
                 {
