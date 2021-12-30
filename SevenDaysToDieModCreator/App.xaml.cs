@@ -1,8 +1,6 @@
 ﻿using SevenDaysToDieModCreator.Models;
 using System;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace SevenDaysToDieModCreator
 {
@@ -27,20 +25,6 @@ namespace SevenDaysToDieModCreator
         {
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
-            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-        }
-
-        private void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs exception)
-        {
-            XmlFileManager.WriteStringToLog("ERROR MESSAGE: " + exception.Exception.Message, true);
-            XmlFileManager.WriteStringToLog("ERROR TRACE: " + exception.Exception.StackTrace);
-        }
-
-        private void Current_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs exception)
-        {
-            XmlFileManager.WriteStringToLog("ERROR MESSAGE: " + exception.Exception.Message, true);
-            XmlFileManager.WriteStringToLog("ERROR TRACE: " + exception.Exception.StackTrace);
         }
 
         //Global Error Processing. Catch any errors and send them to the log, let application shutdown
