@@ -35,8 +35,8 @@ namespace SevenDaysToDieModCreator
         public Button LoadedModFilesButton { get; private set; }
         //A dictionary of open direct edit views
         //Key:the value in the mod file selection combo box
-        //Value: The first open DirectEditView window for the mod and file.
-        private Dictionary<string, DirectEditView> OpenDirectEditWindows { get; set; }
+        //Value: A list of all open direct edit windows for the file.
+        private Dictionary<string, List<DirectEditView>> OpenDirectEditWindows { get; set; }
 
         public MainWindow()
         {
@@ -106,7 +106,7 @@ namespace SevenDaysToDieModCreator
 
         private void InitializeClassObjects()
         {
-            this.OpenDirectEditWindows = new Dictionary<string, DirectEditView>();
+            this.OpenDirectEditWindows = new Dictionary<string, List<DirectEditView>>();
             this.LoadedListWrappers = new Dictionary<string, XmlObjectsListWrapper>();
             this.MainWindowFileController = new MainWindowFileController(this.LoadedListWrappers);
             this.MainWindowViewController = new MainWindowViewController();
@@ -222,6 +222,7 @@ namespace SevenDaysToDieModCreator
             LoadedModsSearchViewComboBox.DropDownClosed += LoadedModsSearchViewComboBox_DropDownClosed;
             LoadedModsSearchViewComboBox.PreviewKeyDown += LoadedModsSearchViewComboBox_PreviewKeyDown;
             LoadedModsSearchViewComboBox.LostFocus += LoadedModsSearchViewComboBox_LostFocus;
+            LoadedModFilesSearchViewComboBox.DropDownClosed += CurrentModFilesCenterViewComboBox_DropDownClosed;
         }
         private void SetUIComponentsFromProperties()
         {
@@ -254,10 +255,6 @@ namespace SevenDaysToDieModCreator
 
                     this.LoadedModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(customModFile, Properties.Settings.Default.ModTagSetting + "_"));
                 }
-            }
-            else 
-            {
-                PromptForNewMod(customModFile);
             }
         }
         private void LoadedModsCenterViewComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -548,83 +545,55 @@ namespace SevenDaysToDieModCreator
         }
         private void OpenDirectEditModXmlViewButton_Click(object sender, RoutedEventArgs e)
         {
-            string selectedObject = LoadedModFilesCenterViewComboBox.Text;
-            if (String.IsNullOrEmpty(selectedObject)) return;
-            string defaultWrapperKey = selectedObject.Replace(Properties.Settings.Default.ModTagSetting + "_", "");
-            //Try to grab the default wrapper
-            XmlObjectsListWrapper selectedWrapper = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(defaultWrapperKey);
+            string modFileXmlWrapperKey = LoadedModFilesCenterViewComboBox.Text;
+            if (String.IsNullOrEmpty(modFileXmlWrapperKey)) return;
 
-            if (selectedWrapper == null)
+            //Try to load the wrapper from the selected object.
+            XmlObjectsListWrapper wrapperForDirectEditWindow = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(modFileXmlWrapperKey);
+            XmlObjectsListWrapper gameFileWrapper = null;
+
+            //If it is null there is an xml issue in the mod file
+            if (wrapperForDirectEditWindow == null)
             {
-                //Try to load the wrapper from the selected object.
-                selectedWrapper = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(selectedObject);
-                //If it is still null there is an xml issue
-                if (selectedWrapper == null)
+                string gameFileWrapperKey = modFileXmlWrapperKey.Replace(Properties.Settings.Default.ModTagSetting + "_", "");
+                //Try to grab the game file wrapper
+                gameFileWrapper = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(gameFileWrapperKey);
+                //If that wrpper is null we are in trouble and the direct edit window cannot be opened and one of those xml files needs to be valid.
+                if (gameFileWrapper == null) 
                 {
                     MessageBox.Show(
                         "The was an error opening the selected file.\n\n" +
                         "There are a couple of possible issues:\n" +
-                        "One issue can be invalid xml for the file you are trying to open. You can validate the xml using the \"File Menu Option and fix any errors in an external editor. " +
-                        "Note, after fixing any errors in the xml be sure to run the xml validation in the file menu to refresh the loaded objects.\n\n" +
-                        "Another way to fix this issue is load the game xml file for the file you are trying to load. " +
-                        "For example, if you are trying to open the recipes xml file for a mod, load the game recipes xml file and this will work, even with invalid xml.",
+                        "One issue can be invalid xml for the file you are trying to open. You can validate the xml using the \"Tools\" Menu Option and fix any errors in an external editor. " +
+                        "Note, after fixing any errors in the xml be sure to click the \"Reload Mods Button\" to refresh the loaded objects.\n\n" +
+                        "The other issue could be an invalid or missing game file matching the mod file you are trying to open. To fix this issue simple load the game xml file for the file you are trying to load. " +
+                        "For example, if you are trying to open the recipes.xml file for a mod, load the game recipes.xml file and this will work, even with invalid xml in your mod.",
                         "File Loading Error!",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
                     return;
                 }
-                else 
-                {
-                    MessageBox.Show("Missing game file "+ defaultWrapperKey  +".xml. In order to use all direct edit functions, you must load this file and reopen the file in a new direct edit window.",
-                        "Missing Game File", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                }
             }
-            DirectEditView directEdit = this.OpenDirectEditWindows.GetValueOrDefault(selectedObject);
+
+            List<DirectEditView> openDirectEditViews = this.OpenDirectEditWindows.GetValueOrDefault(modFileXmlWrapperKey);
+            string fileLocationPath = XmlFileManager.ModConfigOutputPath;
+            bool isGameFile = false;
             //Just run as normal and add it to the dictionary
-            if (directEdit == null)
+            if (openDirectEditViews == null)
             {
-                directEdit = new DirectEditView(selectedWrapper, selectedObject, false, fileLocationPath: XmlFileManager.ModConfigOutputPath);
+                DirectEditView directEdit = new DirectEditView(wrapperForDirectEditWindow, modFileXmlWrapperKey, isGameFile, fileLocationPath: fileLocationPath);
                 directEdit.Closed += DirectEdit_Closed;
                 directEdit.Show();
-                this.OpenDirectEditWindows.Add(selectedObject, directEdit);
+                List<DirectEditView> newOpenDirectEditViewList = new List<DirectEditView>();
+                newOpenDirectEditViewList.Add(directEdit);
+                this.OpenDirectEditWindows.Add(modFileXmlWrapperKey, newOpenDirectEditViewList);
             }
             //Prompt the user to focus the existing window, open a new window or cancel.
             else 
             {
-                PromptForNewModFileDirectEditWindow(selectedWrapper, selectedObject);
+                PromptForNewModFileDirectEditWindow(wrapperForDirectEditWindow, modFileXmlWrapperKey, fileLocationPath, isGameFile);
             }
-        }
-        private void PromptForNewModFileDirectEditWindow(XmlObjectsListWrapper selectedWrapper, string selectedModFile)
-        {
-            string message = "That file is already open, would you like to switch to the open window?";
-            string caption = "File Already Open";
-            MessageBoxResult results = MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-            switch (results) 
-            {
-                case MessageBoxResult.Yes:
-                    DirectEditView openedView = this.OpenDirectEditWindows.GetValueOrDefault(selectedModFile);
-                    if (openedView != null) openedView.Focus();
-                    break;
-                case MessageBoxResult.No:
-                    DirectEditView directEdit = new DirectEditView(selectedWrapper, selectedModFile, isGameFile: false, isFirstWindowOpen: false, fileLocationPath: XmlFileManager.ModConfigOutputPath);
-                    directEdit.Closed += DirectEdit_Closed;
-                    directEdit.Show();
-                    break;
-            }
-        }
-        private void DirectEdit_Closed(object sender, EventArgs e)
-        {
-            if (sender is DirectEditView senderAsDirectEditView) 
-            {
-                if (senderAsDirectEditView.IsFirstWindowOpen) 
-                {
-                    this.OpenDirectEditWindows.Remove(senderAsDirectEditView.DictionaryKey);
-                }
-            } 
-            string currentLoadedMod = Properties.Settings.Default.ModTagSetting;
-            this.MainWindowFileController.LoadCustomTagWrappers(currentLoadedMod, this.LoadedModFilesCenterViewComboBox);
-            this.LoadedModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentLoadedMod, currentLoadedMod + "_"));
         }
         private void OpenDirectEditGameXmlViewButton_Click(object sender, RoutedEventArgs e)
         {
@@ -632,39 +601,63 @@ namespace SevenDaysToDieModCreator
             if (String.IsNullOrEmpty(selectedObject)) return;
             //Try to grab the default wrapper
             XmlObjectsListWrapper selectedWrapper = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(selectedObject);
-            //If it is still null there is an issue with the file and the file has not been loaded.
+            //If it is null there is an issue with the game file and the file has not been loaded or is invalid.
             if (selectedWrapper == null)
             {
-                selectedWrapper = MainWindowFileController.LoadedListWrappers.GetValueOrDefault(Properties.Settings.Default.ModTagSetting + "_" + selectedObject);
-                if (selectedWrapper == null)
+                string message = "Invalid game file xml" + selectedObject + ". Simple to fix, simple open the \"File\" menu and click \"Load Game File(s)\" and reload the file you are trying to open.";
+            }
+            else 
+            {
+                List<DirectEditView> openDirectEditViews = this.OpenDirectEditWindows.GetValueOrDefault(selectedObject);
+                string fileLocationPath = XmlFileManager.LoadedFilesPath;
+                bool isGameFile = true;
+                //Just run as normal and add it to the dictionary
+                if (openDirectEditViews == null)
                 {
-                    MessageBox.Show(
-                        "The was an error opening the selected file.\n\n" +
-                        "There are a couple of possible issues:\n" +
-                        "One issue can be invalid xml for the file you are trying to open. You can validate the xml using the \"File Menu Option and fix any errors in an external editor. " +
-                        "Note, after fixing any errors in the xml be sure to run the xml validation in the file menu to refresh the loaded objects.\n\n" +
-                        "Another way to fix this issue is load the game xml file for the file you are trying to load. " +
-                        "For example, if you are trying to open the recipes xml file for a mod, load the game recipes xml file and this will work, even with invalid xml.",
-                        "File Loading Error!",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                    return;
+                    DirectEditView directEdit = new DirectEditView(selectedWrapper, selectedObject, isGameFile: isGameFile, fileLocationPath: fileLocationPath);
+                    directEdit.Closed += DirectEdit_Closed;
+                    directEdit.Show();
+                    List<DirectEditView> newOpenDirectEditViewList = new List<DirectEditView>();
+                    newOpenDirectEditViewList.Add(directEdit);
+                    this.OpenDirectEditWindows.Add(selectedObject, newOpenDirectEditViewList);
+                }
+                //Prompt the user to focus the existing window, open a new window or cancel.
+                else
+                {
+                    PromptForNewModFileDirectEditWindow(selectedWrapper, selectedObject, fileLocationPath, isGameFile);
                 }
             }
-            DirectEditView directEdit = this.OpenDirectEditWindows.GetValueOrDefault(selectedObject);
-            //Just run as normal and add it to the dictionary
-            if (directEdit == null)
+        }
+        private void PromptForNewModFileDirectEditWindow(XmlObjectsListWrapper selectedWrapper, string selectedModFile, string fileLocationPath, bool isGameFile)
+        {
+            string message = "That file is already open, would you like to switch to the open window?";
+            string caption = "File Already Open";
+            MessageBoxResult results = MessageBox.Show(message, caption, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+            List<DirectEditView> openedView = this.OpenDirectEditWindows.GetValueOrDefault(selectedModFile);
+            switch (results) 
             {
-                directEdit = new DirectEditView(selectedWrapper, selectedObject, isGameFile: false, fileLocationPath: XmlFileManager.ModConfigOutputPath);
-                directEdit.Closed += DirectEdit_Closed;
-                directEdit.Show();
-                this.OpenDirectEditWindows.Add(selectedObject, directEdit);
+                case MessageBoxResult.Yes:
+                    if (openedView != null && openedView.Count > 0) openedView[0].Focus();
+                    break;
+                case MessageBoxResult.No:
+                    DirectEditView directEdit = new DirectEditView(selectedWrapper, selectedModFile, isGameFile: isGameFile, fileLocationPath: fileLocationPath);
+                    directEdit.Closed += DirectEdit_Closed;
+                    directEdit.Show();
+                    if (openedView != null) openedView.Add(directEdit);
+                    break;
             }
-            //Prompt the user to focus the existing window, open a new window or cancel.
-            else
+        }
+        private void DirectEdit_Closed(object sender, EventArgs e)
+        {
+            if (sender is DirectEditView senderAsDirectEditView) 
             {
-                PromptForNewModFileDirectEditWindow(selectedWrapper, selectedObject);
-            }
+                List<DirectEditView> allSameModFileOpenDirectEditViewList = this.OpenDirectEditWindows.GetValueOrDefault(senderAsDirectEditView.DictionaryKey);
+                if(allSameModFileOpenDirectEditViewList != null) allSameModFileOpenDirectEditViewList.Remove(senderAsDirectEditView);
+                if(allSameModFileOpenDirectEditViewList.Count == 0) this.OpenDirectEditWindows.Remove(senderAsDirectEditView.DictionaryKey);
+            } 
+            string currentLoadedMod = Properties.Settings.Default.ModTagSetting;
+            this.MainWindowFileController.LoadCustomTagWrappers(currentLoadedMod, this.LoadedModFilesCenterViewComboBox);
+            this.LoadedModFilesCenterViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(currentLoadedMod, currentLoadedMod + "_"));
         }
         private void HelpMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -690,7 +683,7 @@ namespace SevenDaysToDieModCreator
         {
             string gameModDirectory = Properties.Settings.Default.GameFolderModDirectory;
             MessageBoxResult result = MessageBox.Show(
-                "This will copy all local generated xmls files at " +
+                "This will copy all local files at " +
                     XmlFileManager.ModConfigOutputPath + "\n" +
                 " and replace the files at \n" +
                 Path.Combine(gameModDirectory, Properties.Settings.Default.ModTagSetting ) + "\n" +
@@ -758,7 +751,7 @@ namespace SevenDaysToDieModCreator
         }
         private void LoadModDirectoryMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            MainWindowFileController.LoadDirectoryViewControl(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.LoadedModFilesCenterViewComboBox);
+            MainWindowFileController.LoadModFolder(this.LoadedModsSearchViewComboBox, this.LoadedModsCenterViewComboBox, this.LoadedModFilesCenterViewComboBox);
             this.LoadedModFilesSearchViewComboBox.SetComboBox(XmlFileManager.GetCustomModFilesInOutput(Properties.Settings.Default.ModTagSetting, Properties.Settings.Default.ModTagSetting + "_"));
         }
         private void ValidateXmlMenuItem_Click(object sender, RoutedEventArgs e)

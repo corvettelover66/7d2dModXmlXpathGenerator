@@ -63,7 +63,7 @@ namespace SevenDaysToDieModCreator.Controllers
                 }
             }
         }
-        public void LoadDirectoryViewControl(ComboBox loadedModsSearchViewComboBox, ComboBox loadedModsCenterViewComboBox, ComboBox currentModFilesCenterViewComboBox)
+        public void LoadModFolder(ComboBox loadedModsSearchViewComboBox, ComboBox loadedModsCenterViewComboBox, ComboBox currentModFilesCenterViewComboBox)
         {
             CommonOpenFileDialog openFileDialog = new CommonOpenFileDialog
             {
@@ -73,51 +73,54 @@ namespace SevenDaysToDieModCreator.Controllers
             {
                 string fullSelectedPath = openFileDialog.FileName;
                 string currentModName = Path.GetFileName(openFileDialog.FileName);
-                bool hasXmlFiles = XmlFileManager.CheckLoadedModFolderForXmlFiles(fullSelectedPath);
 
-                if (hasXmlFiles && !fullSelectedPath.ToLower().Contains("config"))
+                //If the selected path DOES NOT contain config it's the correct folder.
+                if (!fullSelectedPath.ToLower().Contains("config"))
                 {
-
-                    currentModFilesCenterViewComboBox.SetComboBox(new List<string>());
-                    Properties.Settings.Default.ModTagSetting = currentModName;
-                    Properties.Settings.Default.Save();
-                    loadedModsSearchViewComboBox.SelectedItem = currentModName;
-                    //Copy the files to the output path at Output/Mods/ModName
-                    string appOutputPath = Path.Combine(XmlFileManager.AllModsOutputPath, "Mods", currentModName);
-                    bool overwriteLocalAppFiles = false;
-                    if (Directory.Exists(appOutputPath))
+                    bool hasXmlFiles = XmlFileManager.CheckLoadedModFolderForXmlFiles(fullSelectedPath);
+                    if (hasXmlFiles) 
                     {
-                        MessageBoxResult messageBoxResult = MessageBox.Show(
-                            "The mod is already loaded. Do you want to OVERWRITE the local, application files?\n\n" +
-                            "WARNING: This feature does not merge the files! If you have changes in the files, they will be overwritten.",
-                            "Overwrite Application Mod Files",
-                            MessageBoxButton.YesNo,
-                            MessageBoxImage.Question);
-                        switch (messageBoxResult)
+                        currentModFilesCenterViewComboBox.SetComboBox(new List<string>());
+                        Properties.Settings.Default.ModTagSetting = currentModName;
+                        Properties.Settings.Default.Save();
+                        loadedModsSearchViewComboBox.SelectedItem = currentModName;
+                        //Copy the files to the output path at Output/Mods/ModName
+                        string appOutputPath = Path.Combine(XmlFileManager.AllModsOutputPath, "Mods", currentModName);
+                        bool overwriteLocalAppFiles = false;
+                        if (Directory.Exists(appOutputPath))
                         {
-                            case MessageBoxResult.Yes:
-                                overwriteLocalAppFiles = true;
-                                break;
+                            MessageBoxResult messageBoxResult = MessageBox.Show(
+                                "The mod is already loaded. Do you want to OVERWRITE the local, application files?\n\n" +
+                                "WARNING: This feature does not merge the files! If you have changes in the files, they will be overwritten.",
+                                "Overwrite Application Mod Files",
+                                MessageBoxButton.YesNo,
+                                MessageBoxImage.Question);
+                            switch (messageBoxResult)
+                            {
+                                case MessageBoxResult.Yes:
+                                    overwriteLocalAppFiles = true;
+                                    break;
+                            }
                         }
+                        XmlFileManager.CopyAllFilesToPath(fullSelectedPath, appOutputPath, overwriteLocalAppFiles);
+                        loadedModsCenterViewComboBox.AddUniqueValueTo(currentModName);
+                        loadedModsSearchViewComboBox.AddUniqueValueTo(currentModName);
+                        LoadCustomTagWrappers(currentModName, currentModFilesCenterViewComboBox);                    
                     }
-                    XmlFileManager.CopyAllFilesToPath(fullSelectedPath, appOutputPath, overwriteLocalAppFiles);
-                    loadedModsCenterViewComboBox.AddUniqueValueTo(currentModName);
-                    loadedModsSearchViewComboBox.AddUniqueValueTo(currentModName);
-                    LoadCustomTagWrappers(currentModName, currentModFilesCenterViewComboBox);
-                }
-                else if (fullSelectedPath.ToLower().Contains("config"))
-                {
-                    MessageBox.Show(
-                        "The was an error loading the mod at " + openFileDialog.FileName + ". If you selected the Config folder, please try again and select the ModFolder",
-                        "Error Loading Directory",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    else
+                    {
+                        MessageBox.Show(
+                            "The was an error loading the mod at " + openFileDialog.FileName + ".\n\nThere was no xml found in the Config folder of the mod. Please check the folder for xml files.",
+                            "Missing XML Files!",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
                 }
                 else
                 {
                     MessageBox.Show(
-                        "The was an error loading the mod at " + openFileDialog.FileName + ". There was no xml found in the Config folder of the mod. Please check the folder for xml files.",
-                        "Missing XML Files!",
+                        "The was an error loading the mod at " + openFileDialog.FileName + ".\n\nIf you selected the Config folder, please try again and select the ModFolder",
+                        "Error Loading Directory",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
@@ -386,5 +389,5 @@ namespace SevenDaysToDieModCreator.Controllers
 //                "Failed files:\n\n");
 //            MessageBox.Show(builder.ToString(), "Failed Mod Directories", MessageBoxButton.OK, MessageBoxImage.Error);
 //        }
-//    }
+//    }     
 //}

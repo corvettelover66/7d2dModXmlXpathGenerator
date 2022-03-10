@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:local="clr-namespace:SevenDaysToDieModCreator.Views"
-        Height="Auto">
+        Height="Auto" Width="Auto">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -27,7 +27,7 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
                         <Grid Grid.Column="0">
-                            <Label Content="Current Selected Mod:" FontSize="22"></Label>
+                            <Label Content="Current Selected Mod:" FontSize="22" FontWeight="Bold"></Label>
                         </Grid>
                         <Grid Grid.Column="1">
                             <TextBox x:Name="CurrentSelectedModTextBox" FontSize="22"></TextBox>
@@ -44,7 +44,7 @@
                         <ColumnDefinition></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0">
-                        <ComboBox Name="ChangeNameAllTagsComboBox" FontFamily="Arial" IsEditable="True" FontSize="22"></ComboBox>
+                        <ComboBox Name="ChangeNameAllTagsComboBox" IsEditable="True" FontFamily="Arial" FontSize="22"></ComboBox>
                     </Grid>
                     <Grid Grid.Column="1">
                         <Button FontSize="20" x:Name="ChangeModNameButton" Content="Change Mod Name" Click="ChangeModTagButton_Click"></Button>
@@ -53,18 +53,6 @@
             </Grid>
         </Grid>
         <Grid Grid.Row="1">
-            <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="ModInfoXmlPreviewAvalonEditor" FontSize="20">
-            </avalonedit:TextEditor>
-        </Grid>
-        <Grid Grid.Row="2">
-            <StackPanel Name="CustomDialogStackPanel" VerticalAlignment="Top"  Height="Auto" >
-                <TextBox x:Name="ModInfoNameBox" FontSize="20" Text="Name"/>
-                <TextBox x:Name="ModInfoDescriptionBox" FontSize="20" Text="Description" AcceptsReturn="True" TextWrapping="Wrap"/>
-                <TextBox x:Name="ModInfoAuthorBox" FontSize="20" Text="Author" />
-                <TextBox x:Name="ModInfoVersionBox" FontSize="20"  Text="Version" />
-            </StackPanel>
-        </Grid>
-        <Grid Grid.Row="3">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition></ColumnDefinition>
@@ -76,6 +64,36 @@
                 <Grid Grid.Column="1">
                     <Button Name="CloseButton" FontFamily="Arial" Content="_Close"  FontSize="22"  Click="CloseButton_Click" />
                 </Grid>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Label Name="ModInfoInputFieldsLabel" FontSize="20" FontWeight="Bold" HorizontalContentAlignment="Center" Content="INPUT"></Label>
+            </Grid>
+            <Grid Grid.Column="1">
+                <Label Name="ModInfoXmlPreviewLabel" FontSize="20" FontWeight="Bold" HorizontalContentAlignment="Center" Content="PREVIEW"></Label>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <StackPanel Name="CustomDialogStackPanel" VerticalAlignment="Top" >
+                    <TextBox x:Name="ModInfoNameBox" FontSize="20" Text="Name" TextWrapping="Wrap"/>
+                    <TextBox x:Name="ModInfoDescriptionBox" FontSize="20" Text="Description" AcceptsReturn="True" TextWrapping="Wrap"/>
+                    <TextBox x:Name="ModInfoAuthorBox" FontSize="20" Text="Author" />
+                    <TextBox x:Name="ModInfoVersionBox" FontSize="20"  Text="Version" />
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Column="1">
+                <avalonedit:TextEditor SyntaxHighlighting="XML" x:Name="ModInfoXmlPreviewAvalonEditor" FontSize="20">
+                </avalonedit:TextEditor>
             </Grid>
         </Grid>
     </Grid>

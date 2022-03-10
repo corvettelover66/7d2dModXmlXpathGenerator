@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ModTagSetting" Type="System.String" Scope="User">
-      <Value Profile="(Default)">ThisNeedsToBeSet</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="GameFolderModDirectory" Type="System.String" Scope="User">
       <Value Profile="(Default)" />

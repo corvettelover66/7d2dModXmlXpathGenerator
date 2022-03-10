@@ -25,7 +25,7 @@ namespace SevenDaysToDieModCreator.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ThisNeedsToBeSet")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string ModTagSetting {
             get {
                 return ((string)(this["ModTagSetting"]));

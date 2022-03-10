@@ -26,6 +26,7 @@ namespace SevenDaysToDieModCreator
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += CurrentDomain_UnhandledException;
         }
+
         //Global Error Processing. Catch any errors and send them to the log, let application shutdown
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs exception)
         {
